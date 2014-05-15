@@ -9,10 +9,10 @@
  */
 package de.uka.iti.pseudo.rule.meta;
 
+import de.uka.iti.pseudo.environment.AbstractMetaFunction;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
@@ -26,7 +26,7 @@ import de.uka.iti.pseudo.term.Type;
  * changing the remaining information within the program term (i.e. the program
  * to which it references)
  */
-public class JmpPrgMetaFunction extends MetaFunction {
+public class JmpPrgMetaFunction extends AbstractMetaFunction {
     
     private static final Type BOOL = Environment.getBoolType();
     private static final Type INT= Environment.getIntType();

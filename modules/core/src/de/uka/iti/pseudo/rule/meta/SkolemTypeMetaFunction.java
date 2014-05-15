@@ -11,9 +11,9 @@ package de.uka.iti.pseudo.rule.meta;
 
 import java.util.Set;
 
+import de.uka.iti.pseudo.environment.AbstractMetaFunction;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
-import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -26,7 +26,7 @@ import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.Variable;
 
 // TODO Documentation needed
-public class SkolemTypeMetaFunction extends MetaFunction {
+public class SkolemTypeMetaFunction extends AbstractMetaFunction {
 
     public static final String SKOLEMTYPE_NAME_PROPERTY = "skolemTypeName";
 

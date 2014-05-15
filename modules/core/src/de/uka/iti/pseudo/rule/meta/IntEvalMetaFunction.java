@@ -11,10 +11,10 @@ package de.uka.iti.pseudo.rule.meta;
 
 import java.math.BigInteger;
 
+import de.uka.iti.pseudo.environment.AbstractMetaFunction;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
@@ -23,7 +23,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TypeVariable;
 
 // TODO Documentation needed
-public class IntEvalMetaFunction extends MetaFunction {
+public class IntEvalMetaFunction extends AbstractMetaFunction {
     
     public IntEvalMetaFunction() throws EnvironmentException {
         super(TypeVariable.ALPHA, "$$intEval", TypeVariable.ALPHA);

@@ -14,9 +14,9 @@ import java.io.StringReader;
 import java.util.Map;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.environment.AbstractMetaFunction;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
-import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.environment.creation.EnvironmentProblemExtractor;
@@ -123,7 +123,7 @@ public class TestFileParser extends TestCaseWithEnv {
         assertEnvFail("sort S function S const axiom notbool const");
     }
 
-    public static class MockMeta extends MetaFunction {
+    public static class MockMeta extends AbstractMetaFunction {
 
         public MockMeta() throws EnvironmentException {
             super(Environment.getBoolType(), "$$mock", new Type[0]);

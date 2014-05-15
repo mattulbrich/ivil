@@ -16,10 +16,10 @@ import java.util.Set;
 import java.util.Stack;
 
 import nonnull.Nullable;
+import de.uka.iti.pseudo.environment.AbstractMetaFunction;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.rule.where.NoFreeVars;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
@@ -61,7 +61,7 @@ import de.uka.iti.pseudo.util.Log;
  *
  * See methods for more detail.
  */
-public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
+public abstract class AbstractUpdSimplMetaFunction extends AbstractMetaFunction {
 
     /**
      * Instantiates a new update simplificator.

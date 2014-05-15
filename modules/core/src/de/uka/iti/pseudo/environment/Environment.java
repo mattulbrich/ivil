@@ -52,7 +52,13 @@ import de.uka.iti.pseudo.util.Util;
  * Every environment has a parent environment which it extends. Lookups that it
  * cannot resolve are delegated to that parent.
  *
- * There is exactly one environment {@link #BUILT_IN_ENV} which does have
+ * There is exactly one environment {@link #BUILT_IN_ENV} which does not have a
+ * parent environment.
+ *
+ * Not all symbols are stored in Environments. Symbols created during a proof
+ * are stored locally in the respective proof node that introduces them.
+ *
+ * @see LocalSymbolTable
  */
 public class Environment {
 

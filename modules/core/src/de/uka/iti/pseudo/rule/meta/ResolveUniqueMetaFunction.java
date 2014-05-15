@@ -9,10 +9,10 @@
  */
 package de.uka.iti.pseudo.rule.meta;
 
+import de.uka.iti.pseudo.environment.AbstractMetaFunction;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
@@ -27,7 +27,7 @@ import de.uka.iti.pseudo.term.creation.TermFactory;
  * compare with "=". Since they are unique the result is true iff the function
  * symbol is the same and all arguments are pairwise equal (not necessarily identical).
  */
-public class ResolveUniqueMetaFunction extends MetaFunction {
+public class ResolveUniqueMetaFunction extends AbstractMetaFunction {
     
     public ResolveUniqueMetaFunction() throws EnvironmentException {
         super(Environment.getBoolType(), "$$resolveUnique", TypeVariable.ALPHA, TypeVariable.BETA);

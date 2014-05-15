@@ -17,10 +17,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import de.uka.iti.pseudo.environment.AbstractMetaFunction;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.creation.ProgramChanger;
@@ -134,7 +134,7 @@ import de.uka.iti.pseudo.util.settings.Settings;
  * Proofs can not be saved if the name of the generated program
  * is not deterministic
  */
-public class LoopInvariantProgramModificationMetaFunction extends MetaFunction {
+public class LoopInvariantProgramModificationMetaFunction extends AbstractMetaFunction {
 
     private static final Type BOOL = Environment.getBoolType();
 

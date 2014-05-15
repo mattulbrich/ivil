@@ -68,17 +68,15 @@ public abstract class MetaFunction extends Function {
      *
      * @param application
      *            an application with this meta function as top level symbol
-     * @param env
-     *            the environment
-     * @param ruleApp
-     *            the rule application under which this evaluation takes place
+     * @param metaEval
+     *            the meta evaluator under which the evaluation is done
      *
      * @return a term of the same type as the first argument.
      *
      * @throws TermException
      *             if the arguments do not fulfill all requirements.
      */
-    public abstract Term evaluate(Application application, Environment env, RuleApplication ruleApp)
+    public abstract Term evaluate(Application application, MetaEvaluator metaEval)
         throws TermException;
 
 }

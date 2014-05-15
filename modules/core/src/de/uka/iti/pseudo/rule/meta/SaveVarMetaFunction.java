@@ -11,9 +11,9 @@ package de.uka.iti.pseudo.rule.meta;
 
 import static de.uka.iti.pseudo.term.TypeVariable.ALPHA;
 import static de.uka.iti.pseudo.term.TypeVariable.BETA;
+import de.uka.iti.pseudo.environment.AbstractMetaFunction;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
-import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
@@ -23,7 +23,7 @@ import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 
 // TODO Finish when needed one day ;)
 // ????????????????????
-public class SaveVarMetaFunction extends MetaFunction {
+public class SaveVarMetaFunction extends AbstractMetaFunction {
 
     public SaveVarMetaFunction() throws EnvironmentException {
         super(ALPHA, "$$saveVar", BETA );

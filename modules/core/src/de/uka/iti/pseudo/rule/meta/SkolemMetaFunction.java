@@ -12,6 +12,7 @@ package de.uka.iti.pseudo.rule.meta;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
@@ -69,8 +70,11 @@ public class SkolemMetaFunction extends MetaFunction {
     }
 
     @Override
-    public Term evaluate(Application application, Environment env,
-            RuleApplication ruleApp) throws TermException {
+    public Term evaluate(Application application, MetaEvaluator metaEval) throws TermException {
+
+        RuleApplication ruleApp = metaEval.getRuleApplication();
+        Environment env = metaEval.getEnvironment();
+        LocalSymbolTable lst = metaEval.getLocalSymbolTable();
 
         String property = SKOLEM_NAME_PROPERTY + "(" + application.getSubterm(0).toString(true) + ")";
         String name = ruleApp.getProperties().get(property);
@@ -89,7 +93,7 @@ public class SkolemMetaFunction extends MetaFunction {
                 newFunction = new Function(name, application.getType(), new Type[0],
                     false, false, SKOLEM);
 
-                env.addFunction(newFunction);
+                lst.addFunction(newFunction);
             } catch (EnvironmentException e) {
                 throw new TermException(e);
             }

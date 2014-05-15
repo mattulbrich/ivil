@@ -11,6 +11,11 @@ package de.uka.iti.pseudo.util;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Axiom;
+import de.uka.iti.pseudo.environment.Binder;
+import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 
@@ -26,6 +31,52 @@ public final class Dump {
 
     private Dump() {
         throw new Error("Must not be instantiated");
+    }
+
+    /**
+     * Dump a local symbol table to standard error.
+     *
+     * @param lst
+     *            the local symbol table
+     */
+    public static void dump(@NonNull LocalSymbolTable lst) {
+        System.err.println(toString(lst));
+    }
+
+    /**
+     * Dump a local symbol table to a string.
+     *
+     * @param lst
+     *            the local symbol table
+     *
+     * @return the string for the table
+     */
+    public static String toString(LocalSymbolTable lst) {
+
+        StringBuilder b = new StringBuilder();
+        b.append("LocalSymbolTable\n");
+
+        System.out.println(" Sorts:");
+        for (Sort sort : lst.getSorts()) {
+            b.append("  ").append(sort).append("\n");
+        }
+
+        System.out.println(" Functions:");
+        for (Function function : lst.getFunctions()) {
+            b.append("  ").append(function).append("\n");
+        }
+
+        System.out.println("Binders:");
+        for (Binder binder : lst.getBinders()) {
+            b.append("  ").append(binder).append("\n");
+        }
+
+        System.out.println("Programs:");
+        for (Program prog : lst.getPrograms()) {
+            b.append("  ").append(prog).append("\n");
+        }
+
+        return b.toString();
     }
 
     /**

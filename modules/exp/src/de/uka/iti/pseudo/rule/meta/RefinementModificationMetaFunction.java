@@ -1,8 +1,8 @@
 package de.uka.iti.pseudo.rule.meta;
 
+import de.uka.iti.pseudo.environment.AbstractMetaFunction;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
-import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
@@ -10,7 +10,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 
-public class RefinementModificationMetaFunction extends MetaFunction {
+public class RefinementModificationMetaFunction extends AbstractMetaFunction {
 
     private static final Type BOOL = Environment.getBoolType();
 

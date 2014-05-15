@@ -19,6 +19,18 @@ import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 
+/**
+ * A RuleApplicationCertificate is a rule application that carries with it the
+ * certificate that it can be applied to its proof node.
+ *
+ * Once the applicability has been certified, it needs not be checked a second
+ * time. Thus, the wellformedness check is externalised to this class and it
+ * needs be made only once.
+ *
+ * The application is immutable. BUT it has mutable properties in which additional
+ * values can be stored. ProofNode.apply checks that only new values are added,
+ * never overwritten.
+ */
 public final class RuleApplicationCertificate extends ImmutableRuleApplication {
 
     private final Environment env;
@@ -28,6 +40,14 @@ public final class RuleApplicationCertificate extends ImmutableRuleApplication {
     private boolean verificationSuccessful;
     private Exception problemException;
 
+    /**
+     * Instantiates a new rule application certificate.
+     *
+     * @param ruleApp
+     *            the rule application to certify
+     * @param env
+     *            the environment in which that happens
+     */
     public RuleApplicationCertificate(RuleApplication ruleApp, Environment env) {
         super(ruleApp);
 
@@ -46,26 +66,81 @@ public final class RuleApplicationCertificate extends ImmutableRuleApplication {
         return true;
     }
 
+    public Environment getEnvironment() {
+        return env;
+    }
+
+    /**
+     * Checks whether verification has been run already.
+     *
+     * Calling {@link #verify()} or {@link #ensureVerified()} does not
+     * need to do new computations.
+     *
+     * @return true, if verification has already been run.
+     */
     public boolean hasVerificationBeenTried() {
         return verificationTried;
     }
 
+    /**
+     * Checks if a previous verification was successful.
+     *
+     * If verification has not yet been performed, <code>false</code>
+     * is returned as a conservative underapproximation.
+     *
+     * @return true, iff a previous verification was successful
+     */
     public boolean wasVerificationSuccessful() {
         return verificationSuccessful;
     }
 
+    /**
+     * Verify this certificate.
+     *
+     * If the process has not been launched, yet, launch it.
+     *
+     * @return true, if the rule application can be verified.
+     */
     public boolean verify() {
         doVerification();
         return wasVerificationSuccessful();
     }
 
+    /**
+     * Checks for monotone properties.
+     *
+     * The values in the original rule application must also be present in this
+     * object.
+     *
+     * @return true, if properties are monotone.
+     */
+    public boolean hasMonotoneProperties() {
+        Map<String, String> superProps = super.getProperties();
+        for (String key : superProps.keySet()) {
+            if(!Util.equalOrNull(superProps.get(key), properties.get(key))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * Verify this certificate.
+     *
+     * If the process has not been launched, yet, launch it.
+     *
+     * @throws ProofException
+     *             if the verification cannot be done, the exception which
+     *             indicates the problem is thrown.
+     */
     public void ensureVerified() throws ProofException {
         doVerification();
         if(!wasVerificationSuccessful()) {
             if (problemException instanceof ProofException) {
                 throw (ProofException) problemException;
             } else {
-                throw (RuntimeException) problemException;
+                throw new ProofException(problemException);
             }
         }
     }
@@ -110,8 +185,9 @@ public final class RuleApplicationCertificate extends ImmutableRuleApplication {
             Rule rule) throws ProofException {
 
         LocatedTerm findClause = rule.getFindClause();
-        if(findClause == null)
+        if(findClause == null) {
             return;
+        }
 
         TermSelector findSelector = getFindSelector();
         Term findSubTerm = findSelector.selectSubterm(sequent);
@@ -127,12 +203,15 @@ public final class RuleApplicationCertificate extends ImmutableRuleApplication {
             throw new ProofException("cannot instantiate find clause", e);
         }
 
-        if(!findSubTerm.equals(instantiated))
-            throw new ProofException("find clause does not match: \nfind: " + findSubTerm + " \ninstantiated: " + instantiated);
+        if(!findSubTerm.equals(instantiated)) {
+            throw new ProofException("find clause does not match: \nfind: " +
+                    findSubTerm + " \ninstantiated: " + instantiated);
+        }
 
-        if(!findClause.isFittingSelect(findSelector))
+        if(!findClause.isFittingSelect(findSelector)) {
             throw new ProofException("find selector does match find clase: \n" + findClause +
                     "\n" + instantiated + " - " + findSelector);
+        }
 
         OptionalUpdateInstantiationChecker.check(this);
     }
@@ -162,8 +241,9 @@ public final class RuleApplicationCertificate extends ImmutableRuleApplication {
             } catch (TermException e) {
                 throw new ProofException("cannot instantiate assume clause", e);
             }
-            if(!assumeTerm.equals(instantiated))
+            if(!assumeTerm.equals(instantiated)) {
                 throw new ProofException("assumption clause does not match");
+            }
         }
     }
 
@@ -187,20 +267,6 @@ public final class RuleApplicationCertificate extends ImmutableRuleApplication {
                 throw new ProofException("WhereClause not applicable: " + whereClause, e);
             }
         }
-    }
-
-    public Environment getEnvironment() {
-        return env;
-    }
-
-    public boolean hasMonotoneProperties() {
-        Map<String, String> superProps = super.getProperties();
-        for (String key : superProps.keySet()) {
-            if(!Util.equalOrNull(superProps.get(key), properties.get(key))) {
-                return false;
-            }
-        }
-        return true;
     }
 
 }
