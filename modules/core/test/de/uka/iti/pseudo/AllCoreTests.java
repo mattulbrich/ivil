@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.auto.TestZ3Translator;
 import de.uka.iti.pseudo.auto.strategy.hint.TestHintParser;
 import de.uka.iti.pseudo.auto.strategy.hint.TestHintStrategy;
 import de.uka.iti.pseudo.auto.strategy.hint.TestHints;
+import de.uka.iti.pseudo.environment.TestLocalSymbolTable;
 import de.uka.iti.pseudo.environment.TestProgramChanger;
 import de.uka.iti.pseudo.environment.TestRuleAxiomExtractor;
 import de.uka.iti.pseudo.environment.TestTypeVariableCollector;
@@ -122,6 +123,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestConcurrentSoftHashCache.class);
         suite.addTestSuite(TestMapTypes.class);
         suite.addTestSuite(TestTypeVariableUnification.class);
+        suite.addTestSuite(TestLocalSymbolTable.class);
         //$JUnit-END$
         return suite;
     }

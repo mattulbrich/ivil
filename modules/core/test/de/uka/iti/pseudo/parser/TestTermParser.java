@@ -11,14 +11,30 @@
 
 package de.uka.iti.pseudo.parser;
 
+import java.net.URL;
+import java.util.Collections;
+
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.proof.SubtermSelector;
+import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.ProgramTerm;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.Variable;
+import de.uka.iti.pseudo.term.creation.TermFactory;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.term.statement.Statement;
 
 public class TestTermParser extends TestCaseWithEnv {
 
@@ -247,6 +263,42 @@ public class TestTermParser extends TestCaseWithEnv {
                 ex.printStackTrace();
             }
         }
+    }
+
+    public void testLocalSymbols() throws Exception {
+        Type intType = Environment.getIntType();
+        Function locF = new Function("local_f", intType,
+                new Type[0], false, true, ASTLocatedElement.CREATED);
+        Binder locB = new Binder("\\local_b", intType,
+                intType,
+                new Type[] {intType},
+                ASTLocatedElement.CREATED);
+        Sort locS = new Sort("local_s", 0, ASTLocatedElement.CREATED);
+        Program locP = new Program("local_p",
+                new URL("none://tmp"),
+                Collections.<Statement>emptyList(),
+                Collections.<String>emptyList(),
+                ASTLocatedElement.CREATED);
+
+        LocalSymbolTable local = new LocalSymbolTable();
+        local.addBinder(locB);
+        local.addProgram(locP);
+        local.addFunction(locF);
+        local.addSort(locS);
+
+        Term t = makeTerm("i1 + local_f", local);
+        assertEquals(Application.getInst(locF, intType),
+                t.getSubterm(1));
+
+        t = makeTerm("(\\local_b x; i1)", local);
+        assertEquals(Binding.getInst(locB, intType, Variable.getInst("x", intType), new Term[0]),
+                t);
+
+        t = makeTerm("\\var x as local_s");
+        assertEquals(TypeApplication.getInst(locS), t.getType());
+
+        t = makeTerm("[0; local_p]true");
+        assertEquals(locP, ((LiteralProgramTerm)t).getProgram());
     }
 
 }

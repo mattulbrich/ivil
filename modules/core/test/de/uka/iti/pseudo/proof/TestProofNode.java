@@ -15,6 +15,7 @@ import java.util.Collections;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaVariable;
@@ -81,6 +82,31 @@ public class TestProofNode extends TestCaseWithEnv {
 
         assertEquals(makeTerm("3>0"), result);
     }
+
+    public void testForallRight() throws Exception {
+        Binding term = (Binding) makeTerm("(\\forall i; i>0)");
+
+        Rule rule = env.getRule("forall_right");
+        Proof p = new Proof(term);
+
+        RuleApplicationMaker app = new RuleApplicationMaker(env);
+
+        app.setRule(rule);
+        app.setFindSelector(new TermSelector("S.0"));
+        app.setProofNode(p.getRoot());
+        app.matchInstantiations();
+
+        p.apply(app, env);
+
+        ProofNode openGoal = p.getOpenGoals().get(0);
+        LocalSymbolTable lst = openGoal.getLocalSymbolTable();
+        assertNotNull(lst.getFunction("i"));
+
+        Term result = openGoal.getSequent().getSuccedent().get(0);
+
+        assertEquals(makeTerm("i > 0", lst), result);
+    }
+
 
     public void testPrune() throws Exception {
         Term term = makeTerm("$and(b1, b2)");
@@ -183,6 +209,29 @@ public class TestProofNode extends TestCaseWithEnv {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void testUncertifiedRuleApp() throws Exception {
+        Term term = makeTerm("true");
+        Proof p = new Proof(term);
+        Rule rule = env.getRule("and_right");
+        RuleApplicationMaker app = new RuleApplicationMaker(env);
+        app.setRule(rule);
+        app.setProofNode(p.getRoot());
+        app.setFindSelector(new TermSelector("S.0"));
+
+        RuleApplicationCertificate rac = new RuleApplicationCertificate(app, env);
+        assertFalse(rac.verify());
+
+        try {
+            p.apply(rac);
+            fail("should have failed: applied twice to a proof node");
+        } catch (ProofException e) {
+            if(VERBOSE) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public void testRemovingRule() throws Exception {

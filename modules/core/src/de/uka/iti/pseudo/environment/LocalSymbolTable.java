@@ -194,7 +194,7 @@ public final class LocalSymbolTable {
      * lookup the value for a name in a linked list given by node.
      */
     private <T extends Named> T find(Node<T> node, String name) {
-        if (node != null) {
+        while (node != null) {
             if (name.equals(node.entry.getName())) {
                 return node.entry;
             }
@@ -438,6 +438,31 @@ public final class LocalSymbolTable {
                 && equalList(programHead, lst.programHead);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("LocalSymbolTable[F:");
+        append(sb, functionHead);
+        sb.append(" B:");
+        append(sb, binderHead);
+        sb.append(" S:");
+        append(sb, sortHead);
+        sb.append(" P:");
+        append(sb, programHead);
+        sb.append("]");
+        return sb.toString();
+    }
+
+    private void append(StringBuilder sb, Node<?> n) {
+        while(n != null) {
+            sb.append(n.entry.getName());
+            n = n.next;
+            if(n != null) {
+                sb.append(",");
+            }
+        }
     }
 
     /*

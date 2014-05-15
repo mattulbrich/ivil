@@ -134,7 +134,7 @@ public abstract class TestCaseWithEnv extends TestCase {
      * @throws Exception
      *             various things can fail during the translation.
      */
-    private Term makeTerm(String string, LocalSymbolTable table) throws TermException {
+    protected Term makeTerm(String string, LocalSymbolTable table) throws TermException {
         try {
             return TermMaker.makeAndTypeTerm(string, env, table, "*test*");
         } catch (Exception e) {

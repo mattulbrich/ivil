@@ -47,7 +47,7 @@ import de.uka.iti.pseudo.term.Update;
 public interface RuleApplication {
 
     /**
-     * Retrieves the rule which is to be applied
+     * Retrieves the rule which is to be applied.
      *
      * @return a reference to the rule
      */
