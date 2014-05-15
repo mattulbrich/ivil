@@ -136,7 +136,7 @@ public class TestTermParser extends TestCaseWithEnv {
 
     public void testOccurCheck() throws Exception {
         try {
-            makeTerm("arb as 'a = arb as set('a)");
+            TermMaker.makeAndTypeTerm("arb as 'a = arb as set('a)", env, NO_LOCALS);
             fail("should not be parsable");
         } catch (ASTVisitException e) {
         }
