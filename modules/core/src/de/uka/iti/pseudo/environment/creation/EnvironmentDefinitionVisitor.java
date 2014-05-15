@@ -17,6 +17,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
@@ -187,7 +188,8 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
      */
     @Override
     public void visitDefaultType(ASTType arg) throws ASTVisitException {
-        resultingTypeRef = TermMaker.makeType(arg, env);
+        // In environment definitions, there are no local symbols
+        resultingTypeRef = TermMaker.makeType(arg, env, LocalSymbolTable.EMPTY);
     }
 
     @Override

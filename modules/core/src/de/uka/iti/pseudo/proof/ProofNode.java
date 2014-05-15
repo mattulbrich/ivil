@@ -18,6 +18,7 @@ import java.util.Map;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.Rule;
@@ -91,6 +92,12 @@ public class ProofNode implements Comparable<ProofNode> {
      */
     private @Nullable ImmutableRuleApplication appliedRuleApp = null;
 
+    /**
+     * The locally added symbols which may appear in this proof node.
+     * It is a fixed table.
+     */
+    private final @NonNull LocalSymbolTable symbolTable;
+
     /*@ invariant appliedRule == null <==> children == null; @*/  
 
     /**
@@ -126,7 +133,8 @@ public class ProofNode implements Comparable<ProofNode> {
     ProofNode(@NonNull Proof proof, @NonNull Sequent sequent,
             @NonNull SequentHistory.Annotation initialAnnotation) {
         this(proof, null, sequent,
-                new SequentHistory(sequent, initialAnnotation));
+                new SequentHistory(sequent, initialAnnotation),
+                LocalSymbolTable.EMPTY);
     }
 
     /*
@@ -136,14 +144,17 @@ public class ProofNode implements Comparable<ProofNode> {
      */
     private ProofNode(@NonNull Proof proof, @Nullable ProofNode parent,
             @NonNull Sequent sequent,
-            @NonNull SequentHistory history) {
+            @NonNull SequentHistory history,
+            @NonNull LocalSymbolTable symbolTable) {
         this.proof = proof;
         this.parent = parent;
         this.sequent = sequent;
+        this.symbolTable = symbolTable;
         this.number = proof.makeFreshNumber();
         this.sequentHistory = history;
 
         sequentHistory.fix();
+        symbolTable.setFixed();
 
         assert sequentHistory.sizesAgreeWith(sequent);
         assert parent == null || parent.proof == proof;
@@ -392,6 +403,7 @@ public class ProofNode implements Comparable<ProofNode> {
             for (GoalAction action : rule.getGoalActions()) {
                 antecedent.clear();
                 succedent.clear();
+                metaEval.resetLocalSymbols();
                 SequentHistory history;
                 switch (action.getKind()) {
                 case CLOSE:
@@ -437,8 +449,13 @@ public class ProofNode implements Comparable<ProofNode> {
                     history.added(TermSelector.SUCCEDENT);
                 }
 
+                LocalSymbolTable lst = metaEval.getLocalSymbolTable();
+                if(lst.equals(this.symbolTable)) {
+                    // save memory by reusing the same object!
+                    lst = symbolTable;
+                }
                 Sequent seq = new Sequent(antecedent, succedent);
-                newNodes.add(new ProofNode(proof, this, seq, history));
+                newNodes.add(new ProofNode(proof, this, seq, history, lst));
             }
 
             return Util.listToArray(newNodes, ProofNode.class);
@@ -526,25 +543,7 @@ public class ProofNode implements Comparable<ProofNode> {
     //        return Collections.unmodifiableSet(codeLocations);
     //    }
 
-    /**
-     * This class wraps a rule application and makes its properties immutable.
-     */
-    private static class AddPropRuleApp extends FilterRuleApplication {
-        private Map<String, String> properties;
-
-        public AddPropRuleApp(RuleApplication app) {
-            super(app);
-            this.properties = new HashMap<String, String>(app.getProperties());
-        }
-
-        @Override
-        public Map<String, String> getProperties() {
-            return properties;
-        }
-
-        @Override
-        public boolean hasMutableProperties() {
-            return true;
-        }
+    public LocalSymbolTable getLocalSymbolTable() {
+        return symbolTable;
     }
 }

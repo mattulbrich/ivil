@@ -30,8 +30,8 @@ import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
  */
 public class MetaEvaluator extends RebuildingTermVisitor {
 
-    private RuleApplication ruleApplication;
-    private Environment env;
+    private final RuleApplication ruleApplication;
+    private final Environment env;
     private LocalSymbolTable localSymbolTable;
 
     /**
@@ -48,7 +48,7 @@ public class MetaEvaluator extends RebuildingTermVisitor {
     public MetaEvaluator(RuleApplication ruleApp, Environment env) {
         this.ruleApplication = ruleApp;
         this.env = env;
-        this.localSymbolTable = new LocalSymbolTable();
+        resetLocalSymbols();
     }
 
     /**
@@ -97,6 +97,11 @@ public class MetaEvaluator extends RebuildingTermVisitor {
 
     public LocalSymbolTable getLocalSymbolTable() {
         return localSymbolTable;
+    }
+
+    public void resetLocalSymbols() {
+        localSymbolTable =
+                new LocalSymbolTable(ruleApplication.getProofNode().getLocalSymbolTable());
     }
 
 }

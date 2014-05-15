@@ -20,6 +20,7 @@ import java.util.Set;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -579,7 +580,7 @@ class BoogieMap extends Type {
         StringBuilder sbReplace = new StringBuilder("%v");
 
         Term factory;
-        factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
+        factory = makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
         Term find, replace;
 
         find = factory.getSubterm(1);
@@ -637,7 +638,7 @@ class BoogieMap extends Type {
             sbCond.append(" & ").append("%d").append(i).append(" = ").append("%t").append(i);
 
         Term factory;
-        factory = TermMaker.makeAndTypeTerm("cond(" + sbCond + "," + sbFind + ", %v )", env);
+        factory = makeAndTypeTerm("cond(" + sbCond + "," + sbFind + ", %v )", env);
         Term find, replace;
 
         find = factory.getSubterm(1);
@@ -706,7 +707,7 @@ class BoogieMap extends Type {
             sbCond.append(" & ").append("%d").append(i).append(" = ").append("%t").append(i);
 
         Term factory;
-        factory = TermMaker.makeAndTypeTerm("cond(" + sbCond + "," + sbFind + "," + sbReplace + ")", env);
+        factory = makeAndTypeTerm("cond(" + sbCond + "," + sbFind + "," + sbReplace + ")", env);
         Term find, replace;
 
         find = factory.getSubterm(1);
@@ -788,7 +789,7 @@ class BoogieMap extends Type {
         sbReplace.append(")");
 
         Term factory;
-        factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
+        factory = makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
 
         Term find, replace;
 
@@ -867,7 +868,7 @@ class BoogieMap extends Type {
         sbReplace.append("))");
 
         Term factory;
-        factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
+        factory = makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
         Term find, replace;
 
         find = factory.getSubterm(1);
@@ -922,7 +923,7 @@ class BoogieMap extends Type {
             sbReplace.append(")");
 
         Term factory;
-        factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
+        factory = makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
         Term find, replace;
 
         find = factory.getSubterm(1);
@@ -934,6 +935,17 @@ class BoogieMap extends Type {
                 new LinkedList<WhereClause>(), actions, tags, declaringLocation);
         Log.log(Log.DEBUG, "Rule " + rule + " created");
         env.addRule(rule);
+    }
+
+    /**
+     * A wrapper around {@link TermMaker#makeType(String, Environment, LocalSymbolTable)}
+     * since we here always have empty local tables.
+     *
+     * @author Mattias Ulbrich
+     */
+    private static Term makeAndTypeTerm(String termString, Environment env)
+            throws ParseException, ASTVisitException {
+        return TermMaker.makeAndTypeTerm(termString, env, LocalSymbolTable.EMPTY);
     }
 
 }

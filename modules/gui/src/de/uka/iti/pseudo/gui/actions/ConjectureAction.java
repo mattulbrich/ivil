@@ -98,7 +98,9 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
                 try {
 
                     Term term = TermMaker.makeAndTypeTerm(conjecture,
-                            proofCenter.getEnvironment(), "user input");
+                            proofCenter.getEnvironment(),
+                            currentProofNode.getLocalSymbolTable(),
+                            "user input");
 
                     Main.getTermInputHistory().add(conjecture);
 

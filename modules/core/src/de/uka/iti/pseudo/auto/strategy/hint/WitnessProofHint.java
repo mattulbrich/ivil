@@ -154,7 +154,7 @@ class WitnessHintAppFinder extends HintRuleAppFinder {
                 ram.matchInstantiations();
                 return ram;
             } else {
-                Term inst = TermMaker.makeAndTypeTerm(witness, env);
+                Term inst = TermMaker.makeAndTypeTerm(witness, env, node.getLocalSymbolTable());
                 RuleApplicationMaker ram = new RuleApplicationMaker(env);
                 ram.setProofNode(node);
                 ram.setFindSelector(new TermSelector(TermSelector.SUCCEDENT, 0));

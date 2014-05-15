@@ -171,7 +171,7 @@ class InstantiationHintAppFinder extends HintRuleAppFinder {
     private RuleApplication instantiateVariable(ProofNode node, ProofNode reasonNode)
             throws ParseException, ASTVisitException, TermException, ProofException {
 
-        Term inst = TermMaker.makeAndTypeTerm(replacement, env);
+        Term inst = TermMaker.makeAndTypeTerm(replacement, env, node.getLocalSymbolTable());
         Sequent sequent = node.getSequent();
 
         int termno = 0;

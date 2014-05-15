@@ -51,6 +51,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.JTextComponent;
 
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.RuleApplicationComponent;
@@ -196,6 +197,7 @@ public class InteractiveRuleApplicationComponent extends
             try {
 
                 MutableRuleApplication app = new MutableRuleApplication((RuleApplication) selected);
+                LocalSymbolTable local = app.getProofNode().getLocalSymbolTable();
 
                 // collect the user instantiations
                 for (InteractionEntry pair : interactionList) {
@@ -207,7 +209,7 @@ public class InteractiveRuleApplicationComponent extends
                     // if in typeInstantiationMode then set no type here
                     Type typeConstraint = pair.typeMode ? null : type;
 
-                    Term term = TermMaker.makeAndTypeTerm(content, env,
+                    Term term = TermMaker.makeAndTypeTerm(content, env, local,
                             "User input for " + varname, typeConstraint);
 
                     assert typeConstraint == null || type.equals(term.getType()) :
@@ -305,6 +307,7 @@ public class InteractiveRuleApplicationComponent extends
     @Override
     protected void setInstantiations(RuleApplication app) {
         super.setInstantiations(app);
+        LocalSymbolTable local = app.getProofNode().getLocalSymbolTable();
         interactionList.clear();
         for (Map.Entry<String, String> entry : app.getProperties().entrySet()) {
             String key = entry.getKey();
@@ -323,7 +326,7 @@ public class InteractiveRuleApplicationComponent extends
             String svName = Util.stripQuotes(key.substring(Interactive.INTERACTION.length()));
             Type svType;
             try {
-                svType = TermMaker.makeType(value, env);
+                svType = TermMaker.makeType(value, env, local);
             } catch (ASTVisitException e) {
                 Log.log(Log.WARNING, "cannot parseType: " + value + ", continue anyway");
                 continue;
@@ -354,7 +357,7 @@ public class InteractiveRuleApplicationComponent extends
                 Transferable t = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
                 if (t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                     textField.setText((String) t.getTransferData(DataFlavor.stringFlavor));
-                    TermMaker.makeAndTypeTerm(textField.getText(), env);
+                    TermMaker.makeAndTypeTerm(textField.getText(), env, local);
                 }
 
             } catch (Exception ex) {

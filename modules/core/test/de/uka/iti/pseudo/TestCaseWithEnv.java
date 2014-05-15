@@ -15,6 +15,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
@@ -36,6 +37,11 @@ public abstract class TestCaseWithEnv extends TestCase {
      * unchanged. It is fixed right after construction.
      */
     protected static final Environment DEFAULT_ENV = loadDefaultEnv();
+
+    /**
+     * NO_LOCALS means no local symbols are defined.
+     */
+    protected static final LocalSymbolTable NO_LOCALS = LocalSymbolTable.EMPTY;
 
     /**
      * The environment in use.
@@ -110,8 +116,27 @@ public abstract class TestCaseWithEnv extends TestCase {
      *             various things can fail during the translation.
      */
     protected Term makeTerm(String string) throws Exception {
+        return makeTerm(string, NO_LOCALS);
+    }
+
+    /**
+     * Parse a string to produce a term.
+     *
+     * The environment used for name resolution is {@link #env}.
+     *
+     * @param string
+     *            the string to parse
+     * @param table
+     *            a local symbol table for lookup
+     *
+     * @return the term which was represented by the argument
+     *
+     * @throws Exception
+     *             various things can fail during the translation.
+     */
+    private Term makeTerm(String string, LocalSymbolTable table) throws TermException {
         try {
-            return TermMaker.makeAndTypeTerm(string, env, "*test*");
+            return TermMaker.makeAndTypeTerm(string, env, table, "*test*");
         } catch (Exception e) {
             throw new TermException("Cannot parse: " + string, e);
         }

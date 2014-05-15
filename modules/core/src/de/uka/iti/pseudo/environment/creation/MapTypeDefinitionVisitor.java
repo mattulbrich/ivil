@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
@@ -83,7 +84,7 @@ public class MapTypeDefinitionVisitor extends ASTDefaultVisitor {
                 new ArrayList<TypeVariable>(alias.getBoundVars().size());
 
             for (ASTTypeVar t : alias.getBoundVars()) {
-                Type type = TermMaker.makeType(t, env);
+                Type type = makeType(t);
                 // this is the case due to the parser.
                 assert type instanceof TypeVariable;
                 bound.add((TypeVariable) type);
@@ -93,13 +94,13 @@ public class MapTypeDefinitionVisitor extends ASTDefaultVisitor {
         {
             List<Type> domain = new ArrayList<Type>(alias.getDomain().size());
             for (ASTType t : alias.getDomain()) {
-                Type type = TermMaker.makeType(t, env);
+                Type type = makeType(t);
                 domain.add(type);
             }
             mapType.setDomain(domain);
         }
         {
-            Type range = TermMaker.makeType(alias.getRange(), env);
+            Type range = makeType(alias.getRange());
             mapType.setRange(range);
         }
 
@@ -107,6 +108,11 @@ public class MapTypeDefinitionVisitor extends ASTDefaultVisitor {
 
         mapType.addFunctionSymbols(env);
         mapType.addRules(env);
+    }
+
+    private Type makeType(ASTType t) throws ASTVisitException {
+        // This is invoked only at parsing time, hence empty local symbol table.
+        return TermMaker.makeType(t, env, LocalSymbolTable.EMPTY);
     }
 
     private List<TypeVariable> retrieveArgumentTypes(ASTSortDeclaration arg) {

@@ -70,7 +70,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
     }
 
     public void testAnnotations1() throws Exception {
-        Term t = TermMaker.makeAndTypeTerm("i1 + i2 + i3", env);
+        Term t = makeTerm("i1 + i2 + i3");
         AnnotatedString as = PrettyPrint.print(env, t);
         assertEquals("i1 + i2 + i3", as.toString());
         assertEquals("[Element[begin=0;end=7;attr=0], " +
@@ -80,7 +80,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
     }
 
     public void testAnnotations2() throws Exception {
-        Term t = TermMaker.makeAndTypeTerm("{ i1 := i2 + i3 }(i1 = i3)", env);
+        Term t = makeTerm("{ i1 := i2 + i3 }(i1 = i3)");
         AnnotatedString as = PrettyPrint.print(env, t);
         assertEquals("{ i1 := i2 + i3 }(i1 = i3)", as.toString());
         assertEquals("[Element[begin=8;end=15;attr=1], " +
@@ -93,7 +93,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
     }
 
     public void testAnnotations3() throws Exception {
-        Term t = TermMaker.makeAndTypeTerm("1 + (2 + 3)", env);
+        Term t = makeTerm("1 + (2 + 3)");
         // 01234567890
         AnnotatedString as = PrettyPrint.print(env, t);
         assertEquals("1 + (2 + 3)", as.toString());
@@ -131,7 +131,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
     }
 
     public void testIndention() throws Exception {
-        Term t = TermMaker.makeAndTypeTerm("111111 + (222222222 + 3333333)", env);
+        Term t = makeTerm("111111 + (222222222 + 3333333)");
         pp = new PrettyPrint(env);
 
         assertEquals("  111111\n" +

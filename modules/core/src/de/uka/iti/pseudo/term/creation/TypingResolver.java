@@ -13,12 +13,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
+import checkers.nullness.quals.NonNull;
+
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.environment.creation.EnvironmentTypingResolver;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
@@ -78,6 +81,11 @@ public class TypingResolver extends ASTDefaultVisitor {
     private final Environment env;
 
     /**
+     * The local symbol table for locally defined symbols.
+     */
+    private final LocalSymbolTable local;
+
+    /**
      * The mapping of bound variables to their types. Used for typing in bound
      * contexts.
      *
@@ -101,11 +109,28 @@ public class TypingResolver extends ASTDefaultVisitor {
     /**
      * Instantiates a new typing resolver.
      *
+     * The local lookup table is assumed to be empty.
+     *
      * @param env
      *            the environment to work in
      */
-    public TypingResolver(Environment env) {
+    public TypingResolver(@NonNull Environment env) {
         this.env = env;
+        this.local = LocalSymbolTable.EMPTY;
+        this.typingContext = new TypingContext();
+    }
+
+    /**
+     * Instantiates a new typing resolver.
+     *
+     * @param env
+     *            the environment to work in
+     * @param local
+     *            the table for locally defined symbols
+     */
+    public TypingResolver(@NonNull Environment env, @NonNull LocalSymbolTable local) {
+        this.env = env;
+        this.local = local;
         this.typingContext = new TypingContext();
     }
 
@@ -145,6 +170,10 @@ public class TypingResolver extends ASTDefaultVisitor {
 
         String functSymb = applicationTerm.getFunctionToken().image;
         Function funct = env.getFunction(functSymb);
+
+        if(funct == null) {
+            funct = local.getFunction(functSymb);
+        }
 
         if(funct == null) {
             throw new ASTVisitException("Unknown function symbol " + functSymb, applicationTerm);
@@ -282,6 +311,10 @@ public class TypingResolver extends ASTDefaultVisitor {
             throws ASTVisitException {
         String binderSymb = binderTerm.getBinderToken().image;
         Binder binder = env.getBinder(binderSymb);
+
+        if(binder == null) {
+            binder = local.getBinder(binderSymb);
+        }
 
         if(binder == null) {
             throw new ASTVisitException("Unknown binder symbol " + binderSymb, binderTerm);
@@ -436,29 +469,36 @@ public class TypingResolver extends ASTDefaultVisitor {
     public void visit(ASTIdentifierTerm identifierTerm)
     throws ASTVisitException {
         String name = identifierTerm.getSymbol().image;
-        Function funcSymbol = env.getFunction(name);
         Type tv = getBoundVariableType(name);
 
         if(tv != null) {
             identifierTerm.setTyping(new Typing(tv, typingContext));
-        } else if(funcSymbol != null) {
-            int arity = funcSymbol.getArgumentTypes().length;
-            Type result = funcSymbol.getResultType();
-
-            if(arity != 0) {
-                throw new ASTVisitException("Constant symbol " + funcSymbol + " expects " +
-                        arity + " arguments, but received none", identifierTerm);
-            }
-
-            try {
-                setTyping(identifierTerm, Collections.<ASTTerm>emptyList(), result, new Type[0]);
-            } catch (UnificationException e) {
-                throw new ASTVisitException("Type inference failed for constant " + name +
-                        "\nFunction: " + funcSymbol +
-                        "\n" + e.getDetailedMessage(), identifierTerm);
-            }
         } else {
-            throw new ASTVisitException("Unknown identifier: " + name, identifierTerm);
+            Function funcSymbol = env.getFunction(name);
+            if(funcSymbol == null) {
+                funcSymbol = local.getFunction(name);
+            }
+
+            if(funcSymbol != null) {
+                int arity = funcSymbol.getArgumentTypes().length;
+                Type result = funcSymbol.getResultType();
+
+                if(arity != 0) {
+                    throw new ASTVisitException("Constant symbol " + funcSymbol + " expects " +
+                            arity + " arguments, but received none", identifierTerm);
+                }
+
+                try {
+                    setTyping(identifierTerm, Collections.<ASTTerm>emptyList(),
+                            result, new Type[0]);
+                } catch (UnificationException e) {
+                    throw new ASTVisitException("Type inference failed for constant " + name +
+                            "\nFunction: " + funcSymbol +
+                            "\n" + e.getDetailedMessage(), identifierTerm);
+                }
+            } else {
+                throw new ASTVisitException("Unknown identifier: " + name, identifierTerm);
+            }
         }
 
     }

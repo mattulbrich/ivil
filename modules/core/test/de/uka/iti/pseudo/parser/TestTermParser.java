@@ -35,7 +35,7 @@ public class TestTermParser extends TestCaseWithEnv {
 
     private void testTermFail(String term) throws Exception {
         try {
-            Term t = TermMaker.makeAndTypeTerm(term, env);
+            Term t = TermMaker.makeAndTypeTerm(term, env, NO_LOCALS);
             fail(term + " should not be parsable, but parses as: " + t.toString(true));
         } catch (ASTVisitException e) {
             if(VERBOSE) {
@@ -129,14 +129,14 @@ public class TestTermParser extends TestCaseWithEnv {
     }
 
     public void testExplicitTypesInference() throws Exception {
-        Term t = TermMaker.makeAndTypeTerm("arb as %'a", env);
+        Term t = makeTerm("arb as %'a");
         assertEquals(SchemaType.getInst("a"), t.getType());
     }
 
 
     public void testOccurCheck() throws Exception {
         try {
-            TermMaker.makeAndTypeTerm("arb as 'a = arb as set('a)", env);
+            makeTerm("arb as 'a = arb as set('a)");
             fail("should not be parsable");
         } catch (ASTVisitException e) {
         }
@@ -240,7 +240,7 @@ public class TestTermParser extends TestCaseWithEnv {
     public void testMakeAndType() throws Exception {
 
         try {
-            Term t = TermMaker.makeAndTypeTerm("3", env, "none:test", TypeVariable.ALPHA);
+            Term t = TermMaker.makeAndTypeTerm("3", env, NO_LOCALS, "none:test", TypeVariable.ALPHA);
             assertEquals(TypeVariable.ALPHA, t.getType());
         } catch(ASTVisitException ex) {
             if(VERBOSE) {

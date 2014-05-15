@@ -14,13 +14,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import com.sun.org.apache.bcel.internal.generic.LSTORE;
+
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -122,6 +126,11 @@ public class TermMaker extends ASTDefaultVisitor {
     private final Environment env;
 
     /**
+     * The local symbol table to use for lookup.
+     */
+    private final LocalSymbolTable local;
+
+    /**
      * The linenumber to be set when creating statements.
      * This must be set from outside, is not changed within the visitor code
      * but given to statements when creating them.
@@ -139,9 +148,12 @@ public class TermMaker extends ASTDefaultVisitor {
      *
      * @param env
      *            the environment to look up functions, sorts, ...
+     * @param local
+     *            local symbol table to look up for function, sorts, ...
      */
-    public TermMaker(@NonNull Environment env) {
+    public TermMaker(@NonNull Environment env, @NonNull LocalSymbolTable local) {
         this.env = env;
+        this.local = local;
     }
 
     //
@@ -153,6 +165,8 @@ public class TermMaker extends ASTDefaultVisitor {
      *
      * The AST must already have been visited by a {@link TypingResolver} and
      * the typings must have been set.
+     *
+     * An empty local symbol table is assumed for this procedure.
      *
      * @param astTerm
      *            the term represented in an ast.
@@ -166,7 +180,7 @@ public class TermMaker extends ASTDefaultVisitor {
     public static @NonNull Term makeTerm(ASTTerm astTerm,
             @NonNull Environment env) throws ASTVisitException {
 
-        TermMaker termMaker = new TermMaker(env);
+        TermMaker termMaker = new TermMaker(env, LocalSymbolTable.EMPTY);
         astTerm.visit(termMaker);
 
         return termMaker.resultTerm;
@@ -193,15 +207,16 @@ public class TermMaker extends ASTDefaultVisitor {
      *             thrown on error during AST traversal.
      */
     public static @NonNull Term makeAndTypeTerm(ASTTerm astTerm,
-            @NonNull Environment env, Type targetType) throws ASTVisitException {
+            @NonNull Environment env,
+            @NonNull LocalSymbolTable local,
+            Type targetType) throws ASTVisitException {
 
         // We have to embed the AST into a container because the structure may
         // change if it is a ASTListTerm.
         ASTHeadElement head = new ASTHeadElement(astTerm);
-        TypingResolver typingResolver = new TypingResolver(env);
+        TypingResolver typingResolver = new TypingResolver(env, local);
         astTerm.visit(typingResolver);
         astTerm = (ASTTerm) head.getWrappedElement();
-
 
         try {
             if(targetType != null) {
@@ -216,7 +231,7 @@ public class TermMaker extends ASTDefaultVisitor {
 
         // ast.dumpTree();
 
-        TermMaker termMaker = new TermMaker(env);
+        TermMaker termMaker = new TermMaker(env, local);
         astTerm.visit(termMaker);
 
         return termMaker.resultTerm;
@@ -244,8 +259,9 @@ public class TermMaker extends ASTDefaultVisitor {
      *             thrown on error during AST traversal.
      */
     public static @NonNull Term makeAndTypeTerm(@NonNull String content,
-            @NonNull Environment env) throws ParseException, ASTVisitException {
-        return makeAndTypeTerm(content, env, "");
+            @NonNull Environment env, @NonNull LocalSymbolTable local)
+                    throws ParseException, ASTVisitException {
+        return makeAndTypeTerm(content, env, local, "");
     }
 
     /**
@@ -271,9 +287,9 @@ public class TermMaker extends ASTDefaultVisitor {
      *             thrown on error during AST traversal.
      */
     public static @NonNull Term makeAndTypeTerm(@NonNull String content,
-            @NonNull Environment env, @NonNull String context)
+            @NonNull Environment env, @NonNull LocalSymbolTable local, @NonNull String context)
             throws ParseException, ASTVisitException {
-        return makeAndTypeTerm(content, env, context, null);
+        return makeAndTypeTerm(content, env, local, context, null);
     }
 
     /**
@@ -305,7 +321,8 @@ public class TermMaker extends ASTDefaultVisitor {
      *             thrown on error during AST traversal.
      */
     public static @NonNull Term makeAndTypeTerm(@NonNull String content,
-            @NonNull Environment env, @NonNull String context, @Nullable Type targetType)
+            @NonNull Environment env, @NonNull LocalSymbolTable local,
+            @NonNull String context, @Nullable Type targetType)
             throws ParseException, ASTVisitException {
 
         Parser parser = new Parser();
@@ -313,7 +330,7 @@ public class TermMaker extends ASTDefaultVisitor {
 
         // ast.dumpTree();
 
-        return makeAndTypeTerm(ast, env, targetType);
+        return makeAndTypeTerm(ast, env, local, targetType);
     }
 
     /**
@@ -334,14 +351,14 @@ public class TermMaker extends ASTDefaultVisitor {
      * @throws ParseException
      *             thrown by the parser
      */
-    public static Type makeType(String typeString, Environment env)
+    public static Type makeType(String typeString, Environment env, LocalSymbolTable local)
             throws ASTVisitException, ParseException {
 
         Parser parser = new Parser(new StringReader(typeString));
 
         ASTType ast = parser.TypeRef();
 
-        return makeType(ast, env);
+        return makeType(ast, env, local);
     }
 
     /**
@@ -360,9 +377,10 @@ public class TermMaker extends ASTDefaultVisitor {
      * @throws ASTVisitException
      *             thrown on error during AST traversal.
      */
-    public static Type makeType(ASTType astType, Environment env) throws ASTVisitException {
+    public static Type makeType(ASTType astType, Environment env, LocalSymbolTable local)
+            throws ASTVisitException {
 
-        TermMaker termMaker = new TermMaker(env);
+        TermMaker termMaker = new TermMaker(env, local);
         astType.visit(termMaker);
 
         return termMaker.resultType;
@@ -383,12 +401,13 @@ public class TermMaker extends ASTDefaultVisitor {
      * @throws ParseException
      *             if the parser finds a syntax error
      */
-    public static Update makeAndTypeUpdate(String updString, Environment env)
+    public static Update makeAndTypeUpdate(@NonNull String updString,
+            @NonNull Environment env, @NonNull LocalSymbolTable local)
             throws ASTVisitException, ParseException {
 
         String toParse = updString + " true";
 
-        Term t = makeAndTypeTerm(toParse, env);
+        Term t = makeAndTypeTerm(toParse, env, local);
         if (t instanceof UpdateTerm) {
             UpdateTerm updTerm = (UpdateTerm) t;
             return updTerm.getUpdate();
@@ -402,6 +421,9 @@ public class TermMaker extends ASTDefaultVisitor {
      *
      * A given statement AST is subject to an instance of this class which then
      * creates a {@link Statement} object out of the AST.
+     *
+     * Programs are not (or seldom) parsed with local context such that
+     * the local lookup table is silently assumed empty.
      *
      * @param astStatement
      *            the ast of the statement to be created
@@ -417,11 +439,11 @@ public class TermMaker extends ASTDefaultVisitor {
     public static Statement makeAndTypeStatement(ASTStatement astStatement,
             int linenumber, Environment env) throws ASTVisitException {
 
-        TypingResolver typingResolver = new TypingResolver(env);
+        TypingResolver typingResolver = new TypingResolver(env, LocalSymbolTable.EMPTY);
 
         astStatement.visit(typingResolver);
 
-        TermMaker termMaker = new TermMaker(env);
+        TermMaker termMaker = new TermMaker(env, LocalSymbolTable.EMPTY);
         termMaker.sourceLineNumber = linenumber;
         astStatement.visit(termMaker);
 
@@ -625,7 +647,12 @@ public class TermMaker extends ASTDefaultVisitor {
                 if (funcSymbol != null) {
                     resultTerm = Application.getInst(funcSymbol, type);
                 } else {
-                    throw new TermException("Unknown symbol: " + identifierTerm);
+                    funcSymbol = local.getFunction(name);
+                    if (funcSymbol != null) {
+                        resultTerm = Application.getInst(funcSymbol, type);
+                    } else {
+                        throw new TermException("Unknown symbol: " + identifierTerm);
+                    }
                 }
             }
         } catch (TermException e) {
@@ -751,6 +778,9 @@ public class TermMaker extends ASTDefaultVisitor {
                 Token programReference = programTerm.getProgramReferenceToken();
                 Program program = env.getProgram(programReference.image);
                 if(program == null) {
+                    program = local.getProgram(programReference.image);
+                }
+                if(program == null) {
                     throw new TermException("Unknown program '" +programReference + "'");
                 }
                 int programIndex = Integer.parseInt(position.image);
@@ -775,7 +805,16 @@ public class TermMaker extends ASTDefaultVisitor {
         }
 
         try {
-            resultType = env.mkType(typeRef.getTypeToken().image, retval);
+            String name = typeRef.getTypeToken().image;
+            Sort sort = env.getSort(name);
+            if (sort == null) {
+                sort = local.getSort(name);
+            }
+            if (sort == null) {
+                throw new EnvironmentException("Sort " + name + " unknown");
+            }
+
+            resultType = TypeApplication.getInst(sort, retval);
         } catch (TermException e) {
             throw new ASTVisitException(typeRef, e);
         } catch (EnvironmentException e) {

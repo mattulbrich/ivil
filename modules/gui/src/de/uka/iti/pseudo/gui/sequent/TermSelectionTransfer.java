@@ -30,6 +30,7 @@ import javax.swing.TransferHandler;
 import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
@@ -146,8 +147,10 @@ public class TermSelectionTransfer extends TransferHandler {
         TermSelector location = null;
         try {
             if (!support.isDataFlavorSupported(TermSelectionTransferable.TERM_DATA_FLAVOR)) {
+                // Is this the right node for locals?
+                LocalSymbolTable local = pc.getCurrentProofNode().getLocalSymbolTable();
                 transferedTerm = TermMaker.makeAndTypeTerm((String) support.getTransferable().getTransferData(
-                        DataFlavor.stringFlavor), pc.getEnvironment());
+                        DataFlavor.stringFlavor), pc.getEnvironment(), local);
 
             } else {
                 TermSelectionTransferable ts = (TermSelectionTransferable) support.getTransferable().getTransferData(
@@ -195,7 +198,8 @@ public class TermSelectionTransfer extends TransferHandler {
      * would enable the user to assume arbitrary terms by dragging them from a
      * source such as a text editor.
      */
-    private List<List<RuleApplication>> findRulesApplicable(final Term transferedTerm, final TermSelector location,
+    private List<List<RuleApplication>> findRulesApplicable(final Term transferedTerm,
+            final TermSelector location,
             TermComponent target, final ProofCenter proofCenter) throws ProofException {
 
         final Environment env = proofCenter.getEnvironment();
@@ -213,11 +217,11 @@ public class TermSelectionTransfer extends TransferHandler {
 
         // filter rules
         for (RuleApplication ra : rulesApplicable) {
+            LocalSymbolTable local = ra.getProofNode().getLocalSymbolTable();
             final String level = ra.getRule().getProperty("dragdrop");
             if (null == level) {
                 continue;
             }
-
 
             int lvl = Integer.parseInt(level);
             boolean isInteractive = false;
@@ -240,7 +244,7 @@ public class TermSelectionTransfer extends TransferHandler {
                 String svName = Util.stripQuotes(key.substring(Interactive.INTERACTION.length()));
                 Type svType;
                 try {
-                    svType = TermMaker.makeType(value, env);
+                    svType = TermMaker.makeType(value, env, local);
                 } catch (ASTVisitException e) {
                     Log.log(Log.WARNING, "cannot parseType: " + value + ", continue anyway");
                     continue;

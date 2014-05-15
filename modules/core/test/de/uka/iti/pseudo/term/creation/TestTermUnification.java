@@ -59,11 +59,11 @@ public class TestTermUnification extends TestCaseWithEnv {
     public void testLeftUnify2() throws Exception {
 
         // ensure make and type is working as expected
-        TermMaker.makeAndTypeTerm("3", env, "test", Environment.getIntType());
+        TermMaker.makeAndTypeTerm("3", env, NO_LOCALS, "test", Environment.getIntType());
 
         try {
             // this is not legal, as 3 can not have arbitrary schema type %'a
-            TermMaker.makeAndTypeTerm("3", env, "test", SchemaType.getInst("a"));
+            TermMaker.makeAndTypeTerm("3", env, NO_LOCALS, "test", SchemaType.getInst("a"));
         } catch (ASTVisitException e) {
             return;
         }

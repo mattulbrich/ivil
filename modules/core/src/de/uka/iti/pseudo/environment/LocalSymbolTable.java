@@ -14,6 +14,7 @@ import java.util.Iterator;
 
 import checkers.nullness.quals.NonNull;
 import checkers.nullness.quals.Nullable;
+import de.uka.iti.pseudo.util.Util;
 
 /**
  * A LocalSymbolTable provides access to all locally defined symbols. Function,
@@ -37,6 +38,15 @@ import checkers.nullness.quals.Nullable;
  * @see ProofNode
  */
 public final class LocalSymbolTable {
+
+    /**
+     * An empty local symbol table for reference. It has been fixed.
+     */
+    public static final LocalSymbolTable EMPTY;
+    static {
+        EMPTY = new LocalSymbolTable();
+        EMPTY.setFixed();
+    }
 
     /**
      * Node is used for the singly linked list.
@@ -66,6 +76,14 @@ public final class LocalSymbolTable {
             return new NodeIterator<T>(head);
         }
 
+        public int hashCode() {
+            // taken from AbstractList
+            int hashCode = 1;
+            for (T e : this) {
+                hashCode = 31*hashCode + (e==null ? 0 : e.hashCode());
+            }
+            return hashCode;
+        }
     }
 
     /**
@@ -324,6 +342,7 @@ public final class LocalSymbolTable {
      *             already been fixed.
      */
     public void addSort(@NonNull Sort s) throws EnvironmentException {
+
         if (isFixed()) {
             throw new EnvironmentException(
                     "cannot add to this local symbol table, it has been fixed already.");
@@ -399,6 +418,43 @@ public final class LocalSymbolTable {
         }
 
         programHead = prepend(programHead, p);
+    }
+
+    @Override
+    public int hashCode() {
+        return getFunctions().hashCode() ^
+                getBinders().hashCode() ^
+                getSorts().hashCode() ^
+                getPrograms().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LocalSymbolTable) {
+            LocalSymbolTable lst = (LocalSymbolTable) obj;
+            return equalList(functionHead, lst.functionHead)
+                && equalList(binderHead, lst.binderHead)
+                && equalList(sortHead, lst.sortHead)
+                && equalList(programHead, lst.programHead);
+        }
+        return false;
+    }
+
+    /*
+     * check for equality (modulo ==) of two linked lists.
+     */
+    private boolean equalList(Node<?> n1, Node<?> n2) {
+        while(n1 != null & n2 != null) {
+            if(n1.entry != n2.entry) {
+                return false;
+            }
+            n1 = n1.next;
+            n2 = n2.next;
+        }
+        if(n1 != null || n2 != null) {
+            return false;
+        }
+        return true;
     }
 
     private static <T extends Named> Node<T> prepend(Node<T> head, T symb) {

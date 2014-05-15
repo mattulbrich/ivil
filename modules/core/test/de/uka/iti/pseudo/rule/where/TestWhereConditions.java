@@ -121,7 +121,7 @@ public class TestWhereConditions extends TestCaseWithEnv {
         // we need some function symbol ...
         env = new Environment("none:temp", env);
         env.addFunction(new Function("emptyset",
-                TermMaker.makeType("set('a)", env),
+                TermMaker.makeType("set('a)", env, NO_LOCALS),
                 new Type[0], false, false, ASTLocatedElement.CREATED));
 
         assertTrue(fresh.check(null, new Term[] { makeTerm("arb as 'a"), makeTerm("(\\T_all 'b; true)")}, null, env));

@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.FormatException;
@@ -46,6 +47,7 @@ class SAXHandler extends DefaultHandler {
     private String currentId = "";
     private Attributes attributes;
     private MutableRuleApplication ram;
+    private LocalSymbolTable localSymbols;
     private int goalNo = 0;
 //	private boolean ignoreExceptions;
     private final ProgressIndicator indicator;
@@ -104,6 +106,7 @@ class SAXHandler extends DefaultHandler {
             }
 
             ram.setProofNode(proofNode);
+            localSymbols = proofNode.getLocalSymbolTable();
         }
 
         content.setLength(0);
@@ -137,7 +140,7 @@ class SAXHandler extends DefaultHandler {
                 assert varname != null : "No variable name referenced (should be ensured by schema)";
 
                 Term term = null;
-                term = TermMaker.makeAndTypeTerm(content.toString(), env, "XML-Import");
+                term = TermMaker.makeAndTypeTerm(content.toString(), env, localSymbols, "XML-Import");
 
                 Map<String, Term> schemaVariableMapping = ram
                         .getSchemaVariableMapping();
@@ -152,7 +155,7 @@ class SAXHandler extends DefaultHandler {
                 assert varname != null : "No type variable name referenced (should be ensured by schema)";
 
                 Type type = null;
-                type = TermMaker.makeType(content.toString(), env);
+                type = TermMaker.makeType(content.toString(), env, localSymbols);
 
                 Map<String, Type> typeVariableMapping = ram
                         .getTypeVariableMapping();
@@ -168,7 +171,7 @@ class SAXHandler extends DefaultHandler {
                 assert varname != null : "No schema update name referenced (should be ensured by schema)";
 
                 Update upd = null;
-                upd = TermMaker.makeAndTypeUpdate(content.toString(), env);
+                upd = TermMaker.makeAndTypeUpdate(content.toString(), env, localSymbols);
 
                 Map<String, Update> updMap = ram.getSchemaUpdateMapping();
                 if (updMap.containsKey(varname)) {
@@ -182,6 +185,7 @@ class SAXHandler extends DefaultHandler {
                 // matchRuleApp();
                 proof.apply(ram, env);
                 ram = null;
+                localSymbols = null;
 
                 if(indicator != null) {
                     applicationCounter ++;

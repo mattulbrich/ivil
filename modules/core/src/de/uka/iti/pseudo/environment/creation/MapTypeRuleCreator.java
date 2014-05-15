@@ -23,6 +23,7 @@ import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
@@ -335,7 +336,7 @@ public class MapTypeRuleCreator {
         StringBuilder sbReplace = new StringBuilder("%v");
 
         Term factory;
-        factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
+        factory = makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
         Term find, replace;
 
         find = factory.getSubterm(1);
@@ -401,7 +402,7 @@ public class MapTypeRuleCreator {
         }
 
         Term factory;
-        factory = TermMaker.makeAndTypeTerm("cond(" + sbCond + "," + sbFind + ", %v )", env);
+        factory = makeAndTypeTerm("cond(" + sbCond + "," + sbFind + ", %v )", env);
         Term find, replace;
 
         find = factory.getSubterm(1);
@@ -478,7 +479,7 @@ public class MapTypeRuleCreator {
         }
 
         Term factory;
-        factory = TermMaker.makeAndTypeTerm("cond(" + sbCond + "," + sbFind + "," + sbReplace + ")", env);
+        factory = makeAndTypeTerm("cond(" + sbCond + "," + sbFind + "," + sbReplace + ")", env);
         Term find, replace;
 
         find = factory.getSubterm(1);
@@ -565,7 +566,7 @@ public class MapTypeRuleCreator {
         sbReplace.append(")");
 
         Term factory;
-        factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
+        factory = makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
 
         Term find, replace;
 
@@ -651,7 +652,8 @@ public class MapTypeRuleCreator {
         sbReplace.append("))");
 
         Term factory;
-        factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
+        factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")",
+                env, LocalSymbolTable.EMPTY);
         Term find, replace;
 
         find = factory.getSubterm(1);
@@ -663,6 +665,11 @@ public class MapTypeRuleCreator {
                 new LinkedList<WhereClause>(), actions, tags, declaringLocation);
         Log.log(Log.DEBUG, "Rule " + rule + " created");
         env.addRule(rule);
+    }
+
+    private static Term makeAndTypeTerm(String string, Environment env) throws ParseException, ASTVisitException {
+        // This is invoked only at parsing time, hence empty local symbol table.
+        return TermMaker.makeAndTypeTerm(string, env, LocalSymbolTable.EMPTY);
     }
 
 }

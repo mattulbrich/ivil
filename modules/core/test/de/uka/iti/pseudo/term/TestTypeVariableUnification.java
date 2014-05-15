@@ -9,7 +9,7 @@ import de.uka.iti.pseudo.term.creation.TermMaker;
 public class TestTypeVariableUnification extends TestCaseWithEnv {
 
     private Type makeType(String string) throws ASTVisitException, ParseException {
-        return TermMaker.makeType(string, env);
+        return TermMaker.makeType(string, env, NO_LOCALS);
     }
 
     public void testTypeVariableUnification1() throws Exception {

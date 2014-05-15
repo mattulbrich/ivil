@@ -27,6 +27,7 @@ import java.util.Set;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.Term;
 
 /**

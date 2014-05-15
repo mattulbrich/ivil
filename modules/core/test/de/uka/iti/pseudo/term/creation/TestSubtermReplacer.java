@@ -17,23 +17,23 @@ import de.uka.iti.pseudo.term.TermException;
 public class TestSubtermReplacer extends TestCaseWithEnv {
     
     public void testReplace() throws Exception {
-        Term org = TermMaker.makeAndTypeTerm("{ i1 := 0 } (i1+1)", env);
-        Term two = TermMaker.makeAndTypeTerm("2", env);
+        Term org = makeTerm("{ i1 := 0 } (i1+1)");
+        Term two = makeTerm("2");
         
         Term result = SubtermReplacer.replace(org, 4, two);
-        Term expected = TermMaker.makeAndTypeTerm("{ i1 := 2 } (i1+1)", env);
+        Term expected = makeTerm("{ i1 := 2 } (i1+1)");
         assertEquals(expected, result);
         
         result = SubtermReplacer.replace(org, 1, two);
-        expected = TermMaker.makeAndTypeTerm("{ i1 := 0 } 2", env);
+        expected = makeTerm("{ i1 := 0 } 2");
         assertEquals(expected, result);
         
         result = SubtermReplacer.replace(org, 2, two);
-        expected = TermMaker.makeAndTypeTerm("{ i1 := 0 } (2+1)", env);
+        expected = makeTerm("{ i1 := 0 } (2+1)");
         assertEquals(expected, result);
         
         result = SubtermReplacer.replace(org, 3, two);
-        expected = TermMaker.makeAndTypeTerm("{ i1 := 0 } (i1+2)", env);
+        expected = makeTerm("{ i1 := 0 } (i1+2)");
         assertEquals(expected, result);
         
         result = SubtermReplacer.replace(org, 0, two);
@@ -49,7 +49,7 @@ public class TestSubtermReplacer extends TestCaseWithEnv {
     // was a bug!
     public void testBinding() throws Exception {
         Term org = makeTerm("(\\forall n; n > 0) -> [ 1; P]true");
-        Term two = TermMaker.makeAndTypeTerm("true", env);
+        Term two = makeTerm("true");
         
         Term result = SubtermReplacer.replace(org, 5, two);
         Term expected = makeTerm("(\\forall n; n > 0) -> true");
