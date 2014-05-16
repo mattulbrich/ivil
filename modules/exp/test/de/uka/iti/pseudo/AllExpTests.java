@@ -3,6 +3,7 @@ package de.uka.iti.pseudo;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import de.uka.iti.pseudo.auto.strategy.TestInstantiationStrategy;
+import de.uka.iti.pseudo.environment.TestProofReplay;
 import de.uka.iti.pseudo.rule.meta.TestRefinementModifier;
 
 public class AllExpTests {
@@ -12,6 +13,7 @@ public class AllExpTests {
         //$JUnit-BEGIN$
         suite.addTestSuite(TestRefinementModifier.class);
         suite.addTestSuite(TestInstantiationStrategy.class);
+        suite.addTestSuite(TestProofReplay.class);
         //$JUnit-END$
         return suite;
     }

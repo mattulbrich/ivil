@@ -252,6 +252,7 @@ public final class PluginManager {
             Class<?> clss = classLoader.loadClass(implementation);
             instance = clss.newInstance();
         } catch (Exception e) {
+            Log.log(Log.ERROR, "Cannot find class " + implementation + " in classpath " + classpath);
             throw new EnvironmentException("Class " + implementation
                     + " cannot be instantiated.", e);
         }

@@ -125,7 +125,6 @@ public class AllCoreTests {
         suite.addTestSuite(TestMapTypes.class);
         suite.addTestSuite(TestTypeVariableUnification.class);
         suite.addTestSuite(TestLocalSymbolTable.class);
-        suite.addTestSuite(TestProofReplay.class);
         //$JUnit-END$
         return suite;
     }
