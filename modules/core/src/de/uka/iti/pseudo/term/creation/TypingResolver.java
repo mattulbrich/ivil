@@ -22,6 +22,7 @@ import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.environment.creation.EnvironmentTypingResolver;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
@@ -637,7 +638,15 @@ public class TypingResolver extends ASTDefaultVisitor {
         }
 
         try {
-            resultingType = env.mkType(typeName, args);
+            Sort sort = env.getSort(typeName);
+            if(sort == null) {
+                sort = local.getSort(typeName);
+            }
+            if (sort == null) {
+                throw new EnvironmentException("Sort " + typeName + " unknown");
+            }
+
+            resultingType = TypeApplication.getInst(sort, args);
         } catch (TermException e) {
             throw new ASTVisitException(typeRef, e);
         } catch (EnvironmentException e) {

@@ -38,7 +38,7 @@ public class CanEvaluateMeta extends WhereCondition {
             Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
 
-        MetaEvaluator metaEval = new MetaEvaluator(new ProtectedRuleApplication(ruleApp), env);
+        MetaEvaluator metaEval = new MetaEvaluator(ruleApp, env);
 
         try {
             actualArguments[0].visit(metaEval);
@@ -55,18 +55,18 @@ public class CanEvaluateMeta extends WhereCondition {
         }
     }
 
-    /**
-     * This class wraps a rule application and makes its properties immutable.
-     */
-    private static class ProtectedRuleApplication extends FilterRuleApplication {
-
-        public ProtectedRuleApplication(RuleApplication app) {
-            super(app);
-        }
-
-        @Override
-        public boolean hasMutableProperties() {
-            return false;
-        }
-    }
+//    /**
+//     * This class wraps a rule application and makes its properties immutable.
+//     */
+//    private static class ProtectedRuleApplication extends FilterRuleApplication {
+//
+//        public ProtectedRuleApplication(RuleApplication app) {
+//            super(app);
+//        }
+//
+//        @Override
+//        public boolean hasMutableProperties() {
+//            return false;
+//        }
+//    }
 }

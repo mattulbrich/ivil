@@ -76,11 +76,15 @@ public class SkolemMetaFunction extends MetaFunction {
         Environment env = metaEval.getEnvironment();
         LocalSymbolTable lst = metaEval.getLocalSymbolTable();
 
+        if(lst == null) {
+            throw new TermException("Skolemisation can only be applied on a proof node");
+        }
+
         String property = SKOLEM_NAME_PROPERTY + "(" + application.getSubterm(0).toString(true) + ")";
         String name = ruleApp.getProperties().get(property);
         if(name == null) {
             if(ruleApp.hasMutableProperties()) {
-                name = calcSkolemName(application, env);
+                name = calcSkolemName(application, env, lst);
                 ruleApp.getProperties().put(property, name);
             } else {
                 throw new TermException("There is no skolemisation stored for " + application);
@@ -88,6 +92,10 @@ public class SkolemMetaFunction extends MetaFunction {
         }
 
         Function newFunction = env.getFunction(name);
+        if(newFunction == null) {
+            newFunction = lst.getFunction(name);
+        }
+
         if(newFunction == null) {
             try {
                 newFunction = new Function(name, application.getType(), new Type[0],
@@ -107,7 +115,8 @@ public class SkolemMetaFunction extends MetaFunction {
      * If the skolemised term is either a variable or a function symbol
      * use its name as prefix. Otherwise fall back to "sk"
      */
-    private String calcSkolemName(Application application, Environment env) {
+    private String calcSkolemName(Application application,
+            Environment env, LocalSymbolTable local) {
         String prefix = "sk";
         Term term = application.getSubterm(0);
         if (term instanceof Application) {
@@ -122,7 +131,7 @@ public class SkolemMetaFunction extends MetaFunction {
             prefix = var.getName();
         }
 
-        return env.createNewFunctionName(prefix);
+        return env.createNewFunctionName(prefix, local);
     }
 
 }

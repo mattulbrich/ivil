@@ -265,6 +265,7 @@ public class TestTermParser extends TestCaseWithEnv {
         }
     }
 
+    // revealed a bug
     public void testLocalSymbols() throws Exception {
         Type intType = Environment.getIntType();
         Function locF = new Function("local_f", intType,

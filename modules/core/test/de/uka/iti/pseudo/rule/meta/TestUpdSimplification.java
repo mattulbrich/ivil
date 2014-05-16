@@ -10,14 +10,23 @@
 package de.uka.iti.pseudo.rule.meta;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
+import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 
 public class TestUpdSimplification extends TestCaseWithEnv {
 
-    MutableRuleApplication ra = new MutableRuleApplication();
-    MetaEvaluator eval = new MetaEvaluator(ra, env);
+    MutableRuleApplication ra;
+    MetaEvaluator eval;
+
+    @Override
+    protected void setUp() throws Exception {
+        ra = new MutableRuleApplication();
+        ra.setProofNode(new Proof(Environment.getTrue()).getRoot());
+        eval = new MetaEvaluator(ra, env);
+    }
 
     private void assertEvalsTo(String t1, String t2) throws Exception {
         Term t = makeTerm(t1);

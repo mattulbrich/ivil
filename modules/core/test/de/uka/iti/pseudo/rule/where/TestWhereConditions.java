@@ -12,12 +12,16 @@ package de.uka.iti.pseudo.rule.where;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.proof.FilterRuleApplication;
+import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
+import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.SubtermSelector;
@@ -59,10 +63,24 @@ public class TestWhereConditions extends TestCaseWithEnv {
     public void testCanEval() throws Exception {
         CanEvaluateMeta can = new CanEvaluateMeta();
 
-        assertTrue(can.check(null, new Term[] { makeTerm("$$intEval(1+1)") }, null, env));
-        assertFalse(can.check(null, new Term[] { makeTerm("$$intEval(i1+1)") }, null, env));
-        assertFalse(can.check(null, new Term[] { makeTerm("$$skolem(1)") }, new RuleApplicationMaker(env), env));
+        // Meta evaluator needs a working rule app.
+        RuleApplicationMaker ram = new RuleApplicationMaker(env);
+        Proof p = new Proof(Environment.getTrue());
+        ram.setProofNode(p.getRoot());
+        // the following does not allows for skolemisation!
+        RuleApplication fix = new FilterRuleApplication(ram) {
+            @Override
+            public Map<String, String> getProperties() {
+                return Collections.emptyMap();
+            }
+            @Override
+            public boolean hasMutableProperties() { return false; };
+        };
 
+        assertTrue(can.check(null, new Term[] { makeTerm("$$intEval(1+1)") }, ram, env));
+        assertFalse(can.check(null, new Term[] { makeTerm("$$intEval(i1+1)") }, ram, env));
+        assertTrue(can.check(null, new Term[] { makeTerm("$$skolem(1)") }, ram, env));
+        assertFalse(can.check(null, new Term[] { makeTerm("$$skolem(1)") }, fix, env));
     }
 
     public void testFreshVar() throws Exception {

@@ -101,6 +101,28 @@ public class TestLocalSymbolTable extends TestCaseWithEnv {
         }
     }
 
+    public void testDoubleAddFunction() throws EnvironmentException {
+
+        try {
+            lst.addFunction(f);
+            fail("f is already registered");
+        } catch (EnvironmentException e) {
+            if(VERBOSE) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            lst.addFunction(f2);
+            fail("Name f is already registered");
+        } catch (EnvironmentException e) {
+            if(VERBOSE) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
 
     public void testAddAndCopy() throws Exception {
 

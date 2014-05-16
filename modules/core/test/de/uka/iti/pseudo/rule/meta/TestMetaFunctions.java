@@ -12,7 +12,9 @@ package de.uka.iti.pseudo.rule.meta;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
+import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 
@@ -25,6 +27,8 @@ public class TestMetaFunctions extends TestCaseWithEnv {
 //        Handler.registerNoneHandler();
         env = new Environment("none:wrapped_for_skolem", DEFAULT_ENV);
         ra = new MutableRuleApplication();
+        Proof p = new Proof(Environment.getTrue());
+        ra.setProofNode(p.getRoot());
         eval = new MetaEvaluator(ra, env);
     }
 
@@ -99,23 +103,42 @@ public class TestMetaFunctions extends TestCaseWithEnv {
 
     }
 
+//    public void testSkolemWithoutProofNode() throws Exception {
+//        ra.setProofNode(null);
+//        Term t = makeTerm("$$skolem(1)");
+//        try {
+//            Term result = eval.evalutate(t);
+//            fail("Should not work (missing locals), but " + result);
+//        } catch (TermException e) {
+//            if(VERBOSE) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+
     public void testSkolem() throws Exception {
         Term t = makeTerm("$$skolem(1)");
         Term result = eval.evalutate(t);
         Term result2 = eval.evalutate(t);
 
-        assertEquals(makeTerm("sk as int"), result);
-        assertEquals(makeTerm("sk as int"), result2);
+        LocalSymbolTable lst = eval.getLocalSymbolTable();
+        assertNotNull(lst.getFunction("sk"));
+        assertEquals(makeTerm("sk as int", lst), result);
+        assertEquals(makeTerm("sk as int", lst), result2);
     }
 
+    // revealed a regression bug
     public void testSkolemDifferent() throws Exception {
         Term t = makeTerm("$$skolem(1)");
         Term result = eval.evalutate(t);
         Term t2 = makeTerm("$$skolem(2)");
         Term result2 = eval.evalutate(t2);
 
-        assertEquals(makeTerm("sk as int"), result);
-        assertEquals(makeTerm("sk1 as int"), result2);
+        LocalSymbolTable lst = eval.getLocalSymbolTable();
+        assertNotNull(lst.getFunction("sk"));
+        assertNotNull(lst.getFunction("sk1"));
+        assertEquals(makeTerm("sk as int", lst), result);
+        assertEquals(makeTerm("sk1 as int", lst), result2);
     }
 
     public void testSkolemNames() throws Exception {
@@ -132,8 +155,9 @@ public class TestMetaFunctions extends TestCaseWithEnv {
         Term result = eval.evalutate(t);
         Term result2 = eval.evalutate(t);
 
-        assertEquals(makeTerm("sk100 as int"), result);
-        assertEquals(makeTerm("sk100 as int"), result2);
+        LocalSymbolTable lst = eval.getLocalSymbolTable();
+        assertEquals(makeTerm("sk100 as int", lst), result);
+        assertEquals(makeTerm("sk100 as int", lst), result2);
     }
 
     public void testIntEval() throws Exception {

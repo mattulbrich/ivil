@@ -24,9 +24,9 @@ import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 
 
 /**
- * The Class MetaEvaluator is a {@link TermVisitor} which is used to 
+ * The Class MetaEvaluator is a {@link TermVisitor} which is used to
  * replace applications of {@link MetaFunction}s by their evaluations.
- * 
+ *
  * @see MetaFunction
  */
 public class MetaEvaluator extends RebuildingTermVisitor {
@@ -37,11 +37,11 @@ public class MetaEvaluator extends RebuildingTermVisitor {
 
     /**
      * Instantiates a new meta evaluator.
-     * 
+     *
      * @param ruleApp
      *            the RuleApplication which will passed to the meta functions
      *            during the evaluation.
-     * 
+     *
      * @param env
      *            the environment which will be passed to the meta functions
      *            during the evaluation.
@@ -49,37 +49,39 @@ public class MetaEvaluator extends RebuildingTermVisitor {
     public MetaEvaluator(RuleApplication ruleApp, Environment env) {
         this.ruleApplication = ruleApp;
         this.env = env;
-        this.localSymbolTable = null;
+        resetLocalSymbols();
     }
 
     /**
-     * Replace all applications of meta functions by their 
+     * Replace all applications of meta functions by their
      * substitution.
-     * 
+     *
      * The substitution is obtained by calling the method
      * {@link MetaFunction#evaluate(de.uka.iti.pseudo.term.Application, de.uka.iti.pseudo.environment.Environment, RuleApplication)
-     * 
+     *
      * @param term the term to replace meta function applications in
-     * 
+     *
      * @return the argument term with replaced meta functions
-     * @throws TermException 
+     * @throws TermException
      */
     public @NonNull Term evalutate(@NonNull Term term) throws TermException {
         term.visit(this);
-        if(resultingTerm == null)
+        if(resultingTerm == null) {
             return term;
-        else
+        } else {
             return resultingTerm;
+        }
     }
 
-    @Override 
+    @Override
     public void visit(Application application) throws TermException {
         super.visit(application);
 
         // take subterm replacement into consideration
         // but we know it always is of type Application
-        if(resultingTerm != null)
-           application = (Application) resultingTerm;
+        if(resultingTerm != null) {
+            application = (Application) resultingTerm;
+        }
 
         Function function = application.getFunction();
         if (function instanceof MetaFunction) {
@@ -97,18 +99,12 @@ public class MetaEvaluator extends RebuildingTermVisitor {
     }
 
     public LocalSymbolTable getLocalSymbolTable() {
-        if(localSymbolTable == null) {
-            resetLocalSymbols();
-        }
         return localSymbolTable;
     }
 
     public void resetLocalSymbols() {
         ProofNode proofNode = ruleApplication.getProofNode();
-        if(proofNode != null) {
-            localSymbolTable =
-                    new LocalSymbolTable(proofNode.getLocalSymbolTable());
-        }
+        localSymbolTable = new LocalSymbolTable(proofNode.getLocalSymbolTable());
     }
 
 }

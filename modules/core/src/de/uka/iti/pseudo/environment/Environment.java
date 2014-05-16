@@ -1330,17 +1330,41 @@ public class Environment {
      * @param prefix
      *            the resulting function name will start with this prefix
      *
+     * @param local
+     *            a table of local symbols against which clashes are also
+     *            checked.
      * @return an identifier that can be used as a function name for this
-     *         environment
+     *         environment and the local table.
      */
-    public @NonNull String createNewFunctionName(@NonNull String prefix) {
+    public @NonNull String createNewFunctionName(@NonNull String prefix,
+            @NonNull LocalSymbolTable local) {
         String newName = prefix;
 
-        for (int counter = 1; null != getFunction(newName); counter++) {
+        for (int counter = 1;
+                getFunction(newName) != null || local.getFunction(newName) != null;
+                counter++) {
             newName = prefix + counter;
         }
 
         return newName;
+    }
+
+    /**
+     * create a new symbol name which is not yet used.
+     *
+     * We append natural numbers starting with 1. The first one which is not yet
+     * used is the candidate to choose.
+     *
+     * Local symbols are not considered here.
+     *
+     * @param prefix
+     *            the resulting function name will start with this prefix
+     *
+     * @return an identifier that can be used as a function name for this
+     *         environment
+     */
+    public @NonNull String createNewFunctionName(@NonNull String prefix) {
+        return createNewFunctionName(prefix, LocalSymbolTable.EMPTY);
     }
 
     /**
