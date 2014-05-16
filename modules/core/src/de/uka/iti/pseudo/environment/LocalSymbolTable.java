@@ -12,9 +12,9 @@ package de.uka.iti.pseudo.environment;
 
 import java.util.Iterator;
 
-import checkers.nullness.quals.NonNull;
-import checkers.nullness.quals.Nullable;
-import de.uka.iti.pseudo.util.Util;
+import nonnull.NonNull;
+import nonnull.Nullable;
+import de.uka.iti.pseudo.proof.ProofNode;
 
 /**
  * A LocalSymbolTable provides access to all locally defined symbols. Function,
@@ -54,8 +54,9 @@ public final class LocalSymbolTable {
      * @param <T> the payload type
      */
     private static class Node<T extends Named> {
-        private T entry;
-        private Node<T> next;
+        // protected is to make life easier for compiler (no accessor functions needed)
+        protected T entry;
+        protected Node<T> next;
     }
 
     /**
@@ -76,6 +77,7 @@ public final class LocalSymbolTable {
             return new NodeIterator<T>(head);
         }
 
+        @Override
         public int hashCode() {
             // taken from AbstractList
             int hashCode = 1;
