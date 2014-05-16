@@ -27,6 +27,7 @@ import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TypingContext;
+import de.uka.iti.pseudo.util.Dump;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
@@ -35,16 +36,16 @@ import de.uka.iti.pseudo.util.settings.Settings;
  * different functions to allow for better testing and for easier implementation
  * of new features. If you are only interested in converting a CompilationUnit
  * into an ivil Environment, use make().<br>
- * 
- * 
+ *
+ *
  * In order to understand the design behind the various builders, look at them
  * as functions with closures.
- * 
+ *
  * @note most translated names have prefixes to ensure, that there are no
  *       collisions with system names, such as $eq and so on
- * 
+ *
  * @author timm.felden@felden.com
- * 
+ *
  */
 public final class EnvironmentCreationState {
 
@@ -101,8 +102,9 @@ public final class EnvironmentCreationState {
                     break;
                 }
             }
-            if (null == file)
+            if (null == file) {
                 throw new EnvironmentCreationException("could not find boogie system file");
+            }
 
             em = new EnvironmentMaker(new Parser(), file);
 
@@ -115,8 +117,9 @@ public final class EnvironmentCreationState {
         } catch (IOException e1) {
             e1.printStackTrace();
         }
-        if (null == em)
+        if (null == em) {
             return;
+        }
 
         em.getEnvironment().setFixed();
 
@@ -133,41 +136,46 @@ public final class EnvironmentCreationState {
     }
 
     public void createNamespaces() throws EnvironmentCreationException, ParseException {
-        if (null != names)
+        if (null != names) {
             return;
-        else
+        } else {
             names = new NamingPhase();
+        }
 
         names.create(this);
     }
 
     public void createTypesystem() throws ParseException {
-        if (null == names)
+        if (null == names) {
             createNamespaces();
+        }
 
-        if (null != types)
+        if (null != types) {
             return;
-        else
+        } else {
             types = new TypingPhase();
+        }
 
         types.create(this);
     }
 
     public void createEnvironment() throws ParseException {
-        if (null == types)
+        if (null == types) {
             createTypesystem();
+        }
 
-        if (null != translation)
+        if (null != translation) {
             return;
-        else
+        } else {
             translation = new TranslationPhase();
+        }
 
         translation.create(this);
     }
 
     /**
      * Prints debug information to System.out
-     * 
+     *
      * @return false to enable printing of debuginformation on failing
      *         assertions via "|| printDebugInformation()"
      */
@@ -231,7 +239,7 @@ public final class EnvironmentCreationState {
         }
 
         if (env != null) {
-            env.dump();
+            Dump.dumpEnv(env);
         }
 
         return false;
@@ -270,8 +278,9 @@ public final class EnvironmentCreationState {
     }
 
     public Term getProblem() throws ParseException {
-        if (null == translation)
+        if (null == translation) {
             createEnvironment();
+        }
 
         return null;
         // return translation.getProblem();

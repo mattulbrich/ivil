@@ -20,7 +20,6 @@ import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.Application;
@@ -36,7 +35,7 @@ import de.uka.iti.pseudo.util.TermUtil;
  * <li>insert instructions
  * <li>remove instructions
  * <li>change instructions/annotations
- * <li>
+ * </ul>
  *
  * A modified program can be retrieved using the method
  * {@link #makeProgram(String)}.
@@ -81,7 +80,8 @@ public class ProgramChanger {
         this.env = env;
         this.sourceFile = program.getSourceFile();
         this.statements = new LinkedList<Statement>(program.getStatements());
-        this.statementAnnotations = new LinkedList</*@Nullable*/ String>(program.getTextAnnotations());
+        this.statementAnnotations =
+                new LinkedList</*@Nullable*/ String>(program.getTextAnnotations());
     }
 
     /**
@@ -136,7 +136,8 @@ public class ProgramChanger {
      * @throws NullPointerException
      *             if statement is null
      */
-    public void insertAt(int index, Statement statement, @Nullable String annotation) throws TermException {
+    public void insertAt(int index, Statement statement, @Nullable String annotation)
+            throws TermException {
         // statements.size() is ok here!
         if (index < 0 || index > statements.size()) {
             throw new IndexOutOfBoundsException("Index outside the program boundaries");
@@ -321,7 +322,7 @@ public class ProgramChanger {
     }
 
     /**
-     * Reads a statement from the statement list
+     * Reads a statement from the statement list.
      *
      * @param index
      *            the index into the statement list
@@ -341,7 +342,7 @@ public class ProgramChanger {
     }
 
     /**
-     * Reads a statement annotation from the statement list
+     * Reads a statement annotation from the statement list.
      *
      * @param index
      *            the index into the statement list
@@ -376,7 +377,8 @@ public class ProgramChanger {
      *             if the creation somehow fails.
      */
     public Program makeProgram(String name) throws EnvironmentException {
-        Program p = new Program(name, sourceFile, statements, statementAnnotations, ASTLocatedElement.CREATED);
+        Program p = new Program(name, sourceFile,
+                statements, statementAnnotations, ASTLocatedElement.CREATED);
         return p;
     }
 
@@ -431,7 +433,8 @@ public class ProgramChanger {
      * @throws TermException
      *             if adding integer literals to the environment fails
      */
-    private Term /*@Nullable*/ [] updateGotoStatement(int index, int offset, GotoStatement gotoSt) throws TermException {
+    private Term /*@Nullable*/ [] updateGotoStatement(int index, int offset, GotoStatement gotoSt)
+            throws TermException {
         List<Term> orgTargets = gotoSt.getSubterms();
         Term /*@Nullable*/ [] newTargets = null;
         for (int i = 0; i < gotoSt.countSubterms(); i++) {

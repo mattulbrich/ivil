@@ -252,34 +252,6 @@ public final class Rule implements Named {
         RuleSchemaConsistencyChecker.check(this);
     }
 
-    /**
-     * Dump the rule to Stdout.
-     */
-    public void dump() {
-
-        System.out.println("  Rule " + name);
-
-        if(findClause != null) {
-            System.out.print("    Find: ");
-            System.out.println(findClause);
-        }
-
-        System.out.println("    Assumptions:");
-        for (LocatedTerm lt : assumptions) {
-            System.out.println("      " + lt);
-        }
-
-        System.out.println("    Where clauses:");
-        for (WhereClause wc : whereClauses) {
-            System.out.println("      " + wc);
-        }
-
-        System.out.println("    Actions:");
-        for (GoalAction ga : goalActions) {
-            ga.dump();
-        }
-    }
-
     @Override
     public String toString() {
         return "Rule[" + name + "]";

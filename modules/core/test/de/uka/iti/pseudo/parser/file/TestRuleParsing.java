@@ -16,6 +16,7 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
+import de.uka.iti.pseudo.util.Dump;
 
 public class TestRuleParsing extends TestCaseWithEnv {
 
@@ -32,7 +33,7 @@ public class TestRuleParsing extends TestCaseWithEnv {
         EnvironmentMaker em = new EnvironmentMaker(fp, url);
         Environment env = em.getEnvironment();
         if(VERBOSE) {
-            env.dump();
+            Dump.dumpEnv(env);
         }
     }
 

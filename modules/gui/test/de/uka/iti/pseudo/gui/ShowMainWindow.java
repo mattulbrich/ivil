@@ -18,6 +18,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.util.Dump;
 
 public class ShowMainWindow {
 
@@ -33,7 +34,7 @@ public class ShowMainWindow {
         EnvironmentMaker em = new EnvironmentMaker(fp, new File(arg));
         Environment env = em.getEnvironment();
 
-        env.dump();
+        Dump.dumpEnv(env);
 
         Proof proof = new Proof(em.getProblemSequents().get(""), env);
 

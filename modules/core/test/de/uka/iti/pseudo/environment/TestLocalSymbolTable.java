@@ -21,7 +21,7 @@ import de.uka.iti.pseudo.term.Type;
 public class TestLocalSymbolTable extends TestCaseWithEnv {
 
     private Function f, f2, g;
-    private LocalSymbolTable lst;
+    private SymbolTable lst;
 
     @Override
     protected void setUp() throws Exception {
@@ -31,7 +31,7 @@ public class TestLocalSymbolTable extends TestCaseWithEnv {
         // same name for f and f2!
         f2 = createFunction("lf");
 
-        lst = new LocalSymbolTable(env);
+        lst = new SymbolTable(env);
         lst.addFunction(f);
         lst.addFunction(g);
     }
@@ -64,7 +64,7 @@ public class TestLocalSymbolTable extends TestCaseWithEnv {
 
         lst.setFixed();
 
-        LocalSymbolTable result = lst.ensureOpenTable();
+        SymbolTable result = lst.ensureOpenTable();
         assertTrue(lst != result);
         assertEquals(lst, result);
         assertTrue(!result.isFixed());
@@ -134,7 +134,7 @@ public class TestLocalSymbolTable extends TestCaseWithEnv {
         for (i = 0; i < 20; i++) {
             lst.addFunction(createFunction("tmp" + i));
             if(i % 5 == 0) {
-                lst = new LocalSymbolTable(lst);
+                lst = new SymbolTable(lst);
             }
         }
 

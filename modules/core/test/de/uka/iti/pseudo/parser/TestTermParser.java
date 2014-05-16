@@ -18,7 +18,7 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.proof.SubtermSelector;
@@ -51,7 +51,7 @@ public class TestTermParser extends TestCaseWithEnv {
 
     private void testTermFail(String term) throws Exception {
         try {
-            Term t = TermMaker.makeAndTypeTerm(term, new LocalSymbolTable(env));
+            Term t = TermMaker.makeAndTypeTerm(term, new SymbolTable(env));
             fail(term + " should not be parsable, but parses as: " + t.toString(true));
         } catch (ASTVisitException e) {
             if(VERBOSE) {
@@ -152,7 +152,7 @@ public class TestTermParser extends TestCaseWithEnv {
 
     public void testOccurCheck() throws Exception {
         try {
-            TermMaker.makeAndTypeTerm("arb as 'a = arb as set('a)", new LocalSymbolTable(env));
+            TermMaker.makeAndTypeTerm("arb as 'a = arb as set('a)", new SymbolTable(env));
             fail("should not be parsable");
         } catch (ASTVisitException e) {
         }
@@ -256,7 +256,7 @@ public class TestTermParser extends TestCaseWithEnv {
     public void testMakeAndType() throws Exception {
 
         try {
-            Term t = TermMaker.makeAndTypeTerm("3", new LocalSymbolTable(env), "none:test", TypeVariable.ALPHA);
+            Term t = TermMaker.makeAndTypeTerm("3", new SymbolTable(env), "none:test", TypeVariable.ALPHA);
             assertEquals(TypeVariable.ALPHA, t.getType());
         } catch(ASTVisitException ex) {
             if(VERBOSE) {
@@ -281,7 +281,7 @@ public class TestTermParser extends TestCaseWithEnv {
                 Collections.<String>emptyList(),
                 ASTLocatedElement.CREATED);
 
-        LocalSymbolTable local = new LocalSymbolTable(env);
+        SymbolTable local = new SymbolTable(env);
         local.addBinder(locB);
         local.addProgram(locP);
         local.addFunction(locF);

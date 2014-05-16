@@ -18,7 +18,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +28,7 @@ import de.uka.iti.pseudo.util.Log;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
+//Checkstyle: OFF JavadocStyleCheck
 /**
  * The PluginManager is the is the management unit at which plugins can be
  * registered and from which they can be retrieved.
@@ -115,6 +115,7 @@ import nonnull.Nullable;
  * key <tt>decisionProcedure</tt>.</dd>
  * </dl>
  */
+//Checkstyle: ON JavadocStyleCheck
 public final class PluginManager {
 
     /**
@@ -127,11 +128,15 @@ public final class PluginManager {
      */
     private final Map<String, Service> serviceMap = new HashMap<String, Service>();
 
+    /**
+     * Mapping from URL to classloaders that read that URL.
+     */
     private Map<URL, ClassLoader> classLoaderCache;
 
+    /**
+     * The resourcename gives the url to which all other sources are relative.
+     */
     private final String resourceName;
-
-    private ClassLoader parentResult;
 
     /**
      * An instance of class Service holds more information on a particular
@@ -252,7 +257,8 @@ public final class PluginManager {
             Class<?> clss = classLoader.loadClass(implementation);
             instance = clss.newInstance();
         } catch (Exception e) {
-            Log.log(Log.ERROR, "Cannot find class " + implementation + " in classpath " + classpath);
+            Log.log(Log.ERROR, "Cannot find class " + implementation
+                    + " in classpath " + classpath);
             throw new EnvironmentException("Class " + implementation
                     + " cannot be instantiated.", e);
         }
@@ -294,10 +300,6 @@ public final class PluginManager {
             if(cached != null) {
                 return cached;
             }
-        }
-
-        if(parentManager != null) {
-            parentResult = parentManager.getClassLoader(url);
         }
 
         if(classLoaderCache == null) {

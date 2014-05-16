@@ -12,7 +12,7 @@ package de.uka.iti.pseudo.rule.meta;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.term.Term;
@@ -121,7 +121,7 @@ public class TestMetaFunctions extends TestCaseWithEnv {
         Term result = eval.evalutate(t);
         Term result2 = eval.evalutate(t);
 
-        LocalSymbolTable lst = eval.getLocalSymbolTable();
+        SymbolTable lst = eval.getLocalSymbolTable();
         assertNotNull(lst.getLocalFunction("sk"));
         assertEquals(makeTerm("sk as int", lst), result);
         assertEquals(makeTerm("sk as int", lst), result2);
@@ -134,7 +134,7 @@ public class TestMetaFunctions extends TestCaseWithEnv {
         Term t2 = makeTerm("$$skolem(2)");
         Term result2 = eval.evalutate(t2);
 
-        LocalSymbolTable lst = eval.getLocalSymbolTable();
+        SymbolTable lst = eval.getLocalSymbolTable();
         assertNotNull(lst.getLocalFunction("sk"));
         assertNotNull(lst.getLocalFunction("sk1"));
         assertEquals(makeTerm("sk as int", lst), result);
@@ -155,7 +155,7 @@ public class TestMetaFunctions extends TestCaseWithEnv {
         Term result = eval.evalutate(t);
         Term result2 = eval.evalutate(t);
 
-        LocalSymbolTable lst = eval.getLocalSymbolTable();
+        SymbolTable lst = eval.getLocalSymbolTable();
         assertEquals(makeTerm("sk100 as int", lst), result);
         assertEquals(makeTerm("sk100 as int", lst), result2);
     }

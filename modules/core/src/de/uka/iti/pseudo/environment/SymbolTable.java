@@ -34,19 +34,20 @@ import de.uka.iti.pseudo.proof.ProofNode;
  * the proof, having only a linked list for name lookup does not cause too much
  * time overhead since this is only relevant for string parsing.
  *
- * TODO Rename SymbolTable
+ * The symbol table holds a reference to the environment to which it belongs and
+ * defers lookups to the environment if a symbol cannot be found locally.
  *
  * @see Environment
  * @see ProofNode
  */
-public final class LocalSymbolTable {
+public final class SymbolTable {
 
     /**
      * An empty local symbol table for reference. It has been fixed.
      */
-    public static final LocalSymbolTable EMPTY;
+    public static final SymbolTable EMPTY;
     static {
-        EMPTY = new LocalSymbolTable(Environment.BUILT_IN_ENV);
+        EMPTY = new SymbolTable(Environment.BUILT_IN_ENV);
         EMPTY.setFixed();
     }
 
@@ -57,6 +58,7 @@ public final class LocalSymbolTable {
      */
     private static class Node<T extends Named> {
         // protected is to make life easier for compiler (no accessor functions needed)
+        //Checkstyle: IGNORE VisibilityModifierCheck"
         protected T entry;
         protected Node<T> next;
     }
@@ -138,10 +140,12 @@ public final class LocalSymbolTable {
     private boolean fixed;
 
     /**
-     * Instantiates a new and empty local symbol table.
-     * The table is not fixed.
+     * Instantiates a new and empty local symbol table. The table is not fixed.
+     *
+     * @param env
+     *            The underlying environment to be used for lookup.
      */
-    public LocalSymbolTable(@NonNull Environment env) {
+    public SymbolTable(@NonNull Environment env) {
         this.env = env;
         this.fixed = false;
         // all headers point to null
@@ -156,7 +160,7 @@ public final class LocalSymbolTable {
      * @param lst
      *            the list to copy from
      */
-    public LocalSymbolTable(@NonNull LocalSymbolTable lst) {
+    public SymbolTable(@NonNull SymbolTable lst) {
         this.env = lst.env;
         this.binderHead = lst.binderHead;
         this.functionHead = lst.functionHead;
@@ -193,9 +197,9 @@ public final class LocalSymbolTable {
      *
      * @return the local symbol table
      */
-    public LocalSymbolTable ensureOpenTable() {
+    public SymbolTable ensureOpenTable() {
         if (isFixed()) {
-            return new LocalSymbolTable(this);
+            return new SymbolTable(this);
         } else {
             return this;
         }
@@ -556,8 +560,8 @@ public final class LocalSymbolTable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof LocalSymbolTable) {
-            LocalSymbolTable lst = (LocalSymbolTable) obj;
+        if (obj instanceof SymbolTable) {
+            SymbolTable lst = (SymbolTable) obj;
             return env == lst.env
                 && functionHead == lst.functionHead
                 && binderHead == lst.binderHead

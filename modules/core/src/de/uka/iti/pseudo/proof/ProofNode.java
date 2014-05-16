@@ -18,7 +18,7 @@ import java.util.Map;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.Rule;
@@ -96,7 +96,7 @@ public class ProofNode implements Comparable<ProofNode> {
      * The locally added symbols which may appear in this proof node.
      * It is a fixed table.
      */
-    private final @NonNull LocalSymbolTable symbolTable;
+    private final @NonNull SymbolTable symbolTable;
 
     /*@ invariant appliedRule == null <==> children == null; @*/
 
@@ -135,7 +135,7 @@ public class ProofNode implements Comparable<ProofNode> {
             @NonNull SequentHistory.Annotation initialAnnotation, Environment env) {
         this(proof, null, sequent,
                 new SequentHistory(sequent, initialAnnotation),
-                new LocalSymbolTable(env));
+                new SymbolTable(env));
     }
 
     /*
@@ -146,7 +146,7 @@ public class ProofNode implements Comparable<ProofNode> {
     private ProofNode(@NonNull Proof proof, @Nullable ProofNode parent,
             @NonNull Sequent sequent,
             @NonNull SequentHistory history,
-            @NonNull LocalSymbolTable symbolTable) {
+            @NonNull SymbolTable symbolTable) {
         this.proof = proof;
         this.parent = parent;
         this.sequent = sequent;
@@ -458,7 +458,7 @@ public class ProofNode implements Comparable<ProofNode> {
                     history.added(TermSelector.SUCCEDENT);
                 }
 
-                LocalSymbolTable lst = metaEval.getLocalSymbolTable();
+                SymbolTable lst = metaEval.getLocalSymbolTable();
                 if(lst.equals(this.symbolTable)) {
                     // save memory by reusing the same object!
                     lst = symbolTable;
@@ -553,7 +553,7 @@ public class ProofNode implements Comparable<ProofNode> {
     //        return Collections.unmodifiableSet(codeLocations);
     //    }
 
-    public LocalSymbolTable getLocalSymbolTable() {
+    public SymbolTable getLocalSymbolTable() {
         return symbolTable;
     }
 }

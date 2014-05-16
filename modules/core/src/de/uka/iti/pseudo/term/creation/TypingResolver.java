@@ -21,7 +21,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.environment.creation.EnvironmentTypingResolver;
@@ -84,7 +84,7 @@ public class TypingResolver extends ASTDefaultVisitor {
     /**
      * The local symbol table for locally defined symbols.
      */
-    private final LocalSymbolTable local;
+    private final SymbolTable local;
 
     /**
      * The mapping of bound variables to their types. Used for typing in bound
@@ -117,7 +117,7 @@ public class TypingResolver extends ASTDefaultVisitor {
      */
     public TypingResolver(@NonNull Environment env) {
         this.env = env;
-        this.local = new LocalSymbolTable(env);
+        this.local = new SymbolTable(env);
         this.typingContext = new TypingContext();
     }
 
@@ -128,7 +128,7 @@ public class TypingResolver extends ASTDefaultVisitor {
      *            the table for locally defined symbols, defines also the
      *            environment to use
      */
-    public TypingResolver(@NonNull LocalSymbolTable local) {
+    public TypingResolver(@NonNull SymbolTable local) {
         this.env = local.getEnvironment();
         this.local = local;
         this.typingContext = new TypingContext();

@@ -12,7 +12,7 @@ package de.uka.iti.pseudo.rule.meta;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
@@ -74,7 +74,7 @@ public class SkolemMetaFunction extends MetaFunction {
 
         RuleApplication ruleApp = metaEval.getRuleApplication();
         Environment env = metaEval.getEnvironment();
-        LocalSymbolTable lst = metaEval.getLocalSymbolTable();
+        SymbolTable lst = metaEval.getLocalSymbolTable();
 
         if(lst == null) {
             throw new TermException("Skolemisation can only be applied on a proof node");
@@ -113,7 +113,7 @@ public class SkolemMetaFunction extends MetaFunction {
      * use its name as prefix. Otherwise fall back to "sk"
      */
     private String calcSkolemName(Application application,
-            Environment env, LocalSymbolTable local) {
+            Environment env, SymbolTable local) {
         String prefix = "sk";
         Term term = application.getSubterm(0);
         if (term instanceof Application) {

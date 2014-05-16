@@ -61,7 +61,7 @@ import de.uka.iti.pseudo.util.Util;
  * Not all symbols are stored in Environments. Symbols created during a proof
  * are stored locally in the respective proof node that introduces them.
  *
- * @see LocalSymbolTable
+ * @see SymbolTable
  */
 public class Environment {
 
@@ -233,7 +233,7 @@ public class Environment {
         if (!sortMap.isEmpty() || !functionMap.isEmpty()
                 || !binderMap.isEmpty() || !rules.isEmpty()
                 || pluginManager != null) {
-            dump();
+            Dump.dumpEnv(this);
             throw new EnvironmentException(
                     "setting parent on inhabited environment forbidden");
         }
@@ -297,7 +297,7 @@ public class Environment {
      *
      * @return the fresh program name
      *
-     * @see LocalSymbolTable#createNewProgramName(String)
+     * @see SymbolTable#createNewProgramName(String)
      */
     public @NonNull
     String createNewProgramName(@NonNull String prefix) {
@@ -1270,61 +1270,7 @@ public class Environment {
         }
     }
 
-    /**
-     * Debug dump to stdout. TODO use EntrySet for iteration over Maps
-     * TODO move to class Dump
-     */
-    public void dump() {
 
-        System.out.println("Environment '" + resourceName + "':");
-
-        System.out.println("Sorts:");
-        for (String name : sortMap.keySet()) {
-            System.out.println("  " + sortMap.get(name));
-        }
-
-        System.out.println("Functions:");
-        for (String name : functionMap.keySet()) {
-            System.out.println("  " + functionMap.get(name));
-        }
-
-        System.out.println("Infix Functions:");
-        for (String name : infixMap.keySet()) {
-            System.out.println("  " + infixMap.get(name));
-        }
-
-        System.out.println("Prefix Functions:");
-        for (String name : prefixMap.keySet()) {
-            System.out.println("  " + prefixMap.get(name));
-        }
-
-        System.out.println("Binders:");
-        for (String name : binderMap.keySet()) {
-            System.out.println("  " + binderMap.get(name));
-        }
-
-        System.out.println("Rules:");
-        for (Rule rule : rules) {
-            rule.dump();
-        }
-
-        System.out.println("Axioms:");
-        for (Axiom axiom : axiomMap.values()) {
-            Dump.dumpAxiom(axiom);
-        }
-
-        System.out.println("Programs:");
-        for (Entry<String, Program> entry : programMap.entrySet()) {
-            System.out.println("  program " + entry.getKey());
-            entry.getValue().dump();
-        }
-
-        if (parentEnvironment != null) {
-            System.out.print("extending ");
-            parentEnvironment.dump();
-        }
-
-    }
 
     /**
      * create a new symbol name which is not yet used.
@@ -1338,7 +1284,7 @@ public class Environment {
      * @return an identifier that can be used as a function name for this
      *         environment
      *
-     * @see LocalSymbolTable#createNewFunctionName(String)
+     * @see SymbolTable#createNewFunctionName(String)
      */
     public @NonNull String createNewFunctionName(@NonNull String prefix) {
         String newName = prefix;

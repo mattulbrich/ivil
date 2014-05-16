@@ -20,7 +20,7 @@ import java.util.Set;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.environment.Program;
@@ -196,10 +196,10 @@ class LoopModifier {
     private final TermFactory tf;
     private ProgramChanger programChanger;
     private final Program originalProgram;
-    private final LocalSymbolTable symbols;
+    private final SymbolTable symbols;
 
     public LoopModifier(LiteralProgramTerm programTerm, Term invariant,
-            Term variant, LocalSymbolTable symbols) {
+            Term variant, SymbolTable symbols) {
         this.programTerm = programTerm;
         this.originalProgram = programTerm.getProgram();
         this.invariant = invariant;

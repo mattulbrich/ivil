@@ -18,6 +18,7 @@ import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.util.Dump;
 
 public class TestRuleProblemExtractor extends TestCaseWithEnv {
 
@@ -152,7 +153,7 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
         try {
             expectedTerm = makeTerm(expected);
         } catch(Exception ex) {
-            env.dump();
+            Dump.dumpEnv(env);
             System.err.println(expected);
             System.err.println(result);
             ex.printStackTrace();
@@ -160,8 +161,8 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
         }
 
         if(!result.equals(expectedTerm)) {
-            env.dump();
-            rule.dump();
+            Dump.dumpEnv(env);
+            Dump.dumpRule(rule);
 
             System.out.println(expectedTerm);
             System.out.println(result);

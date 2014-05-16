@@ -256,18 +256,4 @@ public final class Program implements Named {
         return sourceFile;
     }
 
-    /**
-     * Dump this program to stdout. For debug purposes.
-     */
-    public void dump() {
-        System.out.println("    Statements");
-        for (int i = 0; i < statements.length; i++) {
-            System.out.print("      " + i + ": " + statements[i]);
-            if(statementAnnotations[i] != null) {
-                System.out.print("; \"" + statementAnnotations[i] + "\"");
-            }
-            System.out.println();
-        }
-    }
-
 }

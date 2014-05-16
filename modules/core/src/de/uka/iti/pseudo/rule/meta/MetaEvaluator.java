@@ -12,7 +12,7 @@ package de.uka.iti.pseudo.rule.meta;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -33,7 +33,7 @@ public class MetaEvaluator extends RebuildingTermVisitor {
 
     private final RuleApplication ruleApplication;
     private final Environment env;
-    private LocalSymbolTable localSymbolTable;
+    private SymbolTable localSymbolTable;
 
     /**
      * Instantiates a new meta evaluator.
@@ -98,13 +98,13 @@ public class MetaEvaluator extends RebuildingTermVisitor {
         return ruleApplication;
     }
 
-    public LocalSymbolTable getLocalSymbolTable() {
+    public SymbolTable getLocalSymbolTable() {
         return localSymbolTable;
     }
 
     public void resetLocalSymbols() {
         ProofNode proofNode = ruleApplication.getProofNode();
-        localSymbolTable = new LocalSymbolTable(proofNode.getLocalSymbolTable());
+        localSymbolTable = new SymbolTable(proofNode.getLocalSymbolTable());
     }
 
 }

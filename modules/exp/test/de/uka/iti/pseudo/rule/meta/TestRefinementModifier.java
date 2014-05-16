@@ -15,6 +15,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor.DepthTermVisitor;
 import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.util.Dump;
 import de.uka.iti.pseudo.util.Pair;
 
 public class TestRefinementModifier extends TestCaseWithEnv {
@@ -61,8 +62,8 @@ public class TestRefinementModifier extends TestCaseWithEnv {
                 assertEquals(s1.get(i), s2.get(i));
             }
         } catch (AssertionFailedError e) {
-            expected.dump();
-            program.dump();
+            Dump.dumpProgram(expected);
+            Dump.dumpProgram(program);
             throw e;
         }
     }

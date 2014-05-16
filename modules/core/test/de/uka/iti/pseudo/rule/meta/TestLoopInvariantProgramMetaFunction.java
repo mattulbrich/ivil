@@ -19,7 +19,7 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
@@ -27,6 +27,7 @@ import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.util.Dump;
 
 public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
 
@@ -44,7 +45,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
 
     public void testCollectAssignables() throws Exception {
         env = testEnv("loopTest1.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX,
                 env.getProgram("P"), Environment.getTrue());
@@ -61,7 +62,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
 
     public void testVarAtPreCreation() throws Exception {
         env = testEnv("loopTest1.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
         LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX,
                 env.getProgram("P"), Environment.getTrue());
         LoopModifier loopMod = new LoopModifier(prog, Environment.getTrue(), makeTerm("var"), lst);
@@ -72,7 +73,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
 
     public void testInvariantRule() throws Exception {
         env = testEnv("loopTest1.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         LiteralProgramTerm prog = LiteralProgramTerm.getInst(5, Modality.BOX,
                 env.getProgram("Q"), Environment.getTrue());
@@ -86,7 +87,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
 
     public void testInvariantRuleNonIntVariant() throws Exception {
         env = testEnv("loopTest4.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX_TERMINATION,
                 env.getProgram("P"), Environment.getTrue());
@@ -100,7 +101,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
 
     public void testInvariantRuleWithoutVar() throws Exception {
         env = testEnv("loopTest1.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         LiteralProgramTerm prog = LiteralProgramTerm.getInst(5, Modality.BOX,
                 env.getProgram("Q"), Environment.getTrue());
@@ -114,7 +115,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     // Program with loop directly to the skip
     public void testBug1() throws Exception {
         env = testEnv("loopTest1.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX,
                 env.getProgram("Bug1"), Environment.getTrue());
@@ -128,7 +129,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     // Program with loop directly after the skip
     public void testBug2() throws Exception {
         env = testEnv("loopTest1.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         LiteralProgramTerm prog = LiteralProgramTerm.getInst(1,
                 Modality.BOX, env.getProgram("Bug2"), Environment.getTrue());
@@ -141,7 +142,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
 
     public void testChangeAfterLoop() throws Exception {
         env = testEnv("loopTest1.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX, env
                 .getProgram("ChangeAfterLoop"), Environment.getTrue());
@@ -156,7 +157,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
 
     public void testParallelAssignment() throws Exception {
         env = testEnv("loopTest1.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX, env
                 .getProgram("ParallelAssignment"), Environment.getTrue());
@@ -176,7 +177,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
 
     public void testBugTermination() throws Exception {
         env = testEnv("loopTest1.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX, env
                 .getProgram("Bug_termination"), Environment.getTrue());
@@ -200,16 +201,16 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
             }
         } catch (AssertionFailedError e) {
             System.out.println("Expected:");
-            p1.dump();
+            Dump.dumpProgram(p1);
             System.out.println("Received:");
-            p2.dump();
+            Dump.dumpProgram(p2);
             throw e;
         }
     }
 
     public void testBugInLoopDetection() throws Exception {
         env = testEnv("loopTest1.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX, env
                 .getProgram("BugInLoopDetect"), Environment.getTrue());
@@ -224,7 +225,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     // was a bug: b was havoced also in Q'
     public void testBugWithAssumeFalse() throws Exception {
         env = testEnv("loopTest2.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         {
             // Check that P' and Q are same
@@ -262,7 +263,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
 
     public void testSplittingInvariant() throws Exception {
         env = testEnv("loopTest3.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         Program P = env.getProgram("P");
         assertNotNull(P);
@@ -277,7 +278,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
 
     public void testSplittingInvariantUpdated() throws Exception {
         env = testEnv("loopTest3.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         Program P2 = lst.getProgram("P2");
         assertNotNull(P2);
@@ -292,7 +293,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
 
     public void testGoBeyond() throws Exception {
         env = testEnv("loopTest1.p.txt");
-        LocalSymbolTable lst = new LocalSymbolTable(env);
+        SymbolTable lst = new SymbolTable(env);
 
         LiteralProgramTerm prog = LiteralProgramTerm.getInst(100, Modality.BOX, env
                 .getProgram("GoBeyond"), Environment.getTrue());

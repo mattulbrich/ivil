@@ -15,7 +15,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
@@ -41,7 +41,7 @@ public abstract class TestCaseWithEnv extends TestCase {
     /**
      * NO_LOCALS means no local symbols are defined.
      */
-    protected static final LocalSymbolTable NO_LOCALS = LocalSymbolTable.EMPTY;
+    protected static final SymbolTable NO_LOCALS = SymbolTable.EMPTY;
 
     /**
      * The environment in use.
@@ -116,7 +116,7 @@ public abstract class TestCaseWithEnv extends TestCase {
      *             various things can fail during the translation.
      */
     protected Term makeTerm(String string) throws Exception {
-        return makeTerm(string, new LocalSymbolTable(env));
+        return makeTerm(string, new SymbolTable(env));
     }
 
     /**
@@ -134,7 +134,7 @@ public abstract class TestCaseWithEnv extends TestCase {
      * @throws Exception
      *             various things can fail during the translation.
      */
-    protected Term makeTerm(String string, LocalSymbolTable table) throws TermException {
+    protected Term makeTerm(String string, SymbolTable table) throws TermException {
         try {
             return TermMaker.makeAndTypeTerm(string, table, "*test*");
         } catch (Exception e) {

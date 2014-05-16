@@ -51,7 +51,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.JTextComponent;
 
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.RuleApplicationComponent;
@@ -197,7 +197,7 @@ public class InteractiveRuleApplicationComponent extends
             try {
 
                 MutableRuleApplication app = new MutableRuleApplication((RuleApplication) selected);
-                LocalSymbolTable symbols = app.getProofNode().getLocalSymbolTable();
+                SymbolTable symbols = app.getProofNode().getLocalSymbolTable();
 
                 // collect the user instantiations
                 for (InteractionEntry pair : interactionList) {
@@ -307,7 +307,7 @@ public class InteractiveRuleApplicationComponent extends
     @Override
     protected void setInstantiations(RuleApplication app) {
         super.setInstantiations(app);
-        LocalSymbolTable local = app.getProofNode().getLocalSymbolTable();
+        SymbolTable local = app.getProofNode().getLocalSymbolTable();
         interactionList.clear();
         for (Map.Entry<String, String> entry : app.getProperties().entrySet()) {
             String key = entry.getKey();

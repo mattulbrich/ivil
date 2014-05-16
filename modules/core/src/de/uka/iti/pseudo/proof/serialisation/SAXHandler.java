@@ -17,7 +17,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.FormatException;
@@ -47,7 +47,7 @@ class SAXHandler extends DefaultHandler {
     private String currentId = "";
     private Attributes attributes;
     private MutableRuleApplication ram;
-    private LocalSymbolTable localSymbols;
+    private SymbolTable localSymbols;
     private int goalNo = 0;
 //	private boolean ignoreExceptions;
     private final ProgressIndicator indicator;

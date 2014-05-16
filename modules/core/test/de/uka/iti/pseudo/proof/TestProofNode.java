@@ -15,7 +15,7 @@ import java.util.Collections;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaVariable;
@@ -99,7 +99,7 @@ public class TestProofNode extends TestCaseWithEnv {
         p.apply(app);
 
         ProofNode openGoal = p.getOpenGoals().get(0);
-        LocalSymbolTable lst = openGoal.getLocalSymbolTable();
+        SymbolTable lst = openGoal.getLocalSymbolTable();
         assertNotNull(lst.getFunction("i"));
 
         Term result = openGoal.getSequent().getSuccedent().get(0);

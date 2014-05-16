@@ -189,25 +189,6 @@ public class GoalAction {
     }
 
     /**
-     * Dump the goal action to stdout.
-     */
-    public void dump() {
-        System.out.println("      action " + kind + (name == null ? "" : " \""+name+"\""));
-
-        if(replaceWith != null) {
-            System.out.println("        replace " + replaceWith);
-        }
-
-        for (Term t : addAntecedent) {
-            System.out.println("        add " + t + " |-");
-        }
-
-        for (Term t : addSuccedent) {
-            System.out.println("        add |- " +t);
-        }
-    }
-
-    /**
      * Gets the name of this goal action. If the name is not specified,
      * null is returned
      *

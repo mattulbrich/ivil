@@ -20,7 +20,7 @@ import java.util.Set;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -993,14 +993,14 @@ class BoogieMap extends Type {
     }
 
     /**
-     * A wrapper around {@link TermMaker#makeType(String, Environment, LocalSymbolTable)}
+     * A wrapper around {@link TermMaker#makeType(String, Environment, SymbolTable)}
      * since we here always have empty local tables.
      *
      * @author Mattias Ulbrich
      */
     private static Term makeAndTypeTerm(String termString, Environment env)
             throws ParseException, ASTVisitException {
-        return TermMaker.makeAndTypeTerm(termString, new LocalSymbolTable(env));
+        return TermMaker.makeAndTypeTerm(termString, new SymbolTable(env));
     }
 
 }

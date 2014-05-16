@@ -20,7 +20,7 @@ import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
@@ -126,7 +126,7 @@ public class TermMaker extends ASTDefaultVisitor {
     /**
      * The local symbol table to use for lookup.
      */
-    private final LocalSymbolTable local;
+    private final SymbolTable symbols;
 
     /**
      * The linenumber to be set when creating statements.
@@ -152,20 +152,18 @@ public class TermMaker extends ASTDefaultVisitor {
      */
     public TermMaker(@NonNull Environment env) {
         this.env = env;
-        this.local = new LocalSymbolTable(env);
+        this.symbols = new SymbolTable(env);
     }
 
     /**
      * create a new TermMaker for an environment.
      *
-     * @param env
-     *            the environment to look up functions, sorts, ...
-     * @param local
-     *            local symbol table to look up for function, sorts, ...
+     * @param symbols
+     *            symbol table to look up for function, sorts, ...
      */
-    public TermMaker(@NonNull LocalSymbolTable local) {
-        this.env = local.getEnvironment();
-        this.local = local;
+    public TermMaker(@NonNull SymbolTable symbols) {
+        this.env = symbols.getEnvironment();
+        this.symbols = symbols;
     }
 
     //
@@ -219,7 +217,7 @@ public class TermMaker extends ASTDefaultVisitor {
      *             thrown on error during AST traversal.
      */
     public static @NonNull Term makeAndTypeTerm(ASTTerm astTerm,
-            @NonNull LocalSymbolTable local,
+            @NonNull SymbolTable local,
             Type targetType) throws ASTVisitException {
 
         // We have to embed the AST into a container because the structure may
@@ -259,8 +257,8 @@ public class TermMaker extends ASTDefaultVisitor {
      *
      * @param content
      *            the string to parse
-     * @param env
-     *            the environment
+     * @param symbols
+     *            the symbol table to lookup symbols.
      *
      * @return a term representing the string
      *
@@ -270,9 +268,9 @@ public class TermMaker extends ASTDefaultVisitor {
      *             thrown on error during AST traversal.
      */
     public static @NonNull Term makeAndTypeTerm(@NonNull String content,
-            @NonNull LocalSymbolTable local)
+            @NonNull SymbolTable symbols)
                     throws ParseException, ASTVisitException {
-        return makeAndTypeTerm(content, local, "");
+        return makeAndTypeTerm(content, symbols, "");
     }
 
     /**
@@ -285,8 +283,8 @@ public class TermMaker extends ASTDefaultVisitor {
      *
      * @param content
      *            the string to parse
-     * @param env
-     *            the environment
+     * @param symbols
+     *            the symbol table to lookup symbols
      * @param context
      *            the context name to be reported as file name to the parser
      *
@@ -298,9 +296,9 @@ public class TermMaker extends ASTDefaultVisitor {
      *             thrown on error during AST traversal.
      */
     public static @NonNull Term makeAndTypeTerm(@NonNull String content,
-            @NonNull LocalSymbolTable local, @NonNull String context)
+            @NonNull SymbolTable symbols, @NonNull String context)
             throws ParseException, ASTVisitException {
-        return makeAndTypeTerm(content, local, context, null);
+        return makeAndTypeTerm(content, symbols, context, null);
     }
 
     /**
@@ -317,8 +315,8 @@ public class TermMaker extends ASTDefaultVisitor {
      *
      * @param content
      *            the string to parse
-     * @param env
-     *            the environment
+     * @param symbols
+     *            the lookup table to find symbols
      * @param context
      *            the context name to be reported as file name to the parser
      * @param targetType
@@ -332,7 +330,7 @@ public class TermMaker extends ASTDefaultVisitor {
      *             thrown on error during AST traversal.
      */
     public static @NonNull Term makeAndTypeTerm(@NonNull String content,
-            @NonNull LocalSymbolTable local,
+            @NonNull SymbolTable symbols,
             @NonNull String context, @Nullable Type targetType)
             throws ParseException, ASTVisitException {
 
@@ -341,7 +339,7 @@ public class TermMaker extends ASTDefaultVisitor {
 
         // ast.dumpTree();
 
-        return makeAndTypeTerm(ast, local, targetType);
+        return makeAndTypeTerm(ast, symbols, targetType);
     }
 
     /**
@@ -352,8 +350,8 @@ public class TermMaker extends ASTDefaultVisitor {
      *
      * @param typeString
      *            the string to be parsed
-     * @param env
-     *            the environment to resovle type names from
+     * @param symbols
+     *            the table to lookup symbols
      *
      * @return a type which represents typeString
      *
@@ -362,14 +360,14 @@ public class TermMaker extends ASTDefaultVisitor {
      * @throws ParseException
      *             thrown by the parser
      */
-    public static Type makeType(String typeString, LocalSymbolTable local)
+    public static Type makeType(String typeString, SymbolTable symbols)
             throws ASTVisitException, ParseException {
 
         Parser parser = new Parser(new StringReader(typeString));
 
         ASTType ast = parser.TypeRef();
 
-        return makeType(ast, local);
+        return makeType(ast, symbols);
     }
 
     /**
@@ -380,18 +378,18 @@ public class TermMaker extends ASTDefaultVisitor {
      *
      * @param astType
      *            the ast of the type to be created
-     * @param env
-     *            the environment to resovle type names from
+     * @param symbols
+     *            the table to resolve type names from
      *
      * @return a type which represents astType
      *
      * @throws ASTVisitException
      *             thrown on error during AST traversal.
      */
-    public static Type makeType(ASTType astType, LocalSymbolTable local)
+    public static Type makeType(ASTType astType, SymbolTable symbols)
             throws ASTVisitException {
 
-        TermMaker termMaker = new TermMaker(local);
+        TermMaker termMaker = new TermMaker(symbols);
         astType.visit(termMaker);
 
         return termMaker.resultType;
@@ -402,8 +400,8 @@ public class TermMaker extends ASTDefaultVisitor {
      *
      * @param updString
      *            the string to parse for an update
-     * @param env
-     *            the environment to used
+     * @param symbols
+     *            the table to resolve symbols from
      *
      * @return the parsed update
      *
@@ -413,12 +411,12 @@ public class TermMaker extends ASTDefaultVisitor {
      *             if the parser finds a syntax error
      */
     public static Update makeAndTypeUpdate(@NonNull String updString,
-            @NonNull LocalSymbolTable local)
+            @NonNull SymbolTable symbols)
             throws ASTVisitException, ParseException {
 
         String toParse = updString + " true";
 
-        Term t = makeAndTypeTerm(toParse, local);
+        Term t = makeAndTypeTerm(toParse, symbols);
         if (t instanceof UpdateTerm) {
             UpdateTerm updTerm = (UpdateTerm) t;
             return updTerm.getUpdate();
@@ -541,7 +539,7 @@ public class TermMaker extends ASTDefaultVisitor {
     public void visit(ASTBinderTerm binderTerm) throws ASTVisitException {
         try {
             String binderSymb = binderTerm.getBinderToken().image;
-            Binder binder = local.getBinder(binderSymb);
+            Binder binder = symbols.getBinder(binderSymb);
 
             // checked elsewhere
             assert binder != null;
@@ -654,7 +652,7 @@ public class TermMaker extends ASTDefaultVisitor {
             if(boundIdentifiers.contains(name)) {
                 resultTerm = Variable.getInst(name, type);
             } else {
-                Function funcSymbol = local.getFunction(name);
+                Function funcSymbol = symbols.getFunction(name);
                 if (funcSymbol != null) {
                     resultTerm = Application.getInst(funcSymbol, type);
                 } else {
@@ -782,7 +780,7 @@ public class TermMaker extends ASTDefaultVisitor {
                         matchingStatement, suffixFormula);
             } else {
                 Token programReference = programTerm.getProgramReferenceToken();
-                Program program = local.getProgram(programReference.image);
+                Program program = symbols.getProgram(programReference.image);
                 if(program == null) {
                     throw new TermException("Unknown program '" +programReference + "'");
                 }
@@ -809,7 +807,7 @@ public class TermMaker extends ASTDefaultVisitor {
 
         try {
             String name = typeRef.getTypeToken().image;
-            Sort sort = local.getSort(name);
+            Sort sort = symbols.getSort(name);
             if (sort == null) {
                 throw new EnvironmentException("Sort " + name + " unknown");
             }

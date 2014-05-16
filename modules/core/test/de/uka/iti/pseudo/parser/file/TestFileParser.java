@@ -30,6 +30,7 @@ import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.util.Dump;
 
 public class TestFileParser extends TestCaseWithEnv {
 
@@ -173,7 +174,7 @@ public class TestFileParser extends TestCaseWithEnv {
     public void testPrograms() throws Exception {
         Environment e = testEnv("program P assert true program Q assume true");
         if(TestCaseWithEnv.VERBOSE) {
-            e.dump();
+            Dump.dumpEnv(e);
         }
         assertNotNull(e.getProgram("P"));
         assertNotNull(e.getProgram("Q"));
@@ -191,7 +192,7 @@ public class TestFileParser extends TestCaseWithEnv {
     public void testProgramTextAnnotation() throws Exception {
         Environment e = testEnv("program P skip skip; \"hello world\" skip");
         if(TestCaseWithEnv.VERBOSE) {
-            e.dump();
+            Dump.dumpEnv(e);
         }
         Program P = e.getProgram("P");
         assertNull(P.getTextAnnotation(0));

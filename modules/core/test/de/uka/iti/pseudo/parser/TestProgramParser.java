@@ -16,6 +16,7 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.file.ASTFile;
+import de.uka.iti.pseudo.util.Dump;
 
 public class TestProgramParser extends TestCaseWithEnv {
 
@@ -26,7 +27,7 @@ public class TestProgramParser extends TestCaseWithEnv {
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
         Environment env = em.getEnvironment();
         if(VERBOSE) {
-            env.dump();
+            Dump.dumpEnv(env);
         }
         return env;
     }

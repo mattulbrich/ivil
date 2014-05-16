@@ -17,7 +17,7 @@ import java.util.Map;
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.proof.FilterRuleApplication;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
@@ -140,7 +140,7 @@ public class TestWhereConditions extends TestCaseWithEnv {
         // we need some function symbol ...
         env = new Environment("none:temp", env);
         env.addFunction(new Function("emptyset",
-                TermMaker.makeType("set('a)", new LocalSymbolTable(env)),
+                TermMaker.makeType("set('a)", new SymbolTable(env)),
                 new Type[0], false, false, ASTLocatedElement.CREATED));
 
         assertTrue(fresh.check(null, new Term[] { makeTerm("arb as 'a"), makeTerm("(\\T_all 'b; true)")}, null, env));

@@ -30,7 +30,7 @@ import javax.swing.TransferHandler;
 import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
@@ -148,7 +148,7 @@ public class TermSelectionTransfer extends TransferHandler {
         try {
             if (!support.isDataFlavorSupported(TermSelectionTransferable.TERM_DATA_FLAVOR)) {
                 // Is this the right node for locals?
-                LocalSymbolTable symbols = pc.getCurrentProofNode().getLocalSymbolTable();
+                SymbolTable symbols = pc.getCurrentProofNode().getLocalSymbolTable();
                 transferedTerm = TermMaker.makeAndTypeTerm((String) support.getTransferable().getTransferData(
                         DataFlavor.stringFlavor), symbols);
 
@@ -217,7 +217,7 @@ public class TermSelectionTransfer extends TransferHandler {
 
         // filter rules
         for (RuleApplication ra : rulesApplicable) {
-            LocalSymbolTable local = ra.getProofNode().getLocalSymbolTable();
+            SymbolTable local = ra.getProofNode().getLocalSymbolTable();
             final String level = ra.getRule().getProperty("dragdrop");
             if (null == level) {
                 continue;

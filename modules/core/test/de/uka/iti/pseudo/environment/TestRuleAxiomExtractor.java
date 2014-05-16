@@ -22,7 +22,7 @@ public class TestRuleAxiomExtractor extends TestCaseWithEnv {
 
     public void testAxiomSchemaTyping() throws Exception {
         try {
-            new Axiom("invalid", TermMaker.makeAndTypeTerm("arb as %'a = arb as %'a", new LocalSymbolTable(DEFAULT_ENV)),
+            new Axiom("invalid", TermMaker.makeAndTypeTerm("arb as %'a = arb as %'a", new SymbolTable(DEFAULT_ENV)),
                     new HashMap<String, String>(), ASTLocatedElement.CREATED);
             // axiom contains schema type %'a!
             fail("expected EnvironmentException, because the requested axiom is ill-typed");

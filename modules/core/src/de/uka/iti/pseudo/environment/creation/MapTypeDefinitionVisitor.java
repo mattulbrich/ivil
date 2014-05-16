@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
@@ -112,7 +112,7 @@ public class MapTypeDefinitionVisitor extends ASTDefaultVisitor {
 
     private Type makeType(ASTType t) throws ASTVisitException {
         // This is invoked only at parsing time, hence empty local symbol table.
-        return TermMaker.makeType(t, new LocalSymbolTable(env));
+        return TermMaker.makeType(t, new SymbolTable(env));
     }
 
     private List<TypeVariable> retrieveArgumentTypes(ASTSortDeclaration arg) {
