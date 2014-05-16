@@ -197,7 +197,7 @@ public class InteractiveRuleApplicationComponent extends
             try {
 
                 MutableRuleApplication app = new MutableRuleApplication((RuleApplication) selected);
-                LocalSymbolTable local = app.getProofNode().getLocalSymbolTable();
+                LocalSymbolTable symbols = app.getProofNode().getLocalSymbolTable();
 
                 // collect the user instantiations
                 for (InteractionEntry pair : interactionList) {
@@ -209,7 +209,7 @@ public class InteractiveRuleApplicationComponent extends
                     // if in typeInstantiationMode then set no type here
                     Type typeConstraint = pair.typeMode ? null : type;
 
-                    Term term = TermMaker.makeAndTypeTerm(content, env, local,
+                    Term term = TermMaker.makeAndTypeTerm(content, symbols,
                             "User input for " + varname, typeConstraint);
 
                     assert typeConstraint == null || type.equals(term.getType()) :
@@ -326,7 +326,7 @@ public class InteractiveRuleApplicationComponent extends
             String svName = Util.stripQuotes(key.substring(Interactive.INTERACTION.length()));
             Type svType;
             try {
-                svType = TermMaker.makeType(value, env, local);
+                svType = TermMaker.makeType(value, local);
             } catch (ASTVisitException e) {
                 Log.log(Log.WARNING, "cannot parseType: " + value + ", continue anyway");
                 continue;
@@ -357,7 +357,7 @@ public class InteractiveRuleApplicationComponent extends
                 Transferable t = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
                 if (t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                     textField.setText((String) t.getTransferData(DataFlavor.stringFlavor));
-                    TermMaker.makeAndTypeTerm(textField.getText(), env, local);
+                    TermMaker.makeAndTypeTerm(textField.getText(), local);
                 }
 
             } catch (Exception ex) {

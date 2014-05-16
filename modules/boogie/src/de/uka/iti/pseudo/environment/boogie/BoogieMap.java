@@ -48,13 +48,13 @@ import de.uka.iti.pseudo.util.Log;
  * This class is the unfolded representation of a map. It is used to compare map
  * types and to create representatives, which behave similar to maps created in
  * ivil p code.
- * 
+ *
  * TODO code cleanup
- * 
+ *
  * @author timm.felden@felden.com
  */
 class BoogieMap extends Type {
-    
+
     protected final List<TypeVariable> boundVars;
     protected final List<Type> domain;
     protected final Type range;
@@ -90,20 +90,23 @@ class BoogieMap extends Type {
         public static void check(final HashSet<TypeVariable> boundVars, final List<Type> domain,
                 final Type range, final ASTLocatedElement declaringLocation) throws TermException, TypeSystemException {
 
-            for (Type t : domain)
+            for (Type t : domain) {
                 t.accept(instance, boundVars);
+            }
 
             range.accept(instance, boundVars);
-                    
-                    if(!boundVars.isEmpty())
-                throw new TypeSystemException("The requested map @" + declaringLocation.getLocation()
-                        + " contains unbound type variables: " + boundVars);
+
+                    if(!boundVars.isEmpty()) {
+                        throw new TypeSystemException("The requested map @" + declaringLocation.getLocation()
+                                + " contains unbound type variables: " + boundVars);
+                    }
         }
 
         @Override
         public Void visit(TypeVariable typeVariable, HashSet<TypeVariable> boundVars) throws TermException {
-            if (boundVars.contains(typeVariable))
+            if (boundVars.contains(typeVariable)) {
                 boundVars.remove(typeVariable);
+            }
             return null;
         }
     }
@@ -117,36 +120,42 @@ class BoogieMap extends Type {
 
         @Override
         public Boolean visit(TypeApplication app, Type parameter) throws TermException {
-            if (!(parameter instanceof TypeApplication))
+            if (!(parameter instanceof TypeApplication)) {
                 return false;
-            
+            }
+
             TypeApplication p = (TypeApplication) parameter;
-            
-            if (!p.getSort().equals(app.getSort()))
+
+            if (!p.getSort().equals(app.getSort())) {
                 return false;
-            
+            }
+
             boolean result = true;
-            for (int i = 0; i < p.getArguments().size() && result; i++)
+            for (int i = 0; i < p.getArguments().size() && result; i++) {
                 result = app.getArguments().get(i).accept(this, p.getArguments().get(i));
-                
+            }
+
             return result;
         }
 
         public Boolean visit(BoogieMap map, Type parameter) throws TermException {
-            if (!(parameter instanceof BoogieMap))
+            if (!(parameter instanceof BoogieMap)) {
                 return false;
+            }
 
             BoogieMap p = (BoogieMap) parameter;
 
-            if (p.boundVars.size() != map.boundVars.size() || p.domain.size() != map.domain.size())
+            if (p.boundVars.size() != map.boundVars.size() || p.domain.size() != map.domain.size()) {
                 return false;
-            
+            }
+
             pushNames(map.boundVars);
-            
+
             boolean result = map.range.accept(this, p.range);
 
-            for (int i = 0; i < map.domain.size() && result; i++)
+            for (int i = 0; i < map.domain.size() && result; i++) {
                 result = map.domain.get(i).accept(this, p.domain.get(i));
+            }
 
             popNames();
 
@@ -155,20 +164,22 @@ class BoogieMap extends Type {
 
         @Override
         public Boolean visit(TypeVariable var, Type parameter) throws TermException {
-            if (!(parameter instanceof TypeVariable))
+            if (!(parameter instanceof TypeVariable)) {
                 return false;
+            }
 
             TypeVariable p = (TypeVariable) parameter;
 
             Map<TypeVariable, TypeVariable> map = containsName(var);
             if(null!=map){
-                if (null == map.get(var))
+                if (null == map.get(var)) {
                     return null == map.put(var, p);
-                else
+                } else {
                     return map.get(var).equals(p);
-            }
-            else
+                }
+            } else {
                 return var.equals(p);
+            }
         }
 
         /**
@@ -184,8 +195,9 @@ class BoogieMap extends Type {
 
         private void pushNames(List<TypeVariable> boundVars) {
             HashMap<TypeVariable, TypeVariable> map = new HashMap<TypeVariable, TypeVariable>();
-            for (TypeVariable v : boundVars)
+            for (TypeVariable v : boundVars) {
                 map.put(v, null);
+            }
 
             variableRenaming.push(map);
         }
@@ -195,17 +207,20 @@ class BoogieMap extends Type {
         }
 
         private Map<TypeVariable, TypeVariable> containsName(TypeVariable var) {
-            for (Map<TypeVariable, TypeVariable> m : variableRenaming)
-                if (m.containsKey(var))
+            for (Map<TypeVariable, TypeVariable> m : variableRenaming) {
+                if (m.containsKey(var)) {
                     return m;
+                }
+            }
             return null;
         }
     }
 
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof BoogieMap))
+        if (!(object instanceof BoogieMap)) {
             return false;
+        }
 
         BoogieMap m = (BoogieMap) object;
         try {
@@ -256,8 +271,9 @@ class BoogieMap extends Type {
         }
         sb.append("[");
         for (int i = 0; i < domain.size(); i++) {
-            if (i > 0)
+            if (i > 0) {
                 sb.append(", ");
+            }
             sb.append(domain.get(i));
         }
         sb.append("]");
@@ -267,7 +283,7 @@ class BoogieMap extends Type {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * de.uka.iti.pseudo.term.Type#visit(de.uka.iti.pseudo.term.TypeVisitor)
      */
@@ -296,7 +312,7 @@ class BoogieMap extends Type {
      * other maps by using what ever arguments to unbound type variables
      * </ul>
      * </ul>
-     * 
+     *
      * Some examples:
      * <ul>
      * <li>{@literal <a>[ref a]a => map : ref a-> a}
@@ -305,17 +321,17 @@ class BoogieMap extends Type {
      * : ref a b -> a}
      * <li> {@literal [int]int => map(int->a, int->b) : a -> b * }
      * </ul>
-     * 
+     *
      * @throws TypeSystemException
      *             thrown, if the map contains unused bound type variables
-     * 
+     *
      * @note (boogie style) map equality checks are still needed to guarantee
      *       that maps such as {@literal <a>[a]a} and {@literal<b>[b]b} are
      *       represented by the same map type
      */
     Type flatten(final Environment env, final String desiredName, final MapTypeDatabase mapDB)
             throws EnvironmentException, TermException, TypeSystemException {
-        
+
         // //
         // 1. create representing map type
 
@@ -325,8 +341,9 @@ class BoogieMap extends Type {
         // note: no list for bound type variables is needed, as the same
         // variables will be bound
         LinkedList<Type> dom = new LinkedList<Type>();
-        for (Type t : domain)
+        for (Type t : domain) {
             dom.add(generalize(t, omittedTypes, env, mapDB));
+        }
 
         Type ran = generalize(range, omittedTypes, env, mapDB);
 
@@ -356,49 +373,54 @@ class BoogieMap extends Type {
      * Creates a flat type, that does not contain any map types, as well as
      * registering rules and function symbols for the created type in the
      * environment.
-     * 
+     *
      * @param env
      *            the target environment
-     * 
+     *
      * @param name
      *            the desired name of the type; if null, a generic name will
      *            be used
-     * 
+     *
      * @return a type that behaves as if it were a map type
-     * 
+     *
      * @throws EnvironmentException
      * @throws TermException
-     * 
+     *
      *             TODO move rule creation and the whole schema type related
      *             things into another function
      */
     private Type flatten(Environment env, String name) throws EnvironmentException, TermException {
 
-        if (null != name && null != env.getSort(name))
+        if (null != name && null != env.getSort(name)) {
             throw new EnvironmentException("the sort " + name + " exists already");
+        }
 
         // create flat sub types
         Type flat_dom[] = new Type[domain.size()], flat_r;
 
         for (int i = 0; i < flat_dom.length; i++) {
             flat_dom[i] = domain.get(i);
-            if (flat_dom[i] instanceof BoogieMap)
+            if (flat_dom[i] instanceof BoogieMap) {
                 flat_dom[i] = ((BoogieMap) flat_dom[i]).flatten(env, null);
+            }
         }
         flat_r = getRange() instanceof BoogieMap ? ((BoogieMap) getRange()).flatten(env, null) : getRange();
 
         // the list of type variables, that do occur unbound in this type
         Set<Type> freeVars = new HashSet<Type>();
-        for (int i = 0; i < flat_dom.length; i++)
+        for (int i = 0; i < flat_dom.length; i++) {
             collectFreeVars(flat_dom[i], freeVars);
+        }
         collectFreeVars(flat_r, freeVars);
 
-        for (Type t : boundVars)
+        for (Type t : boundVars) {
             freeVars.remove(t);
+        }
 
         // create map sort and type
-        if (null == name)
+        if (null == name) {
             name = env.createNewSortName("map");
+        }
         env.addSort(new Sort(name, freeVars.size(), declaringLocation));
 
         // create function symbols
@@ -412,10 +434,11 @@ class BoogieMap extends Type {
             mapDomainRange[0] = mapDomain[0] = map_t;
             for (int i = flat_dom.length - 1; i >= 0; i--) {
                 mapDomainRange[i + 1] = mapDomain[i + 1] = flat_dom[i];
-                if (null == curryMap[0])
+                if (null == curryMap[0]) {
                     curryMap[0] = env.mkType("map", new Type[] { flat_dom[i], flat_r });
-                else
+                } else {
                     curryMap[0] = env.mkType("map", new Type[] { flat_dom[i], curryMap[0] });
+                }
             }
 
             mapDomainRange[flat_dom.length + 1] = flat_r;
@@ -431,11 +454,12 @@ class BoogieMap extends Type {
             // allows to create map_t from map(D_1,(...(map(D_i,r))...))
             // this is completely unneeded for maps without domain, because it
             // is used to implement lambda expressions
-            if (flat_dom.length > 0)
+            if (flat_dom.length > 0) {
                 env.addFunction($uncurry = new Function("$uncurry_" + name, map_t, curryMap, false, false,
                         declaringLocation));
-            else
+            } else {
                 $uncurry = null;
+            }
         }
 
         createRules(name, $load, $store, $uncurry, env);
@@ -447,16 +471,18 @@ class BoogieMap extends Type {
      * collects the free type variables in a MapType free type
      */
     private static final void collectFreeVars(Type type, Set<Type> freeVars) {
-        if (type instanceof TypeVariable)
+        if (type instanceof TypeVariable) {
             freeVars.add(type);
-        else if (type instanceof TypeApplication)
-            for (Type t : ((TypeApplication) type).getArguments())
+        } else if (type instanceof TypeApplication) {
+            for (Type t : ((TypeApplication) type).getArguments()) {
                 collectFreeVars(t, freeVars);
+            }
+        }
     }
 
     /**
      * does the actual generalization needed in flatten.
-     * 
+     *
      * @note new parameters are named _%i, as such variable names can not be the
      *       result of any legal type parameter name after escaping it propperly
      */
@@ -475,16 +501,17 @@ class BoogieMap extends Type {
         } else if (t instanceof TypeApplication) {
             if (ApplicationContainsBoundVars(t)) {
                 TypeApplication app = (TypeApplication) t;
-                
+
                 Type[] args = new Type[app.getSort().getArity()];
-                for (int i = 0; i < args.length; i++)
+                for (int i = 0; i < args.length; i++) {
                     args[i] = generalize(app.getArguments().get(i), omittedTypes, env, mapDB);
+                }
                 return env.mkType(app.getSort().getName(), args);
 
             } else {
                 Type rval = TypeVariable.getInst("_" + omittedTypes.size());
                 omittedTypes.add(t);
-                return rval;    
+                return rval;
             }
 
         } else if (t instanceof BoogieMap) {
@@ -507,17 +534,20 @@ class BoogieMap extends Type {
             return boundVars.contains(t);
         } else if (t instanceof TypeApplication) {
             for (Type s : ((TypeApplication) t).getArguments()) {
-                if (ApplicationContainsBoundVars(s))
+                if (ApplicationContainsBoundVars(s)) {
                     return true;
+                }
             }
             return false;
 
         } else if (t instanceof BoogieMap) {
             BoogieMap m = (BoogieMap) t;
-            for (Type s : m.domain)
-                if (ApplicationContainsBoundVars(s))
+            for (Type s : m.domain) {
+                if (ApplicationContainsBoundVars(s)) {
                     return true;
-            
+                }
+            }
+
             return ApplicationContainsBoundVars(m.range);
         } else {
             assert false : "generalization of unexpected type:" + t.getClass().getCanonicalName();
@@ -528,7 +558,7 @@ class BoogieMap extends Type {
     /**
      * create rules needed in order to handle objects of the created map type
      * efficiently
-     * 
+     *
      * @param $uncurry
      */
     private void createRules(String name, Function $load, Function $store, Function $uncurry, Environment env)
@@ -569,11 +599,13 @@ class BoogieMap extends Type {
         StringBuilder sbFind = new StringBuilder();
         sbFind.append($load.getName()).append("(");
         sbFind.append($store.getName()).append("(%m, ");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append("%d").append(i).append(", ");
+        }
         sbFind.append("%v)");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append(", ").append("%d").append(i);
+        }
         sbFind.append(")");
 
         // %v
@@ -616,26 +648,30 @@ class BoogieMap extends Type {
         Map<String, String> tags = new HashMap<String, String>();
 
         tags.put("rewrite", "concrete");
-        if (domain.size() == 1)
+        if (domain.size() == 1) {
             tags.put("dragdrop", "8");
+        }
 
         // $load($store(%m, %D, %v), %T)
         StringBuilder sbFind = new StringBuilder();
         sbFind.append($load.getName()).append("(");
         sbFind.append($store.getName()).append("(%m, ");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append("%d").append(i).append(", ");
+        }
         sbFind.append("%v)");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append(", ").append("%t").append(i);
+        }
         sbFind.append(")");
 
         // add equality to the condition, to ensure, that %D and %T have the
         // same types.
         // AND(%di = %ti)
         StringBuilder sbCond = new StringBuilder("true");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbCond.append(" & ").append("%d").append(i).append(" = ").append("%t").append(i);
+        }
 
         Term factory;
         factory = makeAndTypeTerm("cond(" + sbCond + "," + sbFind + ", %v )", env);
@@ -651,10 +687,11 @@ class BoogieMap extends Type {
 
         List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
 
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             assumes.add(new LocatedTerm(Application.getInst(env.getFunction("$eq"), Environment.getBoolType(),
                     new Term[] { find.getSubterm(0).getSubterm(i + 1), find.getSubterm(i + 1) }),
                     MatchingLocation.ANTECEDENT));
+        }
 
         Rule rule = new Rule(ruleName, assumes, new LocatedTerm(find, MatchingLocation.BOTH), where, actions, tags,
                 declaringLocation);
@@ -685,26 +722,30 @@ class BoogieMap extends Type {
         StringBuilder sbFind = new StringBuilder();
         sbFind.append($load.getName()).append("(");
         sbFind.append($store.getName()).append("(%m, ");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append("%d").append(i).append(", ");
+        }
         sbFind.append("%v)");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append(", ").append("%t").append(i);
+        }
         sbFind.append(")");
 
         // $load(%m, %T)
         StringBuilder sbReplace = new StringBuilder($load.getName());
         sbReplace.append("(%m");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbReplace.append(", ").append("%t").append(i);
+        }
         sbReplace.append(")");
 
         // add equality to the condition, to ensure, that %D and %T have the
         // same types, the actual terms are not relevant
         // AND(%di = %ti)
         StringBuilder sbCond = new StringBuilder("true");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbCond.append(" & ").append("%d").append(i).append(" = ").append("%t").append(i);
+        }
 
         Term factory;
         factory = makeAndTypeTerm("cond(" + sbCond + "," + sbFind + "," + sbReplace + ")", env);
@@ -774,18 +815,21 @@ class BoogieMap extends Type {
         StringBuilder sbFind = new StringBuilder();
         sbFind.append($load.getName()).append("(");
         sbFind.append($store.getName()).append("(%m, ");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append("%d").append(i).append(", ");
+        }
         sbFind.append("%v)");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append(", ").append("%t").append(i);
+        }
         sbFind.append(")");
 
         // $load(%m, %T)
         StringBuilder sbReplace = new StringBuilder($load.getName());
         sbReplace.append("(%m");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbReplace.append(", ").append("%t").append(i);
+        }
         sbReplace.append(")");
 
         Term factory;
@@ -846,25 +890,30 @@ class BoogieMap extends Type {
         StringBuilder sbFind = new StringBuilder();
         sbFind.append($load.getName()).append("(");
         sbFind.append($store.getName()).append("(%m, ");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append("%d").append(i).append(", ");
+        }
         sbFind.append("%v)");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append(", ").append("%t").append(i);
+        }
         sbFind.append(")");
 
         // cond($weq(%D, %T), %v, $load(%m, %T))
         StringBuilder sbReplace = new StringBuilder("cond(");
-        if (0 == domain.size())
+        if (0 == domain.size()) {
             sbReplace.append("true");
+        }
         for (int i = 0; i < domain.size(); i++) {
-            if (i > 0)
+            if (i > 0) {
                 sbReplace.append("&");
+            }
             sbReplace.append("$weq(%d").append(i).append(", ").append("%t").append(i).append(")");
         }
         sbReplace.append(", %v, ").append($load.getName()).append("(%m");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbReplace.append(", ").append("%t").append(i);
+        }
         sbReplace.append("))");
 
         Term factory;
@@ -885,8 +934,9 @@ class BoogieMap extends Type {
     private void addLoadUncurryLambdaRule(String name, Function $load, Function $uncurry, Environment env)
             throws EnvironmentException, RuleException, ParseException, ASTVisitException {
         // dont create a rule, if uncurry is not present
-        if (null == $uncurry)
+        if (null == $uncurry) {
             return;
+        }
 
         String ruleName = name + "_load_uncurry_lambda";
         // find: $load($uncurry(\lambda %d1 ... \lambda %dn; %v), %T)
@@ -904,23 +954,28 @@ class BoogieMap extends Type {
         StringBuilder sbFind = new StringBuilder();
         sbFind.append($load.getName()).append("(");
         sbFind.append($uncurry.getName()).append("(");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append("(\\lambda %d").append(i).append("; ");
+        }
         sbFind.append("%v)");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append(")");
-        for (int i = 0; i < domain.size(); i++)
+        }
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append(", ").append("%t").append(i);
+        }
         sbFind.append(")");
 
         // $$subst(%d1, %t1, ... %%subst(%dn, %tn, %v))
         StringBuilder sbReplace = new StringBuilder();
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbReplace.append("$$subst(%d").append(i).append(", ").append("%t").append(i).append(", ");
+        }
 
         sbReplace.append("%v");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbReplace.append(")");
+        }
 
         Term factory;
         factory = makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
@@ -945,7 +1000,7 @@ class BoogieMap extends Type {
      */
     private static Term makeAndTypeTerm(String termString, Environment env)
             throws ParseException, ASTVisitException {
-        return TermMaker.makeAndTypeTerm(termString, env, LocalSymbolTable.EMPTY);
+        return TermMaker.makeAndTypeTerm(termString, new LocalSymbolTable(env));
     }
 
 }

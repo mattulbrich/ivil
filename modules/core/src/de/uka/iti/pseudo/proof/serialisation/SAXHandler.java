@@ -140,7 +140,7 @@ class SAXHandler extends DefaultHandler {
                 assert varname != null : "No variable name referenced (should be ensured by schema)";
 
                 Term term = null;
-                term = TermMaker.makeAndTypeTerm(content.toString(), env, localSymbols, "XML-Import");
+                term = TermMaker.makeAndTypeTerm(content.toString(), localSymbols, "XML-Import");
 
                 Map<String, Term> schemaVariableMapping = ram
                         .getSchemaVariableMapping();
@@ -155,7 +155,7 @@ class SAXHandler extends DefaultHandler {
                 assert varname != null : "No type variable name referenced (should be ensured by schema)";
 
                 Type type = null;
-                type = TermMaker.makeType(content.toString(), env, localSymbols);
+                type = TermMaker.makeType(content.toString(), localSymbols);
 
                 Map<String, Type> typeVariableMapping = ram
                         .getTypeVariableMapping();
@@ -171,7 +171,7 @@ class SAXHandler extends DefaultHandler {
                 assert varname != null : "No schema update name referenced (should be ensured by schema)";
 
                 Update upd = null;
-                upd = TermMaker.makeAndTypeUpdate(content.toString(), env, localSymbols);
+                upd = TermMaker.makeAndTypeUpdate(content.toString(), localSymbols);
 
                 Map<String, Update> updMap = ram.getSchemaUpdateMapping();
                 if (updMap.containsKey(varname)) {
@@ -183,7 +183,7 @@ class SAXHandler extends DefaultHandler {
 
             } else if (name.equals("ruleApplication")) {
                 // matchRuleApp();
-                proof.apply(ram, env);
+                proof.apply(ram);
                 ram = null;
                 localSymbols = null;
 

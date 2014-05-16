@@ -17,15 +17,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import de.uka.iti.pseudo.environment.AbstractMetaFunction;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
+import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.creation.ProgramChanger;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
@@ -134,7 +134,7 @@ import de.uka.iti.pseudo.util.settings.Settings;
  * Proofs can not be saved if the name of the generated program
  * is not deterministic
  */
-public class LoopInvariantProgramModificationMetaFunction extends AbstractMetaFunction {
+public class LoopInvariantProgramModificationMetaFunction extends MetaFunction {
 
     private static final Type BOOL = Environment.getBoolType();
 
@@ -143,8 +143,7 @@ public class LoopInvariantProgramModificationMetaFunction extends AbstractMetaFu
     }
 
     @Override
-    public Term evaluate(Application application, Environment env,
-            RuleApplication ruleApp) throws TermException {
+    public Term evaluate(Application application, MetaEvaluator eval) throws TermException {
 
         LiteralProgramTerm programTerm;
         if (application.getSubterm(0) instanceof LiteralProgramTerm) {
@@ -171,7 +170,8 @@ public class LoopInvariantProgramModificationMetaFunction extends AbstractMetaFu
 
         // use an external object so that no state is stored in the meta
         // function
-        LoopModifier modifier = new LoopModifier(programTerm, invariant, variant, env);
+        LoopModifier modifier =
+                new LoopModifier(programTerm, invariant, variant,  eval.getLocalSymbolTable());
 
         try {
             return modifier.apply();
@@ -193,18 +193,19 @@ class LoopModifier {
 
     private final Term invariant;
     private final Term variant;
-    private final Environment env;
     private final TermFactory tf;
     private ProgramChanger programChanger;
     private final Program originalProgram;
+    private final LocalSymbolTable symbols;
 
-    public LoopModifier(LiteralProgramTerm programTerm, Term invariant, Term variant, Environment env) {
+    public LoopModifier(LiteralProgramTerm programTerm, Term invariant,
+            Term variant, LocalSymbolTable symbols) {
         this.programTerm = programTerm;
         this.originalProgram = programTerm.getProgram();
         this.invariant = invariant;
         this.variant = variant;
-        this.env = env;
-        this.tf = new TermFactory(env);
+        this.symbols = symbols;
+        this.tf = new TermFactory(symbols.getEnvironment());
     }
 
     // package default to unit test it.
@@ -221,7 +222,7 @@ class LoopModifier {
 
         collectAssignables();
 
-        programChanger = new ProgramChanger(program, env);
+        programChanger = new ProgramChanger(program, symbols.getEnvironment());
 
         makeVarAtPreSymbol();
 
@@ -229,12 +230,13 @@ class LoopModifier {
         int newIndex = insertAssumptions(index);
         removeSkip(newIndex);
 
-        String name = env.createNewProgramName(program.getName());
+        String name = symbols.createNewProgramName(program.getName());
         Program newProgram = programChanger.makeProgram(name);
-        env.addProgram(newProgram);
+        symbols.addProgram(newProgram);
 
         LiteralProgramTerm newProgramTerm =
-            LiteralProgramTerm.getInst(index, programTerm.getModality(), newProgram, programTerm.getSuffixTerm());
+            LiteralProgramTerm.getInst(index, programTerm.getModality(), newProgram,
+                    programTerm.getSuffixTerm());
 
         return newProgramTerm;
 
@@ -386,11 +388,11 @@ class LoopModifier {
      */
     private void makeVarAtPreSymbol() throws TermException, EnvironmentException {
         if(varAtPre == null && variant != null) {
-            String newname = env.createNewFunctionName("varAtPre");
+            String newname = symbols.createNewFunctionName("varAtPre");
             Function varAtPreSym = new Function(newname, variant.getType(), new Type[0],
                     false, false, ASTLocatedElement.CREATED);
             try {
-                env.addFunction(varAtPreSym);
+                symbols.addFunction(varAtPreSym);
                 varAtPre = Application.getInst(varAtPreSym, varAtPreSym.getResultType());
             } catch (EnvironmentException e) {
                 throw new TermException(e);

@@ -653,7 +653,7 @@ public class MapTypeRuleCreator {
 
         Term factory;
         factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")",
-                env, LocalSymbolTable.EMPTY);
+                new LocalSymbolTable(env));
         Term find, replace;
 
         find = factory.getSubterm(1);
@@ -669,7 +669,7 @@ public class MapTypeRuleCreator {
 
     private static Term makeAndTypeTerm(String string, Environment env) throws ParseException, ASTVisitException {
         // This is invoked only at parsing time, hence empty local symbol table.
-        return TermMaker.makeAndTypeTerm(string, env, LocalSymbolTable.EMPTY);
+        return TermMaker.makeAndTypeTerm(string, new LocalSymbolTable(env));
     }
 
 }

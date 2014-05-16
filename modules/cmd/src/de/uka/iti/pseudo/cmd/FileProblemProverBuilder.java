@@ -130,6 +130,10 @@ public class FileProblemProverBuilder {
         Parser parser = new Parser();
         EnvironmentMaker em = new EnvironmentMaker(parser, file);
         env = em.getEnvironment();
+
+        // ensure that the environment is fixed
+        env.setFixed();
+
         problemSequents = em.getProblemSequents();
         prettyPrint = new PrettyPrint(env);
     }

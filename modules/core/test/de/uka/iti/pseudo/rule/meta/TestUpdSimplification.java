@@ -24,7 +24,7 @@ public class TestUpdSimplification extends TestCaseWithEnv {
     @Override
     protected void setUp() throws Exception {
         ra = new MutableRuleApplication();
-        ra.setProofNode(new Proof(Environment.getTrue()).getRoot());
+        ra.setProofNode(new Proof(Environment.getTrue(), env).getRoot());
         eval = new MetaEvaluator(ra, env);
     }
 

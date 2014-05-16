@@ -2,6 +2,7 @@ package de.uka.iti.pseudo.term;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.LocalSymbolTable;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.term.creation.TermMaker;
@@ -9,7 +10,7 @@ import de.uka.iti.pseudo.term.creation.TermMaker;
 public class TestTypeVariableUnification extends TestCaseWithEnv {
 
     private Type makeType(String string) throws ASTVisitException, ParseException {
-        return TermMaker.makeType(string, env, NO_LOCALS);
+        return TermMaker.makeType(string, new LocalSymbolTable(env));
     }
 
     public void testTypeVariableUnification1() throws Exception {

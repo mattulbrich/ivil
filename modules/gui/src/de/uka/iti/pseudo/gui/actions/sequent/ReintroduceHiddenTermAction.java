@@ -125,7 +125,7 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
 
             ruleApp.setProofNode(node);
             try {
-                proof.apply(ruleApp, env);
+                proof.apply(ruleApp);
             } catch (ProofException ex) {
                 ex.printStackTrace();
             }

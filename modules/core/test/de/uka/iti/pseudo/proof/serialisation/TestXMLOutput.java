@@ -14,7 +14,7 @@ public class TestXMLOutput extends TestCaseWithEnv {
     public void testGetPath() throws Exception {
 
         Term t = makeTerm("b1 -> (b1 & b2)");
-        Proof proof = new Proof(t);
+        Proof proof = new Proof(t, env);
 
         {
             RuleApplicationMaker ra = new RuleApplicationMaker(env);
@@ -22,7 +22,7 @@ public class TestXMLOutput extends TestCaseWithEnv {
             ra.setRule(env.getRule("impl_right"));
             ra.setProofNode(proof.getRoot());
             ra.matchInstantiations();
-            proof.apply(ra, env);
+            proof.apply(ra);
         }
 
         {
@@ -31,7 +31,7 @@ public class TestXMLOutput extends TestCaseWithEnv {
             ra.setRule(env.getRule("and_right"));
             ra.setProofNode(proof.getGoalByNumber(2));
             ra.matchInstantiations();
-            proof.apply(ra, env);
+            proof.apply(ra);
         }
 
         ProofNode root = proof.getRoot();
@@ -48,14 +48,14 @@ public class TestXMLOutput extends TestCaseWithEnv {
     public void testTypeVars() throws Exception {
 
         Term t = makeTerm("arb as 'a = arb");
-        Proof proof = new Proof(t);
+        Proof proof = new Proof(t, env);
 
         RuleApplicationMaker ra = new RuleApplicationMaker(env);
         ra.setFindSelector(new TermSelector("S.0"));
         ra.setRule(env.getRule("equality_refl"));
         ra.setProofNode(proof.getRoot());
         ra.matchInstantiations();
-        proof.apply(ra, env);
+        proof.apply(ra);
 
         StringWriter writer = new StringWriter();
         XMLOutput output = new XMLOutput(writer);

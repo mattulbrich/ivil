@@ -35,7 +35,7 @@ public class ShowMainWindow {
 
         env.dump();
 
-        Proof proof = new Proof(em.getProblemSequents().get(""));
+        Proof proof = new Proof(em.getProblemSequents().get(""), env);
 
         ProofCenter proofCenter = new ProofCenter(proof, env);
         MainWindow main = proofCenter.getMainWindow();

@@ -70,7 +70,7 @@ public class PooledAutoProver {
 
                     ra = strategy.findRuleApplication(node);
                     if (ra != null) {
-                        node.getProof().apply(ra, env);
+                        node.getProof().apply(ra);
                         strategy.notifyRuleApplication(ra);
                         applicationsDone.incrementAndGet();
                         waitingQueue.addAll(node.getChildren());

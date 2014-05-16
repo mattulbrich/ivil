@@ -206,6 +206,12 @@ public class ProofCenter {
         this.env = env;
         this.prettyPrinter = new PrettyPrint(env);
 
+        // just to make sure ...
+        assert proof.getEnvironment() == env;
+
+        // ensure that the environment is fixed
+        env.setFixed();
+
         this.strategyManager = new StrategyManager(proof, env);
         this.strategyManager.registerAllKnownStrategies();
 
@@ -376,7 +382,7 @@ public class ProofCenter {
      */
     public void apply(RuleApplication ruleApp) throws ProofException {
         Log.enter(ruleApp);
-        proof.apply(ruleApp, env);
+        proof.apply(ruleApp);
     }
 
     /**

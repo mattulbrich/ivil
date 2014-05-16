@@ -148,9 +148,9 @@ public class TermSelectionTransfer extends TransferHandler {
         try {
             if (!support.isDataFlavorSupported(TermSelectionTransferable.TERM_DATA_FLAVOR)) {
                 // Is this the right node for locals?
-                LocalSymbolTable local = pc.getCurrentProofNode().getLocalSymbolTable();
+                LocalSymbolTable symbols = pc.getCurrentProofNode().getLocalSymbolTable();
                 transferedTerm = TermMaker.makeAndTypeTerm((String) support.getTransferable().getTransferData(
-                        DataFlavor.stringFlavor), pc.getEnvironment(), local);
+                        DataFlavor.stringFlavor), symbols);
 
             } else {
                 TermSelectionTransferable ts = (TermSelectionTransferable) support.getTransferable().getTransferData(
@@ -244,7 +244,7 @@ public class TermSelectionTransfer extends TransferHandler {
                 String svName = Util.stripQuotes(key.substring(Interactive.INTERACTION.length()));
                 Type svType;
                 try {
-                    svType = TermMaker.makeType(value, env, local);
+                    svType = TermMaker.makeType(value, local);
                 } catch (ASTVisitException e) {
                     Log.log(Log.WARNING, "cannot parseType: " + value + ", continue anyway");
                     continue;

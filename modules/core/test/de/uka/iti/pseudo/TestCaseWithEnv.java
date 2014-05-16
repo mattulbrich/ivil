@@ -116,7 +116,7 @@ public abstract class TestCaseWithEnv extends TestCase {
      *             various things can fail during the translation.
      */
     protected Term makeTerm(String string) throws Exception {
-        return makeTerm(string, NO_LOCALS);
+        return makeTerm(string, new LocalSymbolTable(env));
     }
 
     /**
@@ -136,7 +136,7 @@ public abstract class TestCaseWithEnv extends TestCase {
      */
     protected Term makeTerm(String string, LocalSymbolTable table) throws TermException {
         try {
-            return TermMaker.makeAndTypeTerm(string, env, table, "*test*");
+            return TermMaker.makeAndTypeTerm(string, table, "*test*");
         } catch (Exception e) {
             throw new TermException("Cannot parse: " + string, e);
         }

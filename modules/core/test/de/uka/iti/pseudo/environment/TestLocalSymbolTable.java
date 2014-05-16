@@ -25,13 +25,13 @@ public class TestLocalSymbolTable extends TestCaseWithEnv {
 
     @Override
     protected void setUp() throws Exception {
-        f = createFunction("f");
-        g = createFunction("g");
+        f = createFunction("lf");
+        g = createFunction("lg");
 
         // same name for f and f2!
-        f2 = createFunction("f");
+        f2 = createFunction("lf");
 
-        lst = new LocalSymbolTable();
+        lst = new LocalSymbolTable(env);
         lst.addFunction(f);
         lst.addFunction(g);
     }
@@ -82,14 +82,18 @@ public class TestLocalSymbolTable extends TestCaseWithEnv {
     }
 
     public void testGetFunction() {
-        assertEquals(f, lst.getFunction("f"));
-        assertEquals(g, lst.getFunction("g"));
+        assertEquals(f, lst.getFunction("lf"));
+        assertEquals(g, lst.getFunction("lg"));
+
+        assertNotNull(lst.getFunction("i1"));
+        assertNull(lst.getLocalFunction("i1"));
+
         assertNull(lst.getFunction("unknown"));
     }
 
     public void testAddFunction() throws EnvironmentException {
 
-        Function h = createFunction("h");
+        Function h = createFunction("lh");
         lst.addFunction(h);
 
         Function[] arr = { h, g, f };

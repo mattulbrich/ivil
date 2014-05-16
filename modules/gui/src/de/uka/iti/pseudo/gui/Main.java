@@ -280,7 +280,6 @@ public class Main {
                 EnvironmentCreationService.createEnvironmentByExtension(url);
 
         Environment env = result.fst();
-//        env.setFixed();
 
         Map<String, Sequent> problemSeqs = result.snd();
 
@@ -374,7 +373,8 @@ public class Main {
      */
     private static ProofCenter openProver(Environment env, Sequent problemSeq, URL urlToRemember)
             throws IOException, StrategyException, TermException {
-        Proof proof = new Proof(problemSeq);
+        Proof proof = new Proof(problemSeq, env);
+
         ProofCenter proofCenter = new ProofCenter(proof, env);
 
         showProofCenter(proofCenter);

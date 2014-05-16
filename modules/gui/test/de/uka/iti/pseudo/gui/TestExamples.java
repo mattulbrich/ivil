@@ -36,7 +36,7 @@ public class TestExamples extends TestCaseWithEnv {
             Environment env = em.getEnvironment();
 
             // FIXME We assume there is one and only one problem in the files
-            Proof proof = new Proof(em.getProblemSequents().get(""));
+            Proof proof = new Proof(em.getProblemSequents().get(""), env);
 
             ProofCenter proofCenter = new ProofCenter(proof, env);
             MainWindow main = proofCenter.getMainWindow();

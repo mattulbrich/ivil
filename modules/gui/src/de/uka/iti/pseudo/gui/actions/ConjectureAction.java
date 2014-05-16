@@ -98,7 +98,6 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
                 try {
 
                     Term term = TermMaker.makeAndTypeTerm(conjecture,
-                            proofCenter.getEnvironment(),
                             currentProofNode.getLocalSymbolTable(),
                             "user input");
 
@@ -108,7 +107,7 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
                     ram.setRule(cutRule);
                     ram.setProofNode(currentProofNode);
                     ram.getSchemaVariableMapping().put("%inst", term);
-                    proofCenter.getProof().apply(ram, proofCenter.getEnvironment());
+                    proofCenter.getProof().apply(ram);
 
                     Queue<ProofNode> todo = new LinkedList<ProofNode>();
                     ProofNode topNode = currentProofNode.getChildren().get(1);

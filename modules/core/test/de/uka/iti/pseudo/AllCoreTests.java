@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.auto.strategy.hint.TestHintStrategy;
 import de.uka.iti.pseudo.auto.strategy.hint.TestHints;
 import de.uka.iti.pseudo.environment.TestLocalSymbolTable;
 import de.uka.iti.pseudo.environment.TestProgramChanger;
+import de.uka.iti.pseudo.environment.TestProofReplay;
 import de.uka.iti.pseudo.environment.TestRuleAxiomExtractor;
 import de.uka.iti.pseudo.environment.TestTypeVariableCollector;
 import de.uka.iti.pseudo.parser.TestProgramParser;
@@ -124,6 +125,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestMapTypes.class);
         suite.addTestSuite(TestTypeVariableUnification.class);
         suite.addTestSuite(TestLocalSymbolTable.class);
+        suite.addTestSuite(TestProofReplay.class);
         //$JUnit-END$
         return suite;
     }

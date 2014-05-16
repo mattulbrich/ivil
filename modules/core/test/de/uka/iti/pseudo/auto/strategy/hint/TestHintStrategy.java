@@ -31,14 +31,14 @@ public class TestHintStrategy extends TestCaseWithEnv {
 
     public void testHintStrategy() throws Exception {
         // make first rule application
-        Proof proof = new Proof(problem);
+        Proof proof = new Proof(problem, env);
         RuleApplicationMaker ram = new RuleApplicationMaker(env);
         ProofNode root = proof.getRoot();
         ram.setProofNode(root);
         ram.setFindSelector(new TermSelector("S.0"));
         ram.setRule(env.getRule("assertion"));
         ram.matchInstantiations();
-        proof.apply(ram, env);
+        proof.apply(ram);
 
         // create HintStrategy and inform it
         HintStrategy hs = new HintStrategy();

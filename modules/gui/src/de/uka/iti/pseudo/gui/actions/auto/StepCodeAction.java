@@ -32,7 +32,7 @@ import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * This class is designed to implement stepwise execution on source line basis.
- * 
+ *
  * If the currently selected proof node is an open goal and getCodeLine returns
  * a value >= 0, the currently active strategy will be applied until all
  * children are either closed or getCodeLine returns a value different from the
@@ -40,8 +40,8 @@ import de.uka.iti.pseudo.util.settings.Settings;
  */
 public abstract class StepCodeAction extends BarAction implements
         PropertyChangeListener, InitialisingAction, NotificationListener {
-    
-    private static final String PROPERTY_CONTINUE_WITHOUT_PROGRAM = 
+
+    private static final String PROPERTY_CONTINUE_WITHOUT_PROGRAM =
         "pseudo.step.continueWithoutProgram";
 
     /**
@@ -68,10 +68,10 @@ public abstract class StepCodeAction extends BarAction implements
 
     /**
      * Returns the first code location occurring on proof node.
-     * 
+     *
      * @param node
      *            the node to be queried for code line information
-     * 
+     *
      * @return null if no unique code location exists on the proof node; a valid
      *         code location else
      */
@@ -81,7 +81,7 @@ public abstract class StepCodeAction extends BarAction implements
      * This action takes the current proof node, queries its location in the
      * code and then tries to continue the proof automatically until all open
      * child nodes have a different code location.
-     * 
+     *
      * <p>
      * The code location is calculated via getCodeLocation. If no valid code
      * location can be found for the current node, nothing is done.
@@ -90,8 +90,10 @@ public abstract class StepCodeAction extends BarAction implements
     public void actionPerformed(ActionEvent e) {
         // has no effect on nodes with children
         if (null != selectedProofNode.getChildren())
+         {
             return; // if this effect is undesired, select the first open goal
                     // that has a line number
+        }
 
         final CodeLocation<?> loc = getCodeLocation(selectedProofNode);
 
@@ -106,7 +108,7 @@ public abstract class StepCodeAction extends BarAction implements
         final List<ProofNode> todo = new LinkedList<ProofNode>();
         todo.add(selectedProofNode);
 
-        final boolean continueWithoutProgram = 
+        final boolean continueWithoutProgram =
             getProofCenter().getProperty(PROPERTY_CONTINUE_WITHOUT_PROGRAM) == Boolean.TRUE;
 
         pc.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
@@ -121,13 +123,14 @@ public abstract class StepCodeAction extends BarAction implements
                     while (!(abort || todo.isEmpty())) {
                         current = todo.remove(0);
 
-                        if (null != current.getChildren())
+                        if (null != current.getChildren()) {
                             continue;
+                        }
 
                         RuleApplication ra = strategy.findRuleApplication(current);
 
                         if (ra != null) {
-                            proof.apply(ra, pc.getEnvironment());
+                            proof.apply(ra);
                             strategy.notifyRuleApplication(ra);
 
                             for (ProofNode node : current.getChildren()) {
@@ -139,9 +142,10 @@ public abstract class StepCodeAction extends BarAction implements
                                     todo.add(node);
                                 }
                             }
-                        } else
+                        } else {
                             ExceptionDialog.showExceptionDialog(getParentFrame(),
                                     "The currently selected proof strategy is to weak to do another step");
+                        }
                     }
                 } catch (Exception e) {
                     ExceptionDialog.showExceptionDialog(getParentFrame(), e);
@@ -153,17 +157,21 @@ public abstract class StepCodeAction extends BarAction implements
             public void done() {
                 pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
                 if (selectedProofNode.isClosed()) {
-                    if (proof.hasOpenGoals())
+                    if (proof.hasOpenGoals()) {
                         pc.fireSelectedProofNode(proof.getOpenGoals().get(0));
-                    else
+                    } else {
                         pc.fireSelectedProofNode(proof.getRoot());
+                    }
                 } else {
                     // find first open node
                     ProofNode current = selectedProofNode;
-                    while (current.getChildren() != null)
-                        for (ProofNode child : current.getChildren())
-                            if (!child.isClosed())
+                    while (current.getChildren() != null) {
+                        for (ProofNode child : current.getChildren()) {
+                            if (!child.isClosed()) {
                                 current = child;
+                            }
+                        }
+                    }
 
                     pc.fireSelectedProofNode(current);
                 }
@@ -180,15 +188,16 @@ public abstract class StepCodeAction extends BarAction implements
 
             setEnabled(null == selectedProofNode.getChildren() && null != getCodeLocation(selectedProofNode));
         }
-        
-        if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName()))
+
+        if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName())) {
             setEnabled(!(Boolean) evt.getNewValue());
+        }
     }
 
     @Override
     public void initialised() {
         ProofCenter proofCenter = getProofCenter();
-        
+
         proofCenter.addPropertyChangeListener(
                 ProofCenter.SELECTED_PROOFNODE, this);
         proofCenter.addPropertyChangeListener(
@@ -196,14 +205,14 @@ public abstract class StepCodeAction extends BarAction implements
         proofCenter.addNotificationListener(
                 ProofCenter.PROOFTREE_HAS_CHANGED, this);
         proofCenter.addNotificationListener(ProofCenter.STOP_REQUEST, this);
-        
+
         selectedProofNode = proofCenter.getProof().getRoot();
-        
-        proofCenter.firePropertyChange(PROPERTY_CONTINUE_WITHOUT_PROGRAM, 
+
+        proofCenter.firePropertyChange(PROPERTY_CONTINUE_WITHOUT_PROGRAM,
                 Settings.getInstance().getBoolean(PROPERTY_CONTINUE_WITHOUT_PROGRAM, true));
     }
 
-    
+
 
     @Override
     public void handleNotification(NotificationEvent evt) {
@@ -214,8 +223,9 @@ public abstract class StepCodeAction extends BarAction implements
             // if there is a worker, set its abort field to true; if the worker
             // was working, it will stop; if he already stopped, nothing will
             // happen
-            if (null != worker)
+            if (null != worker) {
                 worker.abort = true;
+            }
         }
     }
 }

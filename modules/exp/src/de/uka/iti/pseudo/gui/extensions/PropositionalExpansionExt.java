@@ -57,7 +57,7 @@ public class PropositionalExpansionExt implements ContextExtension {
                         ram.setFindSelector(new TermSelector(TermSelector.ANTECEDENT, i));
                         try {
                             ram.matchInstantiations();
-                            proofCenter.getProof().apply(ram, env);
+                            proofCenter.getProof().apply(ram);
                             openGoals.addAll(n.getChildren());
                             continue rules;
                         } catch (ProofException e) {
@@ -70,7 +70,7 @@ public class PropositionalExpansionExt implements ContextExtension {
                         ram.setFindSelector(new TermSelector(TermSelector.SUCCEDENT, i));
                         try {
                             ram.matchInstantiations();
-                            proofCenter.getProof().apply(ram, env);
+                            proofCenter.getProof().apply(ram);
                             openGoals.addAll(n.getChildren());
                             continue rules;
                         } catch (ProofException e) {

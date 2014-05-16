@@ -38,7 +38,7 @@ public class SplitPropositionalExtension implements ContextExtension {
             ProofNode n = nodes.pop();
             RuleApplicationMaker ra = rrc.findRuleApplication(n);
             if(ra != null) {
-                proofCenter.getProof().apply(ra, env);
+                proofCenter.getProof().apply(ra);
                 nodes.addAll(n.getChildren());
             }
         }

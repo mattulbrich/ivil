@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
-import checkers.nullness.quals.NonNull;
+import nonnull.NonNull;
 
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Binder;
@@ -117,20 +117,19 @@ public class TypingResolver extends ASTDefaultVisitor {
      */
     public TypingResolver(@NonNull Environment env) {
         this.env = env;
-        this.local = LocalSymbolTable.EMPTY;
+        this.local = new LocalSymbolTable(env);
         this.typingContext = new TypingContext();
     }
 
     /**
      * Instantiates a new typing resolver.
      *
-     * @param env
-     *            the environment to work in
      * @param local
-     *            the table for locally defined symbols
+     *            the table for locally defined symbols, defines also the
+     *            environment to use
      */
-    public TypingResolver(@NonNull Environment env, @NonNull LocalSymbolTable local) {
-        this.env = env;
+    public TypingResolver(@NonNull LocalSymbolTable local) {
+        this.env = local.getEnvironment();
         this.local = local;
         this.typingContext = new TypingContext();
     }
@@ -170,11 +169,7 @@ public class TypingResolver extends ASTDefaultVisitor {
         super.visit(applicationTerm);
 
         String functSymb = applicationTerm.getFunctionToken().image;
-        Function funct = env.getFunction(functSymb);
-
-        if(funct == null) {
-            funct = local.getFunction(functSymb);
-        }
+        Function funct = local.getFunction(functSymb);
 
         if(funct == null) {
             throw new ASTVisitException("Unknown function symbol " + functSymb, applicationTerm);
@@ -311,11 +306,7 @@ public class TypingResolver extends ASTDefaultVisitor {
     public void visit(ASTBinderTerm binderTerm)
             throws ASTVisitException {
         String binderSymb = binderTerm.getBinderToken().image;
-        Binder binder = env.getBinder(binderSymb);
-
-        if(binder == null) {
-            binder = local.getBinder(binderSymb);
-        }
+        Binder binder = local.getBinder(binderSymb);
 
         if(binder == null) {
             throw new ASTVisitException("Unknown binder symbol " + binderSymb, binderTerm);
@@ -475,10 +466,7 @@ public class TypingResolver extends ASTDefaultVisitor {
         if(tv != null) {
             identifierTerm.setTyping(new Typing(tv, typingContext));
         } else {
-            Function funcSymbol = env.getFunction(name);
-            if(funcSymbol == null) {
-                funcSymbol = local.getFunction(name);
-            }
+            Function funcSymbol = local.getFunction(name);
 
             if(funcSymbol != null) {
                 int arity = funcSymbol.getArgumentTypes().length;
@@ -638,10 +626,8 @@ public class TypingResolver extends ASTDefaultVisitor {
         }
 
         try {
-            Sort sort = env.getSort(typeName);
-            if(sort == null) {
-                sort = local.getSort(typeName);
-            }
+            Sort sort = local.getSort(typeName);
+
             if (sort == null) {
                 throw new EnvironmentException("Sort " + typeName + " unknown");
             }

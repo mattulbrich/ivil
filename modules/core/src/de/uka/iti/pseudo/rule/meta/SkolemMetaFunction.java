@@ -91,10 +91,7 @@ public class SkolemMetaFunction extends MetaFunction {
             }
         }
 
-        Function newFunction = env.getFunction(name);
-        if(newFunction == null) {
-            newFunction = lst.getFunction(name);
-        }
+        Function newFunction = lst.getFunction(name);
 
         if(newFunction == null) {
             try {
@@ -131,7 +128,7 @@ public class SkolemMetaFunction extends MetaFunction {
             prefix = var.getName();
         }
 
-        return env.createNewFunctionName(prefix, local);
+        return local.createNewFunctionName(prefix);
     }
 
 }

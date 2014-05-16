@@ -189,7 +189,7 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
     @Override
     public void visitDefaultType(ASTType arg) throws ASTVisitException {
         // In environment definitions, there are no local symbols
-        resultingTypeRef = TermMaker.makeType(arg, env, LocalSymbolTable.EMPTY);
+        resultingTypeRef = TermMaker.makeType(arg, new LocalSymbolTable(env));
     }
 
     @Override

@@ -50,7 +50,7 @@ public class OopsExt implements ContextExtension {
                 ram.setRule(oops);
                 ram.setProofNode(goal);
                 ram.matchInstantiations();
-                proofCenter.getProof().apply(ram, env);
+                proofCenter.getProof().apply(ram);
             }
         } catch (ProofException e) {
             ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(), e);

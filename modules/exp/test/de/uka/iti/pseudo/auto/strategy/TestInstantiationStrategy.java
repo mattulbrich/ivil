@@ -26,7 +26,7 @@ public class TestInstantiationStrategy extends TestCaseWithEnv {
 
 
     public void testExEqInst1() throws Exception {
-        Proof proof = new Proof(problems.get("exEqInst1"));
+        Proof proof = new Proof(problems.get("exEqInst1"), env);
         InstantiationStrategy strategy = new InstantiationStrategy();
         StrategyManager sm = new StrategyManager(proof, env);
         strategy.init(proof, env, sm);
@@ -39,13 +39,13 @@ public class TestInstantiationStrategy extends TestCaseWithEnv {
         assertEquals(makeTerm("\\var x = 0"), ruleApp.getSchemaVariableMapping().get("%b"));
         assertEquals(makeTerm("\\var x as int"), ruleApp.getSchemaVariableMapping().get("%x"));
 
-        proof.apply(ruleApp, env);
+        proof.apply(ruleApp);
         Sequent seq2 = proof.getGoalByNumber(2).getSequent();
         assertEquals(makeTerm("0=0"), seq2.getSuccedent().get(1));
     }
 
     public void testExEqInst2() throws Exception {
-        Proof proof = new Proof(problems.get("exEqInst2"));
+        Proof proof = new Proof(problems.get("exEqInst2"), env);
         InstantiationStrategy strategy = new InstantiationStrategy();
         StrategyManager sm = new StrategyManager(proof, env);
         strategy.init(proof, env, sm);
@@ -58,7 +58,7 @@ public class TestInstantiationStrategy extends TestCaseWithEnv {
         assertEquals(makeTerm("(true & \\var x = 0) & true"), ruleApp.getSchemaVariableMapping().get("%b"));
         assertEquals(makeTerm("\\var x as int"), ruleApp.getSchemaVariableMapping().get("%x"));
 
-        proof.apply(ruleApp, env);
+        proof.apply(ruleApp);
         assertEquals(makeTerm("(true & 0=0) & true"), proof.getGoalByNumber(2).getSequent().getSuccedent().get(1));
     }
 

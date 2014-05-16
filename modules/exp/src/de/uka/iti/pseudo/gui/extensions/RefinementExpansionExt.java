@@ -42,7 +42,7 @@ public class RefinementExpansionExt implements ContextExtension {
         ram.setProofNode(goal);
         ram.matchInstantiations();
 
-        proof.apply(ram, env);
+        proof.apply(ram);
         goal = goal.getChildren().get(0);
         expandAndRight(goal, env, proof);
     }
@@ -57,7 +57,7 @@ public class RefinementExpansionExt implements ContextExtension {
             ram.setFindSelector(new TermSelector(TermSelector.SUCCEDENT, 0));
             ram.setProofNode(goal);
             ram.matchInstantiations();
-            proof.apply(ram, env);
+            proof.apply(ram);
 
             List<ProofNode> children = goal.getChildren();
             expandAndRight(children.get(0), env, proof);

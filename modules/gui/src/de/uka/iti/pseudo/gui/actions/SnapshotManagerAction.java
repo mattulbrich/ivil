@@ -61,24 +61,28 @@ public class SnapshotManagerAction extends BarAction implements
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (manager == null)
+        if (manager == null) {
             manager = new SnapshotManager(getProofCenter());
+        }
         manager.display();
     }
 
+    @Override
     public void initialised() {
         ProofCenter proofCenter = getProofCenter();
-        if (proofCenter != null)
+        if (proofCenter != null) {
             proofCenter.addPropertyChangeListener(ProofCenter.ONGOING_PROOF,
                     this);
+        }
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         setEnabled(!(Boolean) evt.getNewValue());
     }
 
     public static void main(String[] args) throws Exception {
-        Proof p = new Proof(Environment.getTrue());
+        Proof p = new Proof(Environment.getTrue(), Environment.BUILT_IN_ENV);
         ProofCenter pc = new ProofCenter(p, Environment.BUILT_IN_ENV);
         SnapshotManager m = new SnapshotManager(pc);
         m.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -107,10 +111,10 @@ class SnapshotManager extends JDialog {
 
     private static final long serialVersionUID = -5984529219385892379L;
 
-    private ProofCenter proofCenter;
-    private ProofNode root;
+    private final ProofCenter proofCenter;
+    private final ProofNode root;
 
-    private List<Snapshot> snapshots = new ArrayList<Snapshot>();
+    private final List<Snapshot> snapshots = new ArrayList<Snapshot>();
     private JList choiceList;
     private JTextField descriptionField;
     private JButton restoreButton;
@@ -165,6 +169,7 @@ class SnapshotManager extends JDialog {
         {
             JButton addButton = new JButton("Shoot: ");
             addButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     shootSnapshot();
                 }
@@ -176,6 +181,7 @@ class SnapshotManager extends JDialog {
         {
             descriptionField = new JTextField();
             descriptionField.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     shootSnapshot();
                 }
@@ -194,10 +200,12 @@ class SnapshotManager extends JDialog {
         checkSnapshots();
         final Object[] objects = snapshots.toArray();
         choiceList.setModel(new AbstractListModel() {
+            @Override
             public int getSize() {
                 return objects.length;
             }
 
+            @Override
             public Object getElementAt(int i) {
                 return objects[i];
             }
@@ -209,7 +217,7 @@ class SnapshotManager extends JDialog {
             restoreButton.setEnabled(true);
             choiceList.setSelectedIndex(objects.length - 1);
         }
-        
+
         setVisible(true);
     }
 
@@ -218,8 +226,9 @@ class SnapshotManager extends JDialog {
         ListIterator<Snapshot> it = snapshots.listIterator();
         while (it.hasNext()) {
             Snapshot sn = it.next();
-            if (!checkSnapshot(sn))
+            if (!checkSnapshot(sn)) {
                 it.remove();
+            }
         }
 
     }
@@ -231,8 +240,9 @@ class SnapshotManager extends JDialog {
                 goal = goal.getParent();
             }
 
-            if (goal != root)
+            if (goal != root) {
                 return false;
+            }
         }
         return true;
 
@@ -249,7 +259,7 @@ class SnapshotManager extends JDialog {
         sn.openGoals = opengoals.toArray(array);
 
         snapshots.add(sn);
-        
+
         setVisible(false);
 
     }
@@ -257,10 +267,12 @@ class SnapshotManager extends JDialog {
     private void restoreSelectedSnapshot() {
         final Proof proof = proofCenter.getProof();
         final Snapshot selected = (Snapshot) choiceList.getSelectedValue();
-        if (selected == null)
+        if (selected == null) {
             return;
+        }
 
         (new SwingWorker<Void, Void>(){
+            @Override
             public Void doInBackground() {
                 try {
                     // if(checkSnapshot(selected))
@@ -275,6 +287,7 @@ class SnapshotManager extends JDialog {
                     }
                 return null;
                 }
+            @Override
             public void done() {
                 proofCenter.fireProoftreeChangedNotification(true);
             }

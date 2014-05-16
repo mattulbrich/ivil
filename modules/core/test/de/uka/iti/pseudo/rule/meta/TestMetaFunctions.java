@@ -27,7 +27,7 @@ public class TestMetaFunctions extends TestCaseWithEnv {
 //        Handler.registerNoneHandler();
         env = new Environment("none:wrapped_for_skolem", DEFAULT_ENV);
         ra = new MutableRuleApplication();
-        Proof p = new Proof(Environment.getTrue());
+        Proof p = new Proof(Environment.getTrue(), env);
         ra.setProofNode(p.getRoot());
         eval = new MetaEvaluator(ra, env);
     }
@@ -122,7 +122,7 @@ public class TestMetaFunctions extends TestCaseWithEnv {
         Term result2 = eval.evalutate(t);
 
         LocalSymbolTable lst = eval.getLocalSymbolTable();
-        assertNotNull(lst.getFunction("sk"));
+        assertNotNull(lst.getLocalFunction("sk"));
         assertEquals(makeTerm("sk as int", lst), result);
         assertEquals(makeTerm("sk as int", lst), result2);
     }
@@ -135,8 +135,8 @@ public class TestMetaFunctions extends TestCaseWithEnv {
         Term result2 = eval.evalutate(t2);
 
         LocalSymbolTable lst = eval.getLocalSymbolTable();
-        assertNotNull(lst.getFunction("sk"));
-        assertNotNull(lst.getFunction("sk1"));
+        assertNotNull(lst.getLocalFunction("sk"));
+        assertNotNull(lst.getLocalFunction("sk1"));
         assertEquals(makeTerm("sk as int", lst), result);
         assertEquals(makeTerm("sk1 as int", lst), result2);
     }

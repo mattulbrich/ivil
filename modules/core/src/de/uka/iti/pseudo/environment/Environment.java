@@ -55,6 +55,9 @@ import de.uka.iti.pseudo.util.Util;
  * There is exactly one environment {@link #BUILT_IN_ENV} which does not have a
  * parent environment.
  *
+ * An environment can be closed. After that, it is immutable. In particular,
+ * creating a child environment closes an environment.
+ *
  * Not all symbols are stored in Environments. Symbols created during a proof
  * are stored locally in the respective proof node that introduces them.
  *
@@ -293,6 +296,8 @@ public class Environment {
      *            the prefix of the name to return.
      *
      * @return the fresh program name
+     *
+     * @see LocalSymbolTable#createNewProgramName(String)
      */
     public @NonNull
     String createNewProgramName(@NonNull String prefix) {
@@ -1330,41 +1335,19 @@ public class Environment {
      * @param prefix
      *            the resulting function name will start with this prefix
      *
-     * @param local
-     *            a table of local symbols against which clashes are also
-     *            checked.
      * @return an identifier that can be used as a function name for this
-     *         environment and the local table.
+     *         environment
+     *
+     * @see LocalSymbolTable#createNewFunctionName(String)
      */
-    public @NonNull String createNewFunctionName(@NonNull String prefix,
-            @NonNull LocalSymbolTable local) {
+    public @NonNull String createNewFunctionName(@NonNull String prefix) {
         String newName = prefix;
 
-        for (int counter = 1;
-                getFunction(newName) != null || local.getFunction(newName) != null;
-                counter++) {
+        for (int counter = 1; null != getFunction(newName); counter++) {
             newName = prefix + counter;
         }
 
         return newName;
-    }
-
-    /**
-     * create a new symbol name which is not yet used.
-     *
-     * We append natural numbers starting with 1. The first one which is not yet
-     * used is the candidate to choose.
-     *
-     * Local symbols are not considered here.
-     *
-     * @param prefix
-     *            the resulting function name will start with this prefix
-     *
-     * @return an identifier that can be used as a function name for this
-     *         environment
-     */
-    public @NonNull String createNewFunctionName(@NonNull String prefix) {
-        return createNewFunctionName(prefix, LocalSymbolTable.EMPTY);
     }
 
     /**

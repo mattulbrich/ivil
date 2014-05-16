@@ -310,7 +310,7 @@ public class AutomaticProblemProver implements Callable<Result> {
     public Result call() throws TermException, StrategyException,
             ProofException {
 
-        Proof proof = new Proof(problemSequent);
+        Proof proof = new Proof(problemSequent, env);
 
         StrategyManager strategyManager = new StrategyManager(proof, env);
         strategyManager.registerAllKnownStrategies();
@@ -350,7 +350,7 @@ public class AutomaticProblemProver implements Callable<Result> {
                     break;
                 }
 
-                proof.apply(ruleApp, env);
+                proof.apply(ruleApp);
                 strategy.notifyRuleApplication(ruleApp);
             }
 

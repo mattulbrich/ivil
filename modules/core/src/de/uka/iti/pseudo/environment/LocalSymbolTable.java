@@ -34,6 +34,8 @@ import de.uka.iti.pseudo.proof.ProofNode;
  * the proof, having only a linked list for name lookup does not cause too much
  * time overhead since this is only relevant for string parsing.
  *
+ * TODO Rename SymbolTable
+ *
  * @see Environment
  * @see ProofNode
  */
@@ -44,7 +46,7 @@ public final class LocalSymbolTable {
      */
     public static final LocalSymbolTable EMPTY;
     static {
-        EMPTY = new LocalSymbolTable();
+        EMPTY = new LocalSymbolTable(Environment.BUILT_IN_ENV);
         EMPTY.setFixed();
     }
 
@@ -120,6 +122,11 @@ public final class LocalSymbolTable {
 
     }
 
+    /**
+     * The environment to which this symbol table is an extension.
+     */
+    private final @NonNull Environment env;
+
     /*
      * These hold the headers to the symbol linked lists
      */
@@ -134,9 +141,10 @@ public final class LocalSymbolTable {
      * Instantiates a new and empty local symbol table.
      * The table is not fixed.
      */
-    public LocalSymbolTable() {
-        // all headers point to null
+    public LocalSymbolTable(@NonNull Environment env) {
+        this.env = env;
         this.fixed = false;
+        // all headers point to null
     }
 
     /**
@@ -149,6 +157,7 @@ public final class LocalSymbolTable {
      *            the list to copy from
      */
     public LocalSymbolTable(@NonNull LocalSymbolTable lst) {
+        this.env = lst.env;
         this.binderHead = lst.binderHead;
         this.functionHead = lst.functionHead;
         this.programHead = lst.programHead;
@@ -206,7 +215,7 @@ public final class LocalSymbolTable {
     }
 
     /**
-     * Allow iteration over all declared function symbols.
+     * Allow iteration over all locally declared function symbols.
      *
      * Iteration proceeds "newest symbol first".
      *
@@ -217,7 +226,7 @@ public final class LocalSymbolTable {
     }
 
     /**
-     * Allow iteration over all declared binder symbols.
+     * Allow iteration over all locally declared binder symbols.
      *
      * Iteration proceeds "newest symbol first".
      *
@@ -228,7 +237,7 @@ public final class LocalSymbolTable {
     }
 
     /**
-     * Allow iteration over all declared sort symbols.
+     * Allow iteration over all locally declared sort symbols.
      *
      * Iteration proceeds "newest symbol first".
      *
@@ -239,7 +248,7 @@ public final class LocalSymbolTable {
     }
 
     /**
-     * Allow iteration over all declared programs.
+     * Allow iteration over all locally declared programs.
      *
      * Iteration proceeds "newest symbol first".
      *
@@ -251,7 +260,20 @@ public final class LocalSymbolTable {
 
     /**
      * Gets a function for a name. Returns null if no symbol for the name can be
-     * found in this table.
+     * found in this table. The environment is not searched.
+     *
+     * @param name
+     *            the name to look up
+     *
+     * @return a function with the name <code>name</code>, null if none found
+     */
+    public @Nullable Function getLocalFunction(String name) {
+        return find(functionHead, name);
+    }
+
+    /**
+     * Gets a function for a name. Returns null if no symbol for the name can be
+     * found in this table or the environment to which it belongs.
      *
      * @param name
      *            the name to look up
@@ -259,12 +281,30 @@ public final class LocalSymbolTable {
      * @return a function with the name <code>name</code>, null if none found
      */
     public @Nullable Function getFunction(String name) {
-        return find(functionHead, name);
+        Function result = getLocalFunction(name);
+        if(result == null) {
+            result = env.getFunction(name);
+        }
+        return result;
+    }
+
+
+    /**
+     * Gets a binder for a name. Returns null if no symbol for the name can be
+     * found in this table. The environment is not searched.
+     *
+     * @param name
+     *            the name to look up
+     *
+     * @return a binder with the name <code>name</code>, null if none found
+     */
+    public @Nullable Binder getLocalBinder(String name) {
+        return find(binderHead, name);
     }
 
     /**
      * Gets a binder for a name. Returns null if no symbol for the name can be
-     * found in this table.
+     * found in this table or the environment to which it belongs.
      *
      * @param name
      *            the name to look up
@@ -272,12 +312,29 @@ public final class LocalSymbolTable {
      * @return a binder with the name <code>name</code>, null if none found
      */
     public @Nullable Binder getBinder(String name) {
-        return find(binderHead, name);
+        Binder result = getLocalBinder(name);
+        if(result == null) {
+            result = env.getBinder(name);
+        }
+        return result;
     }
 
     /**
      * Gets a sort for a name. Returns null if no symbol for the name can be
-     * found in this table.
+     * found in this table. The environment is not searched.
+     *
+     * @param name
+     *            the name to look up
+     *
+     * @return a sort with the name <code>name</code>, null if none found
+     */
+    public @Nullable Sort getLocalSort(String name) {
+        return find(sortHead, name);
+    }
+
+    /**
+     * Gets a sort for a name. Returns null if no symbol for the name can be
+     * found in this table or the environment to which it belongs.
      *
      * @param name
      *            the name to look up
@@ -285,12 +342,29 @@ public final class LocalSymbolTable {
      * @return a sort with the name <code>name</code>, null if none found
      */
     public @Nullable Sort getSort(String name) {
-        return find(sortHead, name);
+        Sort result = getLocalSort(name);
+        if(result == null) {
+            result = env.getSort(name);
+        }
+        return result;
     }
 
     /**
      * Gets a program for a name. Returns null if no symbol for the name can be
-     * found in this table.
+     * found in this table. The environment is not searched.
+     *
+     * @param name
+     *            the name to look up
+     *
+     * @return a program with the name <code>name</code>, null if none found
+     */
+    public @Nullable Program getLocalProgram(String name) {
+        return find(programHead, name);
+    }
+
+    /**
+     * Gets a program for a name. Returns null if no symbol for the name can be
+     * found in this table or the environment to which it belongs.
      *
      * @param name
      *            the name to look up
@@ -298,7 +372,11 @@ public final class LocalSymbolTable {
      * @return a program with the name <code>name</code>, null if none found
      */
     public @Nullable Program getProgram(String name) {
-        return find(programHead, name);
+        Program result = getLocalProgram(name);
+        if(result == null) {
+            result = env.getProgram(name);
+        }
+        return result;
     }
 
     /**
@@ -422,6 +500,52 @@ public final class LocalSymbolTable {
         programHead = prepend(programHead, p);
     }
 
+    /**
+     * create a new symbol name which is not yet used.
+     *
+     * We append natural numbers starting with 1. The first one which is not yet
+     * used is the candidate to choose.
+     *
+     * @param prefix
+     *            the resulting function name will start with this prefix
+     *
+     * @return an identifier that can be used as a function name for this
+     *         environment
+     *
+     * @see Environment#createNewFunctionName(String)
+     */
+    public String createNewFunctionName(String prefix) {
+        String newName = prefix;
+
+        for (int counter = 1; null != getFunction(newName); counter++) {
+            newName = prefix + counter;
+        }
+
+        return newName;
+    }
+
+    /**
+     * Gets a program name which starts with the given prefix and which has not
+     * yet been bound in the environment.
+     *
+     * A number of 0 or more ticks (') are appended to make the name unique.
+     *
+     * @param prefix
+     *            the prefix of the name to return.
+     *
+     * @return the fresh program name
+     *
+     * @see Environment#createNewProgramName(String)
+     */
+    public @NonNull String createNewProgramName(@NonNull String prefix) {
+        while (getProgram(prefix) != null) {
+            prefix += "'";
+        }
+
+        return prefix;
+    }
+
+
     @Override
     public int hashCode() {
         return getFunctions().hashCode() ^
@@ -434,10 +558,11 @@ public final class LocalSymbolTable {
     public boolean equals(Object obj) {
         if (obj instanceof LocalSymbolTable) {
             LocalSymbolTable lst = (LocalSymbolTable) obj;
-            return equalList(functionHead, lst.functionHead)
-                && equalList(binderHead, lst.binderHead)
-                && equalList(sortHead, lst.sortHead)
-                && equalList(programHead, lst.programHead);
+            return env == lst.env
+                && functionHead == lst.functionHead
+                && binderHead == lst.binderHead
+                && sortHead == lst.sortHead
+                && programHead == lst.programHead;
         }
         return false;
     }
@@ -467,22 +592,22 @@ public final class LocalSymbolTable {
         }
     }
 
-    /*
-     * check for equality (modulo ==) of two linked lists.
-     */
-    private boolean equalList(Node<?> n1, Node<?> n2) {
-        while(n1 != null & n2 != null) {
-            if(n1.entry != n2.entry) {
-                return false;
-            }
-            n1 = n1.next;
-            n2 = n2.next;
-        }
-        if(n1 != null || n2 != null) {
-            return false;
-        }
-        return true;
-    }
+//    /*
+//     * check for equality (modulo ==) of two linked lists.
+//     */
+//    private boolean equalList(Node<?> n1, Node<?> n2) {
+//        while(n1 != null & n2 != null) {
+//            if(n1.entry != n2.entry) {
+//                return false;
+//            }
+//            n1 = n1.next;
+//            n2 = n2.next;
+//        }
+//        if(n1 != null || n2 != null) {
+//            return false;
+//        }
+//        return true;
+//    }
 
     private static <T extends Named> Node<T> prepend(Node<T> head, T symb) {
         Node<T> result = new Node<T>();
@@ -490,4 +615,12 @@ public final class LocalSymbolTable {
         result.next = head;
         return result;
     }
+
+    /**
+     * @return the env
+     */
+    public Environment getEnvironment() {
+        return env;
+    }
+
 }

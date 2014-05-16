@@ -14,13 +14,13 @@ public class TestHints extends TestCaseWithEnv {
     private Proof makeProofAndApplyHint(Sequent s,
             ProofHint proofHint, String... arguments) throws Exception {
 
-        Proof proof = new Proof(s);
+        Proof proof = new Proof(s, env);
         HintRuleAppFinder finder = proofHint.createRuleAppFinder(env, Arrays.asList(arguments));
         ProofNode root = proof.getRoot();
         ProofNode node = root;
         RuleApplication ruleApp = finder.findRuleApplication(node, root);
         while(ruleApp != null) {
-            proof.apply(ruleApp, env);
+            proof.apply(ruleApp);
             // we continue execution only on first child
             node = node.getChildren().get(0);
             ruleApp = finder.findRuleApplication(node, root);

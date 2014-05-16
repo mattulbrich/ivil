@@ -27,13 +27,13 @@ import de.uka.iti.pseudo.term.TermException;
 /**
  * A proof contains the information on a tree of sequents and their meta
  * information.
- * 
+ *
  * It is a mutable object, i.e., the application of inference rules does not
  * result in a different new proof value, but changes the data structures within
  * this object.
- * 
+ *
  * <h2>Observable</h2>
- * 
+ *
  * All observers which intend to follow changes on this object will receive
  * calls of {@link Observer#update(Observable, Object)} with two kinds of
  * arguments:
@@ -50,18 +50,20 @@ public class Proof {
      * The root node of the proof tree. This will never be null and always
      * contains the sequent to be be proved.
      */
-    private @NonNull ProofNode root;
+    private @NonNull
+    final ProofNode root;
 
 
     /**
      * The object which encapsulates the observable part of the pattern. All
      * listeners are added to this observable and all notifications go through
      * it.
-     * 
+     *
      * This object automatically sets the set changed prior to calling the
      * notification.
      */
-    private Observable observable = new Observable() {
+    private final Observable observable = new Observable() {
+        @Override
         public void notifyObservers(@Nullable Object arg) {
             setChanged();
             super.notifyObservers(arg);
@@ -71,11 +73,12 @@ public class Proof {
     /**
      * This list contains all open proof nodes that are reachable from
      * {@link #root}.
-     * 
+     *
      * This list is synchronized because some GUI elements need concurrent
      * access with automatic proofs.
      */
-    private @DeepNonNull List<ProofNode> openGoals = 
+    private @DeepNonNull
+    final List<ProofNode> openGoals =
             Collections.synchronizedList(new LinkedList<ProofNode>());
 
     /**
@@ -95,58 +98,61 @@ public class Proof {
      */
     final Object mutex = new Object();
 
+
+    private final Environment env;
+
     /**
      * Instantiates a new proof with an initial sequent.
-     * 
+     *
      * @param initialSequent
      *            the initial sequent
      */
-    public Proof(Sequent initialSequent) {
+    public Proof(Sequent initialSequent, Environment env) {
+        this.env = env;
         root = new ProofNode(this, initialSequent,
-                new SequentHistory.Annotation("formula on initial sequent"));
+                new SequentHistory.Annotation("formula on initial sequent"), env);
         openGoals.add(root);
     }
 
     /**
      * Instantiates a new proof with an initial problem term.
-     * 
+     *
      * <p>
      * The initial sequent used is the sequent which contains nothing but the
      * given formula as succedent.
-     * 
+     *
      * @param initialProblem
      *            the initial problem
-     * 
+     * @param env
+     *
      * @throws TermException
      *             if the initial problem is not suitable for toplevel usage.
      */
-    public Proof(@NonNull Term initialProblem) throws TermException {
+    public Proof(@NonNull Term initialProblem, Environment env) throws TermException {
         this(new Sequent(Collections.<Term> emptyList(), Collections
-                .<Term> singletonList(initialProblem)));
+                .<Term> singletonList(initialProblem)), env);
     }
 
     /**
      * Apply a rule application to this proof. You can only call this from a
      * daemon job.
-     * 
+     *
      * <p>
      * The number of the goal to apply to is extracted from the application and
      * then the method {@link ProofNode#apply(RuleApplication, Environment)} is
      * invoked.
-     * 
+     *
      * <p>
      * This method first acquires the lock of the proof before it makes any
      * changes. The lock is released before returning
-     * 
+     *
      * @param ruleApp
      *            the rule application to apply to this proof.
-     * @param env
-     *            the environment to which the proof belongs.
-     * 
+     *
      * @throws ProofException
      *             may be thrown if the application is not successful.
      */
-    public void apply(RuleApplication ruleApp, Environment env) throws ProofException {
+    public void apply(RuleApplication ruleApp) throws ProofException {
         RuleApplicationCertificate ruleAppCert = new RuleApplicationCertificate(ruleApp, env);
         apply(ruleAppCert);
     }
@@ -177,18 +183,18 @@ public class Proof {
 
     /**
      * Gets a goal from the set of open goals by node index.
-     * 
+     *
      * <code>null</code> is returned if no open goal carries the given number -
      * or an exception thrown.
-     * 
+     *
      * The resulting proof node belongs to this proof and carries the desired
      * number.
-     * 
+     *
      * @param nodeNumber
      *            the node number to search for.
-     * 
+     *
      * @return an open proof node belonging to this proof.
-     * 
+     *
      * @throws NoSuchElementException
      *             the implementation may choose to throw this is no goal of
      *             this number exists.
@@ -204,21 +210,22 @@ public class Proof {
 
     /**
      * Prune all children of a node within this proof.
-     * 
+     *
      * After the invocation, the proofNode returns <code>null</code> from
      * {@link ProofNode#getChildren()}.
-     * 
+     *
      * @param proofNode
      *            the proof node
-     * 
+     *
      * @throws ProofException
      *             if proofNode is not reachable from root, i.e. is not part of
      *             this proof.
      */
     public void prune(ProofNode proofNode) throws ProofException {
 
-        if (proofNode.getProof() != this)
+        if (proofNode.getProof() != this) {
             throw new ProofException("The proof node does not belong to me");
+        }
 
         synchronized (mutex) {
             proofNode.prune();
@@ -232,7 +239,7 @@ public class Proof {
 
     /**
      * Gets the root of this proof object. It contains the initial sequent.
-     * 
+     *
      * @return the proof node which is parent of all nodes of the proof.
      */
     public @NonNull ProofNode getRoot() {
@@ -241,10 +248,10 @@ public class Proof {
 
     /**
      * inform all subscribed observers that a proof node has changed.
-     * 
+     *
      * <p>
      * The {@link #changedSinceSave} flag is changed to <code>true</code>.
-     * 
+     *
      * @param proofNode
      *            a proof node whose children have changed recently.
      */
@@ -256,13 +263,13 @@ public class Proof {
 
 
     /**
-     * Adds an observer to the set of observers for this proof, provided 
-     * that it is not the same as some observer already in the set. 
-     * The order in which notifications will be delivered to multiple 
-     * observers is not specified. 
-     * 
+     * Adds an observer to the set of observers for this proof, provided
+     * that it is not the same as some observer already in the set.
+     * The order in which notifications will be delivered to multiple
+     * observers is not specified.
+     *
      * @param o an observer to be added.
-     * 
+     *
      * @see java.util.Observable#addObserver(java.util.Observer)
      */
     public void addObserver(Observer o) {
@@ -270,11 +277,11 @@ public class Proof {
     }
 
     /**
-     * Deletes an observer from the set of observers of this object. 
+     * Deletes an observer from the set of observers of this object.
      * Passing <CODE>null</CODE> to this method will have no effect.
-     * 
+     *
      * @param   o   the observer to be deleted.
-     * 
+     *
      * @see java.util.Observable#deleteObserver(java.util.Observer)
      */
     public void deleteObserver(Observer o) {
@@ -284,7 +291,7 @@ public class Proof {
     /**
      * Gets all open goals, i.e., all proof nodes reachable by {@link #root}
      * which are not yet closed.
-     * 
+     *
      * @return an unmodifiable list of proof nodes
      */
     public List<ProofNode> getOpenGoals() {
@@ -293,8 +300,8 @@ public class Proof {
 
     /**
      * Checks for open goals on this proof.
-     * 
-     * @return <code>true</code> if there is still at least one unsolvable goal left, 
+     *
+     * @return <code>true</code> if there is still at least one unsolvable goal left,
      */
     public boolean hasOpenGoals() {
         return !openGoals.isEmpty();
@@ -303,10 +310,10 @@ public class Proof {
     /**
      * Checks if node can be reached from root. Therefore it walk through
      * parents until root or null is reached.
-     * 
+     *
      * This method is especially useful to check validity of nodes after pruning
      * occurred.
-     * 
+     *
      * @param node
      *            the node where the search for root will be started
      * @return true iff root is reachable
@@ -314,17 +321,18 @@ public class Proof {
     public boolean isReachable(ProofNode node) {
         ProofNode parent = node.getParent();
         while (null != parent) {
-            if (parent == root)
+            if (parent == root) {
                 return true;
-            else
+            } else {
                 parent = parent.getParent();
+            }
         }
         return false;
     }
 
     /**
      * Checks for unsaved changes.
-     * 
+     *
      * @return <code>true</code> iff the proof has been changes since the last
      *         call to {@link #changesSaved()}.
      */
@@ -341,13 +349,20 @@ public class Proof {
 
     /**
      * upon each invocation of this method return a new integer.
-     * 
+     *
      * @return an integer which has not yet been return for this object
      */
     synchronized int makeFreshNumber() {
 
         proofNodeCounter++;
         return proofNodeCounter;
+    }
+
+    /**
+     * @return the env
+     */
+    public Environment getEnvironment() {
+        return env;
     }
 
 }

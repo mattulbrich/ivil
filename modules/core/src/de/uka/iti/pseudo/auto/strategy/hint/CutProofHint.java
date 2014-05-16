@@ -83,7 +83,7 @@ class CutHintAppFinder extends HintRuleAppFinder {
 
         // Make the cut formula
         try {
-            Term formula = TermMaker.makeAndTypeTerm(arguments[1], env, node.getLocalSymbolTable());
+            Term formula = TermMaker.makeAndTypeTerm(arguments[1], node.getLocalSymbolTable());
             RuleApplicationMaker ram = new RuleApplicationMaker(env);
             ram.setRule(env.getRule("cut"));
             ram.getTermMatcher().addInstantiation("%inst", formula);

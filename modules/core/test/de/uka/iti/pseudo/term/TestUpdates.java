@@ -74,7 +74,7 @@ public class TestUpdates extends TestCaseWithEnv {
 
         List<Rule> ruleList = Collections.singletonList(env.getRule("i1_i2"));
         {
-            Proof proof = new Proof(makeTerm("{i1:=1}i1"));
+            Proof proof = new Proof(makeTerm("{i1:=1}i1"), env);
             RuleApplicationFinder raf = new RuleApplicationFinder(proof, proof.getRoot(), env);
             List<RuleApplication> apps = raf.findAll(new TermSelector("S.0"), ruleList);
             assertEquals(1, apps.size());
@@ -83,12 +83,12 @@ public class TestUpdates extends TestCaseWithEnv {
             assertEquals(new Update(new Assignment[] { new Assignment(makeTerm("i1"), makeTerm("1"))}),
                     app.getSchemaUpdateMapping().get("U"));
 
-            proof.apply(app, env);
+            proof.apply(app);
             assertEquals(makeTerm("{i1:=1}i2"),
                     proof.getOpenGoals().get(0).getSequent().getSuccedent().get(0));
         }
         {
-            Proof proof = new Proof(makeTerm("i1"));
+            Proof proof = new Proof(makeTerm("i1"), env);
             RuleApplicationFinder raf = new RuleApplicationFinder(proof, proof.getRoot(), env);
             List<RuleApplication> apps = raf.findAll(new TermSelector("S.0"), ruleList);
             assertEquals(1, apps.size());
@@ -97,7 +97,7 @@ public class TestUpdates extends TestCaseWithEnv {
             assertEquals(Update.EMPTY_UPDATE,
                     app.getSchemaUpdateMapping().get("U"));
 
-            proof.apply(app, env);
+            proof.apply(app);
             assertEquals(makeTerm("i2"),
                     proof.getOpenGoals().get(0).getSequent().getSuccedent().get(0));
         }

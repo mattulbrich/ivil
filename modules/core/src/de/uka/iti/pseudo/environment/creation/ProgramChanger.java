@@ -67,8 +67,7 @@ public class ProgramChanger {
     /**
      * The referenced source file.
      */
-    private @Nullable
-    final URL sourceFile;
+    private @Nullable final URL sourceFile;
 
     /**
      * Instantiates a new program changer.

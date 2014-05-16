@@ -112,7 +112,7 @@ public class MapTypeDefinitionVisitor extends ASTDefaultVisitor {
 
     private Type makeType(ASTType t) throws ASTVisitException {
         // This is invoked only at parsing time, hence empty local symbol table.
-        return TermMaker.makeType(t, env, LocalSymbolTable.EMPTY);
+        return TermMaker.makeType(t, new LocalSymbolTable(env));
     }
 
     private List<TypeVariable> retrieveArgumentTypes(ASTSortDeclaration arg) {

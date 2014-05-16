@@ -58,7 +58,7 @@ public class AutomaticProblemChecker implements Callable<Result> {
         }
 
         Entry<String, Sequent> entry = problems.entrySet().iterator().next();
-        Proof proof = new Proof(entry.getValue());
+        Proof proof = new Proof(entry.getValue(), env);
 
         FileInputStream fis = new FileInputStream(proofFileName);
 
