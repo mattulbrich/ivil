@@ -61,60 +61,70 @@ rule prg_skip
   samegoal replace  $$incPrg(%a)
   tags rewrite "symbex"
        display "|> skip"
+       verbosity "2"
 
 rule prg_goto1
   find [? %a : goto %n ?]%phi
   samegoal replace  $$jmpPrg(%a, %n) 
   tags rewrite "symbex"
        display "|> goto {%n}"
-
+       verbosity "2"
 
 rule prg_goto2
   find  [ %a : goto %n, %k ]%phi 
   samegoal replace  $$jmpPrg(%a, %n) & $$jmpPrg(%a, %k)
   tags display "|> goto {%n}, {%k}"
+       verbosity "2"
 
 rule tprg_goto2
   find  [[%a : goto %n, %k]]%phi 
   samegoal replace  $$jmpPrg(%a, %n) & $$jmpPrg(%a, %k) 
   tags display "|> goto {%n}, {%k}"
+       verbosity "2"
 
 rule dprg_goto2
   find  [< %a : goto %n, %k >]%phi 
   samegoal replace  $$jmpPrg(%a, %n) | $$jmpPrg(%a, %k) 
   tags display "|> goto {%n}, {%k}"
+       verbosity "2"
 
 
 rule prg_assert
   find  [%a : assert %b]%phi
   samegoal replace %b & $$incPrg(%a)
   tags display "|> assert {%b}: {explain %a}"
+       verbosity "2"
 
 rule tprg_assert
   find  [[%a : assert %b]]%phi
   samegoal replace %b & $$incPrg(%a)
   tags display "|> assert {%b}: {explain %a}"
+       verbosity "2"
 
 rule dprg_assert
   find  [< %a : assert %b >]%phi
   samegoal replace %b -> $$incPrg(%a)
   tags display "|> assert {%b}: {explain %a}"
+       verbosity "2"
 
 
 rule prg_assume
   find [%a : assume %b]%phi
   samegoal replace %b -> $$incPrg(%a)
   tags display "|> assume {%b}: {explain %a}"
+       verbosity "2"
 
 rule tprg_assume
   find [[%a : assume %b]]%phi
   samegoal replace %b -> $$incPrg(%a)
   tags display "|> assume {%b}: {explain %a}"
+       verbosity "2"
 
 rule dprg_assume
   find [<%a : assume %b>]%phi
   samegoal replace %b & $$incPrg(%a)
   tags display "|> assume {%b}: {explain %a}"
+       verbosity "2"
 
 
 rule prg_end
@@ -122,6 +132,7 @@ rule prg_end
   samegoal replace %b
   tags rewrite "symbex"
        display "|> end: {explain %a}"
+       verbosity "2"
 
 
 rule prg_assignment
@@ -129,6 +140,7 @@ rule prg_assignment
   samegoal replace  {U}$$incPrg(%a) 
   tags rewrite "symbex"
        display "|> {upd U}"
+       verbosity "2"
 
 
 rule prg_havoc
@@ -136,12 +148,14 @@ rule prg_havoc
   where freshVar %x, %phi
   samegoal replace (\forall %x; { %v := %x }$$incPrg(%a))
   tags display "|> havoc {%v}: {explain %a}"
+       verbosity "2"
 
 rule tprg_havoc
   find [[%a : havoc %v]]%phi
   where freshVar %x, %phi
   samegoal replace (\forall %x; { %v := %x }$$incPrg(%a))
   tags display "|> havoc {%v}: {explain %a}"
+       verbosity "2"
 
 rule dprg_havoc
   find [<%a : havoc %v>]%phi
@@ -150,6 +164,7 @@ rule dprg_havoc
   tags display "|> havoc {%v}: {explain %a}"
        rewrite "symbex"
        hintsOnBranches "0"
+       verbosity "2"
 
 (*
  * Rules for automation
@@ -165,6 +180,7 @@ rule auto_box_goto2
     replace {U} $$jmpPrg(%a, %k)
   tags rewrite "symbex"
        display "|> goto {%n}, {%k}"
+       verbosity "2"
 
 rule auto_tbox_goto2
   find |- { U ?} [[%a : goto %n, %k]]%phi
@@ -174,6 +190,7 @@ rule auto_tbox_goto2
     replace {U} $$jmpPrg(%a, %k)
   tags rewrite "symbex"
        display "|> goto {%n}, {%k}"
+       verbosity "2"
 
 rule dia_dia_goto2_complementary
   find |- { U ?}[< %p: goto %n1, %n2>]%psi
@@ -190,6 +207,7 @@ rule dia_dia_goto2_complementary
   
   tags rewrite "symbex"
        display "|> goto {%n1}, {%n2}"
+       verbosity "2"
 
 rule auto_dia_goto2
   find |- { U ?} [<%a : goto %n, %k>]%phi
@@ -198,6 +216,7 @@ rule auto_dia_goto2
     add |- {U} $$jmpPrg(%a, %k)
   tags rewrite "symbex"
        display "|> goto {%n}, {%k}"
+       verbosity "2"
 
 
 rule auto_box_assert
@@ -209,6 +228,7 @@ rule auto_box_assert
   tags rewrite "symbex"
        display "|> assert {%b}: {explain %a}"
        hintsOnBranches "0"
+       verbosity "2"
 
 rule auto_tbox_assert
   find |- { U ?} [[%a : assert %b]]%phi
@@ -219,6 +239,7 @@ rule auto_tbox_assert
   tags rewrite "symbex"
        display "|> assert {%b}: {explain %a}"
        hintsOnBranches "0"
+       verbosity "2"
 
 rule auto_dia_assert
   find |- { U ?} [<%a : assert %b>]%phi
@@ -227,6 +248,7 @@ rule auto_dia_assert
     replace {U} $$incPrg(%a)
   tags rewrite "symbex"
        display "|> assert {%b}: {explain %a}"
+       verbosity "2"
 
 
 rule auto_box_assume
@@ -236,6 +258,7 @@ rule auto_box_assume
     replace {U} $$incPrg(%a)
   tags rewrite "symbex"
        display "|> assume {%b}: {explain %a}"
+       verbosity "2"
 
 rule auto_tbox_assume
   find |- { U ?} [[%a : assume %b]]%phi
@@ -244,6 +267,7 @@ rule auto_tbox_assume
     add {U} %b |-
   tags rewrite "symbex"
        display "|> assume {%b}: {explain %a}"
+       verbosity "2"
 
 rule auto_dia_assume
   find |- { U ?} [<%a : assume %b>]%phi
@@ -256,6 +280,7 @@ rule auto_dia_assume
   tags rewrite "symbex"
        display "|> assume {%b}: {explain %a}"
        hintsOnBranches "0"
+       verbosity "2"
 
 
 rule auto_box_havoc
@@ -263,12 +288,14 @@ rule auto_box_havoc
   samegoal replace {U}{ %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
        display "|> havoc {%v}: {explain %a}"
+       verbosity "2"
 
 rule auto_tbox_havoc
   find |- { U ?} [[%a : havoc %v]]%phi
   replace {U}{ %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
        display "|> havoc {%v}: {explain %a}"
+       verbosity "2"
 
 (*
 rule auto_dia_havoc
@@ -293,6 +320,7 @@ rule loop_invariant
   tags
     display "invariant in {%a}: {explain %a}"
     interactive "5"
+    verbosity "2"
 
 rule loop_invariant_update
   find |- {U}[%a]%phi
@@ -304,6 +332,7 @@ rule loop_invariant_update
   tags
     display "invariant in {%a}: {explain %a}"
     interactive "5"
+    verbosity "2"
 
 rule loop_invariant_t
   find |- [[%a]]%phi
@@ -318,6 +347,7 @@ rule loop_invariant_t
   tags
     display "invariant in {%a}: {explain %a}"
     dragdrop "5"
+    verbosity "2"
 
 rule loop_invariant_update_t
   find |- {U}[[%a]]%phi
@@ -330,6 +360,7 @@ rule loop_invariant_update_t
   tags
     display "invariant in {%a}: {explain %a}"
     dragdrop "5"
+    verbosity "2"
 
 rule auto_loop_invariant
   find |- [%a : skip LOOPINV, %inv]%phi
@@ -339,6 +370,7 @@ rule auto_loop_invariant
     replace $$loopInvPrgMod(%a, %inv, 0)
   tags rewrite "symbex"
        display "invariant in {%a}: {explain %a}"
+       verbosity "2"
 
 rule auto_loop_invariant_update
   find |- {U}[%a : skip LOOPINV, %inv]%phi
@@ -348,6 +380,7 @@ rule auto_loop_invariant_update
     replace {U}$$loopInvPrgMod(%a, %inv, 0)
   tags rewrite "symbex"
        display "invariant in {%a}: {explain %a}"
+       verbosity "2"
 
 rule auto_loop_invariant_variant
   find |- [%a : skip LOOPINV, %inv, %var]%phi
@@ -357,6 +390,7 @@ rule auto_loop_invariant_variant
     replace $$loopInvPrgMod(%a, %inv, %var)
   tags rewrite "symbex"
        display "invariant in {%a}: {explain %a}"
+       verbosity "2"
 
 rule auto_loop_invariant_variant_update
   find |- {U}[%a : skip LOOPINV, %inv, %var]%phi
@@ -366,6 +400,7 @@ rule auto_loop_invariant_variant_update
     replace {U}$$loopInvPrgMod(%a, %inv, %var)
   tags rewrite "symbex"
        display "invariant in {%a}: {explain %a}"
+       verbosity "2"
 
 rule autot_loop_invariant
   find |- [[%a : skip LOOPINV, %inv, %var]]%phi
@@ -375,6 +410,7 @@ rule autot_loop_invariant
     replace $$loopInvPrgMod(%a, %inv, %var)
   tags rewrite "symbex"
        display "invariant in {%a}: {explain %a}"
+       verbosity "2"
 
 rule autot_loop_invariant_update
   find |- {U}[[%a : skip LOOPINV, %inv, %var]]%phi
@@ -384,6 +420,7 @@ rule autot_loop_invariant_update
     replace {U}$$loopInvPrgMod(%a, %inv, %var)
   tags rewrite "symbex"
        display "invariant in {%a}: {explain %a}"
+       verbosity "2"
 
 (*
  * Update simplification
