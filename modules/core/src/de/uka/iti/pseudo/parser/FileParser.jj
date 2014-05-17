@@ -1,5 +1,4 @@
 
-
 //
 // This file contains the grammar for files with sorts/functions/rules/program and problem definitions
 // structural elements that have nothing to do with Terms
@@ -23,12 +22,9 @@ ASTFile File():
         | block=RuleDeclaration()
         | block=AxiomDeclaration()
         | block=ProgramDeclaration()
+        | block=Problem()
+        | block=Proof()
         )   { blocks.add(block); }
-       )*
-       
-       // Problems in the end
-       ( block=Problem() 
-          { blocks.add(block); } 
        )*
        
        <EOF>
@@ -358,9 +354,10 @@ ASTRule RuleDeclaration():
       { actions.add(new ASTGoalAction(null, null, aclist)); }
   )
   
-  (
-    "description" descr=<STRING>
-  )?
+// This has been silently dropped from the syntax since never used
+//  (
+//    "description" descr=<STRING>
+//  )?
   
   (
     "tags" 

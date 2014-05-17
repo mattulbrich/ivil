@@ -35,6 +35,7 @@
     <concat destfile="genSrc/de/uka/iti/pseudo/parser/Parser.jj">
       <fileset file="src/de/uka/iti/pseudo/parser/ParserHead.jj"/>
       <fileset file="src/de/uka/iti/pseudo/parser/FileParser.jj"/>
+      <fileset file="src/de/uka/iti/pseudo/parser/ProofParser.jj"/>
       <fileset file="src/de/uka/iti/pseudo/parser/TermParser.jj"/>
       <fileset file="src/de/uka/iti/pseudo/parser/ProgramParser.jj"/> 
     </concat>

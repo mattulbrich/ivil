@@ -20,8 +20,10 @@ package de.uka.iti.pseudo.parser;
 import de.uka.iti.pseudo.parser.file.*;
 import de.uka.iti.pseudo.parser.term.*;
 import de.uka.iti.pseudo.parser.program.*;
+import de.uka.iti.pseudo.parser.proof.*;
 import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.util.Util;
 
 import java.util.*;
 import java.io.File;
@@ -145,6 +147,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < PREFIX: "prefix" >
 | < PROBLEM: "problem" >
 | < PROGRAM: "program" >
+| < PROOF: "proof" >
 | < PROPERTIES: "properties" >
 | < REMOVE: "remove" >
 | < REPLACE: "replace" >

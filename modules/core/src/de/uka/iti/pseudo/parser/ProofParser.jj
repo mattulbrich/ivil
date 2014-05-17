@@ -1,0 +1,54 @@
+
+//
+// This file contains the grammar for structural proofs.
+//
+
+ASTProof Proof():
+{
+  Token t = null;
+  Token id;
+  Token first;
+  ASTProof.Kind kind;
+  ASTProofNode tree;
+}
+{
+  first = "proof"
+
+  ( t = "rule" { kind = ASTProof.Kind.RULE; }
+  | t = "program" { kind = ASTProof.Kind.PROGRAM; }
+  | t = "problem" { kind = ASTProof.Kind.PROBLEM; }
+  )
+
+  id = <IDENTIFIER>
+
+  "(" tree=ProofTree() ")"
+
+    {
+          return new ASTProof(first, kind, id, tree);
+    }
+}
+
+ASTProofNode ProofTree():
+{
+  ASTProofNode result;
+  Token t, t2;
+  ASTProofNode child;
+}
+{
+  t = <IDENTIFIER>    {  result = new ASTProofNode(t);  }
+
+  ( t = <IDENTIFIER>
+    ( ":" ( t2=<STRING> { result.put(t, t2, t2.image); }
+          | t2=<IDENTIFIER> { result.put(t, t2, Util.stripQuotes(t2.image)); }
+          )
+    | /* epsilon */ { result.putUnnamed(t, t.image); }
+    )
+  | t=<STRING> { result.putUnnamed(t, Util.stripQuotes(t.image)); }
+  )* 
+
+  ( ";" child=ProofTree() { result.addChild(child); }
+  | ( "(" child=ProofTree() { result.addChild(child); } ")" )*
+  )
+
+  { return result; }
+}
