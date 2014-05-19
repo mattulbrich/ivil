@@ -199,6 +199,8 @@ public final class PluginManager {
      *
      * Read configuration as properties and fill a map from names to services
      * accordingly.
+     *
+     * TODO Iterate over all resources thus named.
      */
     private void makeServiceTable() throws IOException, ClassNotFoundException {
         Properties prop = new Properties();
@@ -427,7 +429,7 @@ public final class PluginManager {
     @SuppressWarnings("unchecked")
     // The content of the maps is checked!
     public @Nullable <T> T getPlugin(@NonNull String serviceName,
-            @NonNull Class<T> serviceClass, @NonNull Object key)
+            @NonNull Class<T> serviceClass, @NonNull String key)
         throws EnvironmentException {
 
         Service service = serviceMap.get(serviceName);

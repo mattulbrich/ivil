@@ -9,8 +9,9 @@
  */
 package de.uka.iti.pseudo.parser.file;
 
-import de.uka.iti.pseudo.parser.file.ASTProblemSequent;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.proof.ASTProofScript;
+import de.uka.iti.pseudo.parser.proof.ASTProofScriptNode;
 
 /**
  * This interface is part of the visitor pattern for {@link ASTFileElement}s.
@@ -21,13 +22,13 @@ public interface ASTFileVisitor {
 	public void visit(ASTFile file) throws ASTVisitException;
 
     public void visit(ASTPlugins plugins) throws ASTVisitException;
-    
+
     public void visit(ASTPluginDeclaration plugin) throws ASTVisitException;
-    
+
     public void visit(ASTProperties plugins) throws ASTVisitException;
-    
+
     public void visit(ASTPropertiesDeclaration plugin) throws ASTVisitException;
-	
+
 	public void visit(ASTIncludeDeclarationBlock includeDeclarationBlock) throws ASTVisitException;
 
 	public void visit(ASTSortDeclarationBlock sortDeclarationBlock) throws ASTVisitException;
@@ -37,7 +38,7 @@ public interface ASTFileVisitor {
 	public void visit(ASTFunctionDeclaration functionDeclaration) throws ASTVisitException;
 
 	public void visit(ASTFunctionDeclarationBlock functionDeclarationBlock) throws ASTVisitException;
-	
+
 	public void visit(ASTAxiomDeclaration astAxiomDeclaration) throws ASTVisitException;
 
 	public void visit(ASTRule rule) throws ASTVisitException;
@@ -55,7 +56,7 @@ public interface ASTFileVisitor {
 	public void visit(ASTBinderDeclaration binderDeclaration) throws ASTVisitException;
 
     public void visit(ASTWhereClause whereClause) throws ASTVisitException;
-    
+
     public void visit(ASTLocatedTerm locatedTerm) throws ASTVisitException;
 
     public void visit(ASTProblemSequent astSequent) throws ASTVisitException;
@@ -63,7 +64,12 @@ public interface ASTFileVisitor {
     public void visit(ASTGoalAction goalAction) throws ASTVisitException;
 
     public void visit(ASTRuleRemove ruleRemove)  throws ASTVisitException;
-    
+
     public void visit(ASTProgramDeclaration statementList) throws ASTVisitException;
+
+    public void visit(ASTProofScript astProofScript) throws ASTVisitException;
+
+    public void visit(ASTProofScriptNode astProofScriptNode) throws ASTVisitException;
+
 
 }

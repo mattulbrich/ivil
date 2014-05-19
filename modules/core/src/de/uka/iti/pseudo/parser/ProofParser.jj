@@ -3,43 +3,45 @@
 // This file contains the grammar for structural proofs.
 //
 
-ASTProof Proof():
+ASTProofScript ProofScript():
 {
   Token t = null;
-  Token id;
+  Token id = null;
   Token first;
-  ASTProof.Kind kind;
-  ASTProofNode tree;
+  ProofScript.Kind kind = null;
+  ASTProofScriptNode tree;
 }
 {
   first = "proof"
 
-  ( t = "rule" { kind = ASTProof.Kind.RULE; }
-  | t = "program" { kind = ASTProof.Kind.PROGRAM; }
-  | t = "problem" { kind = ASTProof.Kind.PROBLEM; }
-  )
+  (
+    ( t = "rule" { kind = ProofScript.Kind.RULE; }
+    | t = "program" { kind = ProofScript.Kind.PROGRAM; }
+    | t = "problem" { kind = ProofScript.Kind.PROBLEM; }
+    )
 
-  id = <IDENTIFIER>
+    id = <IDENTIFIER>
+  )?
 
   "(" tree=ProofTree() ")"
 
     {
-          return new ASTProof(first, kind, id, tree);
+          return new ASTProofScript(first, kind, id, tree);
     }
 }
 
-ASTProofNode ProofTree():
+ASTProofScriptNode ProofTree():
 {
-  ASTProofNode result;
+  ASTProofScriptNode result;
   Token t, t2;
-  ASTProofNode child;
+  ASTProofScriptNode child;
 }
 {
-  t = <IDENTIFIER>    {  result = new ASTProofNode(t);  }
+  t = <IDENTIFIER>    {  result = new ASTProofScriptNode(t);  }
 
   ( t = <IDENTIFIER>
-    ( ":" ( t2=<STRING> { result.put(t, t2, t2.image); }
-          | t2=<IDENTIFIER> { result.put(t, t2, Util.stripQuotes(t2.image)); }
+    ( ":" ( t2=<STRING> { result.put(t, t2, Util.stripQuotes(t2.image)); }
+          | t2=<IDENTIFIER> { result.put(t, t2, t2.image); }
           )
     | /* epsilon */ { result.putUnnamed(t, t.image); }
     )

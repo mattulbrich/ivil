@@ -9,25 +9,25 @@ import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.util.Triple;
 
-public class ASTProofNode extends ASTElement {
+public class ASTProofScriptNode extends ASTElement {
 
-    private final Token first;
+    private final Token command;
 
     private final List<Triple<Token,Token,String>> arguments =
             new ArrayList<Triple<Token,Token,String>>();
 
-    public ASTProofNode(Token first) {
-        this.first = first;
+    public ASTProofScriptNode(Token first) {
+        this.command = first;
     }
 
     @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        v.visit(this);
     }
 
     @Override
     public Token getLocationToken() {
-        return first;
+        return command;
     }
 
     public void put(Token key, Token valueToken, String value) {
@@ -40,7 +40,18 @@ public class ASTProofNode extends ASTElement {
 
     @Override
     public String toString() {
-        return super.toString() + "[" + first + "]";
+        return super.toString() + "[" + command + "]";
+    }
+
+    public Token getCommand() {
+        return command;
+    }
+
+    /**
+     * @return the arguments
+     */
+    public List<Triple<Token, Token, String>> getArguments() {
+        return arguments;
     }
 
 }

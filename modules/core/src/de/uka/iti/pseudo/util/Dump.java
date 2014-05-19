@@ -10,8 +10,11 @@
 package de.uka.iti.pseudo.util;
 
 import java.util.List;
+import java.util.Stack;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.auto.script.ProofScript;
+import de.uka.iti.pseudo.auto.script.ProofScriptNode;
 import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
@@ -269,6 +272,35 @@ public final class Dump {
             }
             System.out.println();
         }
+    }
+
+    /**
+     * Dump a proof script to stdout. For debug purposes.
+     *
+     * @param ps
+     *            proof script to dump
+     */
+    public static void dumpProofScript(ProofScript ps) {
+        System.out.println("proof " + ps.getObligation());
+        dumpProofScriptNode(ps.getRoot(), 0);
+    }
+
+    private static void dumpProofScriptNode(ProofScriptNode node, int indent) {
+        System.out.print(Util.duplicate(" ", indent) + "(" + node.getCommand().getName() +
+                " " + node.getArguments() );
+        List<ProofScriptNode> children = node.getChildren();
+        while(children.size() == 1) {
+            node = children.get(0);
+            System.out.println(";");
+            System.out.print(Util.duplicate(" ", indent + 1) + node.getCommand().getName() +
+                    " " + node.getArguments() );
+            children = node.getChildren();
+        }
+        System.out.println();
+        for (ProofScriptNode child : children) {
+            dumpProofScriptNode(child, indent + 1);
+        }
+        System.out.println(Util.duplicate(" ", indent) + ")");
     }
 
 

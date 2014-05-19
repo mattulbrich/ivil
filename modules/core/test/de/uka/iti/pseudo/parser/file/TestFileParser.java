@@ -311,4 +311,14 @@ public class TestFileParser extends TestCaseWithEnv {
             assertEquals(" |- [0;P1]true", problems.get("P1_partial").toString());
     }
 
+    public void testUnknownService() throws Exception {
+        try {
+            Environment e = testEnv("plugins uknownService \"java.lang.Object\"");
+            Dump.dumpEnv(e);
+            fail("Should have failed!");
+        } catch (ASTVisitException e) {
+            assertTrue(e.getMessage().startsWith("Unknown service"));
+        }
+    }
+
 }

@@ -1,0 +1,40 @@
+package de.uka.iti.pseudo.parser.proof;
+
+import de.uka.iti.pseudo.auto.script.ProofScript.Kind;
+import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.parser.file.ASTDeclarationBlock;
+
+public class ASTProofScript extends ASTDeclarationBlock {
+
+    private final Kind kind;
+    private final Token name;
+
+
+    public ASTProofScript(Token first, Kind kind, Token name, ASTProofScriptNode tree) {
+        super(first);
+        this.kind = kind;
+        this.name = name;
+        addChild(tree);
+    }
+
+    @Override
+    public void visit(ASTVisitor v) throws ASTVisitException {
+        v.visit(this);
+    }
+
+    public Kind getKind() {
+        return kind;
+    }
+
+    public Token getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "[" + kind + "," + getName() + "]";
+    }
+
+}

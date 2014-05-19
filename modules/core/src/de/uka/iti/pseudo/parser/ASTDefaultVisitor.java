@@ -45,6 +45,8 @@ import de.uka.iti.pseudo.parser.program.ASTSchematicAssignmentStatement;
 import de.uka.iti.pseudo.parser.program.ASTSkipStatement;
 import de.uka.iti.pseudo.parser.program.ASTSourceLineStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
+import de.uka.iti.pseudo.parser.proof.ASTProofScript;
+import de.uka.iti.pseudo.parser.proof.ASTProofScriptNode;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
@@ -70,12 +72,12 @@ import de.uka.iti.pseudo.parser.term.ASTUpdateTerm;
 /**
  * Default implementation of the {@link ASTVisitor} interface which delegates
  * all calls to an abstract method {@link #visitDefault(ASTElement)}.
- * 
+ *
  * The visit methods for all subtypes of ASTTerm, however, delegate their call
  * to {@link #visitDefaultTerm(ASTTerm)}. It calls by default
  * {@link #visitDefault(ASTElement)} but may be overridden in extending
  * subclasses.
- * 
+ *
  * Same applies to types ({@link #visitDefaultType(ASTType)})
  * and statements ({@link #visitDefaultStatement(ASTStatement)}.
  */
@@ -83,27 +85,27 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
 
     /**
      * Extending classes need to implement a default behaviour.
-     * 
+     *
      * <p>
      * This method will be called unless a visit method is overridden.
-     * 
+     *
      * @param arg
      *            the file element to apply to
-     * 
+     *
      * @throws ASTVisitException
      *             may be thrown by any implementation
      */
     protected abstract void visitDefault(ASTElement arg)
             throws ASTVisitException;
-    
+
     protected void visitDefaultTerm(ASTTerm arg) throws ASTVisitException {
         visitDefault(arg);
     }
-    
+
     protected void visitDefaultType(ASTType arg) throws ASTVisitException {
         visitDefault(arg);
     }
-    
+
     protected void visitDefaultStatement(ASTStatement arg) throws ASTVisitException {
         visitDefault(arg);
     }
@@ -111,62 +113,77 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     //
     // visited terms call visitDefaultTerm
     //
+    @Override
     public void visit(ASTApplicationTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
 
+    @Override
     public void visit(ASTBinderTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
-    
+
+    @Override
     public void visit(ASTTypevarBinderTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
 
+    @Override
     public void visit(ASTIdentifierTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
-    
+
+    @Override
     public void visit(ASTExplicitVariableTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
 
+    @Override
     public void visit(ASTListTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
 
+    @Override
     public void visit(ASTMapOperationTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
 
+    @Override
     public void visit(ASTNumberLiteralTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
 
+    @Override
     public void visit(ASTOperatorIdentifierTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
 
+    @Override
     public void visit(ASTFixTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
 
+    @Override
     public void visit(ASTAsType arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
 
+    @Override
     public void visit(ASTSchemaVariableTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
 
+    @Override
     public void visit(ASTProgramTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
-    
+
+    @Override
     public void visit(ASTUpdateTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
-    
+
+    @Override
     public void visit(ASTSchemaUpdateTerm schemaUpdateTerm)
             throws ASTVisitException {
         visitDefaultTerm(schemaUpdateTerm);
@@ -176,68 +193,81 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     // types call visitDefaultType
     //
 
+    @Override
     public void visit(ASTTypeApplication arg) throws ASTVisitException {
         visitDefaultType(arg);
     }
 
+    @Override
     public void visit(ASTMapType arg) throws ASTVisitException {
         visitDefaultType(arg);
     }
 
+    @Override
     public void visit(ASTTypeVar arg) throws ASTVisitException {
         visitDefaultType(arg);
     }
-    
+
     @Override
     public void visit(ASTSchemaType arg) throws ASTVisitException {
         visitDefaultType(arg);
     }
-    
+
+    @Override
     public void visit(ASTAssignment arg)  throws ASTVisitException {
         visitDefault(arg);
     }
 
-
     //
     // statements call visitDefaultStatement
     //
-    
+
+    @Override
     public void visit(ASTAssignmentStatement arg) throws ASTVisitException {
         visitDefaultStatement(arg);
     }
-    
+
+    @Override
     public void visit(ASTSchematicAssignmentStatement arg) throws ASTVisitException {
         visitDefaultStatement(arg);
     }
-    
+
+    @Override
     public void visit(ASTAssertStatement arg)  throws ASTVisitException {
         visitDefaultStatement(arg);
     }
 
+    @Override
     public void visit(ASTAssumeStatement arg)  throws ASTVisitException {
         visitDefaultStatement(arg);
     }
 
+    @Override
     public void visit(ASTEndStatement arg)  throws ASTVisitException {
         visitDefaultStatement(arg);
     }
 
+    @Override
     public void visit(ASTGotoStatement arg)  throws ASTVisitException {
         visitDefaultStatement(arg);
     }
 
+    @Override
     public void visit(ASTHavocStatement arg)  throws ASTVisitException {
         visitDefaultStatement(arg);
     }
 
+    @Override
     public void visit(ASTLabelStatement arg)  throws ASTVisitException {
         visitDefaultStatement(arg);
     }
 
+    @Override
     public void visit(ASTSkipStatement arg)  throws ASTVisitException {
         visitDefaultStatement(arg);
     }
-    
+
+    @Override
     public void visit(ASTSourceLineStatement arg)  throws ASTVisitException {
         visitDefaultStatement(arg);
     }
@@ -245,91 +275,113 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     //
     // other elements call visitDefault directly
     //
-    
+
+    @Override
     public void visit(ASTFile arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTPlugins arg) throws ASTVisitException {
         visitDefault(arg);
     }
-    
+
+    @Override
     public void visit(ASTPluginDeclaration arg) throws ASTVisitException {
         visitDefault(arg);
     }
-    
+
+    @Override
     public void visit(ASTIncludeDeclarationBlock arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTSortDeclarationBlock arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTSortDeclaration arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTFunctionDeclaration arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTFunctionDeclarationBlock arg) throws ASTVisitException {
         visitDefault(arg);
     }
-    
+
+    @Override
     public void visit(ASTAxiomDeclaration arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTRule arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTRuleFind arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTRuleAssume arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTRuleReplace arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTRuleAdd arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTBinderDeclarationBlock arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTBinderDeclaration arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTWhereClause arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTLocatedTerm arg) throws ASTVisitException {
         visitDefault(arg);
     }
-    
+
+    @Override
     public void visit(ASTProblemSequent arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTGoalAction arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
+    @Override
     public void visit(ASTRuleRemove arg) throws ASTVisitException {
         visitDefault(arg);
     }
-    
+
+    @Override
     public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
         visitDefault(arg);
     }
@@ -343,5 +395,15 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     public void visit(ASTPropertiesDeclaration arg) throws ASTVisitException {
         visitDefault(arg);
     }
-    
+
+    @Override
+    public void visit(ASTProofScript arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+
+    @Override
+    public void visit(ASTProofScriptNode arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+
 }

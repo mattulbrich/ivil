@@ -15,11 +15,12 @@ import de.uka.iti.pseudo.parser.term.ASTTermVisitor;
 
 /**
  * The Interface ASTVisitor is part of the visitor pattern for Term ASTs.
- * 
+ *
  * The implementing visit methods may throw ASTVisitExceptions if their
  * visitation fails.
  */
 // TODO consider making ASTVisitor generic
 // public interface ASTVisitor<R> or ASTVisitor<R,P>
 public interface ASTVisitor extends ASTTermVisitor, ASTFileVisitor, ASTProgramVisitor {
+
 }

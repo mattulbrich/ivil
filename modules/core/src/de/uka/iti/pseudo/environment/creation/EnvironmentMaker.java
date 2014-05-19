@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.auto.script.ProofScript;
+import de.uka.iti.pseudo.auto.script.ProofScript.Obligation;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
@@ -67,7 +69,15 @@ public class EnvironmentMaker {
      */
     private final Parser parser;
 
+    /**
+     * A map from names to problem sequents.
+     */
     private final Map<String, Sequent> problemSequents;
+
+    /**
+     * A map of all proofs that have been scanned.
+     */
+    private final Map<ProofScript.Obligation, ProofScript> proofScripts;
 
     /**
      * Instantiates a new environment maker.
@@ -211,6 +221,7 @@ public class EnvironmentMaker {
         astFile.visit(new EnvironmentRuleDefinitionVisitor(env));
         // call this after the EnvironmentProgramMaker
         problemSequents = new EnvironmentProblemExtractor(env).handle(astFile);
+        proofScripts = new ProofScriptExtractor(env).extractFrom(astFile);
 
         new RuleAxiomExtractor(env).extractAxioms();
     }
@@ -333,6 +344,18 @@ public class EnvironmentMaker {
      */
     public @NonNull Map<String, Sequent> getProblemSequents() {
         return Collections.unmodifiableMap(problemSequents);
+    }
+
+    /**
+     * Gets the collection of proof scripts that are included in this source files.
+     *
+     * Returns an empty map null if the environment does not define proof scripts.
+     *
+     * @return an unmodifiable map from names to proof scripts.
+     * @see ProofScriptExtractor
+     */
+    public Map<Obligation, ProofScript> getProofScripts() {
+        return Collections.unmodifiableMap(proofScripts);
     }
 
     /*

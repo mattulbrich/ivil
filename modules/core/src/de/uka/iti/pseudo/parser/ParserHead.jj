@@ -22,6 +22,7 @@ import de.uka.iti.pseudo.parser.term.*;
 import de.uka.iti.pseudo.parser.program.*;
 import de.uka.iti.pseudo.parser.proof.*;
 import de.uka.iti.pseudo.term.Modality;
+import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.Util;
 
