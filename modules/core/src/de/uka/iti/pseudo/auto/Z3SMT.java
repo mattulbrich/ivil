@@ -59,6 +59,9 @@ public class Z3SMT implements DecisionProcedure {
     private final static boolean USE_SMT1 =
         settings.getBoolean("pseudo.z3.useSMT1", false);
 
+    /**
+     * A cache of all sequents for which Z3 already proved validity.
+     */
     private final Set<Sequent> cache = new HashSet<Sequent>();
 
     @Override
@@ -82,7 +85,6 @@ public class Z3SMT implements DecisionProcedure {
         if(additionalParams == null) {
             additionalParams = "";
         }
-
 
         boolean cached = cache.contains(sequent);
         if(cached) {
@@ -109,6 +111,11 @@ public class Z3SMT implements DecisionProcedure {
 
         final String challenge = builder.toString();
         // System.err.println(challenge);
+
+        Result persistCacheResult = Z3PersistentCache.getInstance().lookup(challenge);
+        if(persistCacheResult != null) {
+            return Pair.make(persistCacheResult, "Cached in persistent cache");
+        }
 
         Process process = null;
 
@@ -174,6 +181,8 @@ public class Z3SMT implements DecisionProcedure {
                 Log.log("Result: " + result);
                 dumpTmp(challenge);
             }
+
+            Z3PersistentCache.getInstance().inform(challenge, result);
 
             Log.log(Log.DEBUG, "Result for %s: %s", sequent, result);
             return result;
