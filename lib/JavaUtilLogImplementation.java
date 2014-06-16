@@ -1,3 +1,5 @@
+// ant build ; javac -g -classpath modules/core/classes -d modules/core/classes lib/JavaUtilLogImplementation.java ; ant jar
+// ivil -DX-Dpseudo.logClass=JavaUtilLogImplementation
 import java.io.ByteArrayInputStream;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -37,7 +39,7 @@ public class JavaUtilLogImplementation implements Log.LogImplementation {
             "java.util.logging.SocketHandler.host = localhost\n" +
             "java.util.logging.SocketHandler.port = 4459\n" +
             "java.util.logging.SocketHandler.level = ALL\n" +
-            "de.pseudo.level = ALL";
+            "de.uka.iti.level = ALL";
 
     static {
         try {
