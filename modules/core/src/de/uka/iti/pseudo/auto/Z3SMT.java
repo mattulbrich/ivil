@@ -112,9 +112,12 @@ public class Z3SMT implements DecisionProcedure {
         final String challenge = builder.toString();
         // System.err.println(challenge);
 
-        Result persistCacheResult = Z3PersistentCache.getInstance().lookup(challenge);
-        if(persistCacheResult != null) {
-            return Pair.make(persistCacheResult, "Cached in persistent cache");
+        Z3PersistentCache persistentCache = Z3PersistentCache.getGlobalInstance();
+        if(persistentCache != null) {
+            Result persistCacheResult = persistentCache.lookup(challenge);
+            if(persistCacheResult != null) {
+                return Pair.make(persistCacheResult, "Cached in persistent cache");
+            }
         }
 
         Process process = null;
@@ -182,7 +185,9 @@ public class Z3SMT implements DecisionProcedure {
                 dumpTmp(challenge);
             }
 
-            Z3PersistentCache.getInstance().inform(challenge, result);
+            if(persistentCache != null) {
+                persistentCache.put(challenge, result.fst());
+            }
 
             Log.log(Log.DEBUG, "Result for %s: %s", sequent, result);
             return result;

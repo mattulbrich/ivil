@@ -15,6 +15,7 @@ import junit.framework.TestSuite;
 import de.uka.iti.pseudo.auto.TestSMTLib2Translator;
 import de.uka.iti.pseudo.auto.TestSMTLibTranslator;
 import de.uka.iti.pseudo.auto.TestZ3;
+import de.uka.iti.pseudo.auto.TestZ3PersistentCache;
 import de.uka.iti.pseudo.auto.TestZ3Translator;
 import de.uka.iti.pseudo.auto.strategy.hint.TestHintParser;
 import de.uka.iti.pseudo.auto.strategy.hint.TestHintStrategy;
@@ -118,6 +119,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestSMTLib2Translator.class);
         suite.addTestSuite(TestZ3.class);
         suite.addTestSuite(TestZ3Translator.class);
+        suite.addTestSuite(TestZ3PersistentCache.class);
         suite.addTestSuite(TestLinearLookupMap.class);
         suite.addTestSuite(TestToplevelCheckVisitor.class);
         suite.addTestSuite(TestXMLOutput.class);
