@@ -33,6 +33,7 @@ import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
 import de.uka.iti.pseudo.parser.program.ASTLabelStatement;
 import de.uka.iti.pseudo.parser.program.ASTSourceLineStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
+import de.uka.iti.pseudo.parser.proof.ASTProofSourceFile;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
@@ -311,6 +312,10 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
 
     @Override
     public void visit(ASTPropertiesDeclaration property) throws ASTVisitException {
+    }
+
+    @Override
+    public void visit(ASTProofSourceFile arg) throws ASTVisitException {
     }
 
 }

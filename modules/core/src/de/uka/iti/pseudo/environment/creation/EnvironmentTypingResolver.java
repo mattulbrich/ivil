@@ -23,6 +23,7 @@ import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTRuleFind;
 import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
+import de.uka.iti.pseudo.parser.proof.ASTProofSourceFile;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.UnificationException;
@@ -173,6 +174,10 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
 
     @Override
     public void visit(ASTPropertiesDeclaration plugin) throws ASTVisitException {
+    }
+
+    @Override
+    public void visit(ASTProofSourceFile arg) throws ASTVisitException {
     }
 
 }

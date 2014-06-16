@@ -20,6 +20,7 @@ import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
 import de.uka.iti.pseudo.parser.file.ASTPluginDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTPlugins;
+import de.uka.iti.pseudo.parser.file.ASTProblemSequent;
 import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTProperties;
 import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
@@ -29,7 +30,6 @@ import de.uka.iti.pseudo.parser.file.ASTRuleAssume;
 import de.uka.iti.pseudo.parser.file.ASTRuleFind;
 import de.uka.iti.pseudo.parser.file.ASTRuleRemove;
 import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
-import de.uka.iti.pseudo.parser.file.ASTProblemSequent;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTWhereClause;
@@ -47,6 +47,7 @@ import de.uka.iti.pseudo.parser.program.ASTSourceLineStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
 import de.uka.iti.pseudo.parser.proof.ASTProofScript;
 import de.uka.iti.pseudo.parser.proof.ASTProofScriptNode;
+import de.uka.iti.pseudo.parser.proof.ASTProofSourceFile;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
@@ -403,6 +404,11 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
 
     @Override
     public void visit(ASTProofScriptNode arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+
+    @Override
+    public void visit(ASTProofSourceFile arg) throws ASTVisitException {
         visitDefault(arg);
     }
 

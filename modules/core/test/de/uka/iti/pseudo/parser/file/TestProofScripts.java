@@ -13,6 +13,7 @@ import de.uka.iti.pseudo.auto.script.ProofScriptCommand;
 import de.uka.iti.pseudo.auto.script.ProofScriptNode;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
+import de.uka.iti.pseudo.environment.creation.ProofScriptExtractor;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.util.Dump;
 
@@ -97,5 +98,15 @@ public class TestProofScripts extends TestCaseWithEnv {
         testEnvFail("problem true proof (mock)");
     }
 
+    public void testTwoScripts() {
+        testEnvFail("proof source \"source.p\" proof source \"source2.p\"");
+        testEnvFail("properties proof.sourcefile \"source.p\" proof source \"source2.p\"");
+    }
+
+    public void testScriptProperty() throws Exception {
+        env = testEnv("proof source \"/path/sources.p\"");
+        assertEquals("/path/sources.p",
+                env.getProperty(ProofScriptExtractor.PROOF_SOURCE_PROPERTY));
+    }
 
 }

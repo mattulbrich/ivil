@@ -1,12 +1,21 @@
-
 //
 // This file contains the grammar for structural proofs.
 //
+
+ASTProofSourceFile ProofSourceFile():
+{
+  Token first, t;
+}
+{
+  first="proof" "source" t=<STRING>
+      { return new ASTProofSourceFile(first, Util.stripQuotes(t.image)); }
+}
 
 ASTProofScript ProofScript():
 {
   Token t = null;
   Token id = null;
+  String name = null;
   Token first;
   ProofScript.Kind kind = null;
   ASTProofScriptNode tree;
@@ -15,19 +24,18 @@ ASTProofScript ProofScript():
   first = "proof"
 
   (
-    ( t = "rule" { kind = ProofScript.Kind.RULE; }
-    | t = "program" { kind = ProofScript.Kind.PROGRAM; }
-    | t = "problem" { kind = ProofScript.Kind.PROBLEM; }
+    ( t = "rule" id=<IDENTIFIER> 
+        { kind = ProofScript.Kind.RULE; name = id.image; }
+    | t = "program" id=<IDENTIFIER> 
+        { kind = ProofScript.Kind.PROGRAM;  name = id.image;}
+       ( "." id=<IDENTIFIER> { name += "." + id.image; } )*
+    | t = "problem" id=<IDENTIFIER> 
+        { kind = ProofScript.Kind.PROBLEM;  name = id.image;}
     )
-
-    id = <IDENTIFIER>
   )?
 
   "(" tree=ProofTree() ")"
-
-    {
-          return new ASTProofScript(first, kind, id, tree);
-    }
+     { return new ASTProofScript(first, kind, name, tree); }
 }
 
 ASTProofScriptNode ProofTree():

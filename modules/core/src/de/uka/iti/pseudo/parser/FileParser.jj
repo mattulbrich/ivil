@@ -23,7 +23,8 @@ ASTFile File():
         | block=AxiomDeclaration()
         | block=ProgramDeclaration()
         | block=Problem()
-        | block=ProofScript()
+        | ( LOOKAHEAD(2) block=ProofSourceFile() 
+          | block=ProofScript() )
         )   { blocks.add(block); }
        )*
        

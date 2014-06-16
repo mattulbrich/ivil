@@ -9,10 +9,10 @@ import de.uka.iti.pseudo.parser.file.ASTDeclarationBlock;
 public class ASTProofScript extends ASTDeclarationBlock {
 
     private final Kind kind;
-    private final Token name;
+    private final String name;
 
 
-    public ASTProofScript(Token first, Kind kind, Token name, ASTProofScriptNode tree) {
+    public ASTProofScript(Token first, Kind kind, String name, ASTProofScriptNode tree) {
         super(first);
         this.kind = kind;
         this.name = name;
@@ -28,7 +28,7 @@ public class ASTProofScript extends ASTDeclarationBlock {
         return kind;
     }
 
-    public Token getName() {
+    public String getName() {
         return name;
     }
 

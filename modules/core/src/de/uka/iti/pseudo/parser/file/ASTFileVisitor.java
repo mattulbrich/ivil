@@ -12,6 +12,7 @@ package de.uka.iti.pseudo.parser.file;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.proof.ASTProofScript;
 import de.uka.iti.pseudo.parser.proof.ASTProofScriptNode;
+import de.uka.iti.pseudo.parser.proof.ASTProofSourceFile;
 
 /**
  * This interface is part of the visitor pattern for {@link ASTFileElement}s.
@@ -66,6 +67,8 @@ public interface ASTFileVisitor {
     public void visit(ASTRuleRemove ruleRemove)  throws ASTVisitException;
 
     public void visit(ASTProgramDeclaration statementList) throws ASTVisitException;
+
+    public void visit(ASTProofSourceFile astProofSourceFile) throws ASTVisitException;
 
     public void visit(ASTProofScript astProofScript) throws ASTVisitException;
 

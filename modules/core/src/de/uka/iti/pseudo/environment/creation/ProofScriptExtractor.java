@@ -2,14 +2,13 @@ package de.uka.iti.pseudo.environment.creation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import de.uka.iti.pseudo.auto.script.ProofScriptCommand;
 import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.auto.script.ProofScript.Kind;
 import de.uka.iti.pseudo.auto.script.ProofScript.Obligation;
+import de.uka.iti.pseudo.auto.script.ProofScriptCommand;
 import de.uka.iti.pseudo.auto.script.ProofScriptNode;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -27,14 +26,16 @@ import de.uka.iti.pseudo.parser.file.ASTPlugins;
 import de.uka.iti.pseudo.parser.file.ASTProblemSequent;
 import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTProperties;
-import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclarationBlock;
 import de.uka.iti.pseudo.parser.proof.ASTProofScript;
 import de.uka.iti.pseudo.parser.proof.ASTProofScriptNode;
+import de.uka.iti.pseudo.parser.proof.ASTProofSourceFile;
 import de.uka.iti.pseudo.util.Triple;
 
 public class ProofScriptExtractor extends ASTDefaultVisitor {
+
+    public static final String PROOF_SOURCE_PROPERTY = "proof.sourcefile";
 
     private final Environment env;
     private final PluginManager pluginManager;
@@ -77,9 +78,7 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
             }
             obligation = lastObligation;
         } else {
-            Token nameToken = arg.getName();
-            assert nameToken != null : "by parser design";
-            String name = nameToken.image;
+            String name = arg.getName();
             obligation = new Obligation(kind, name);
         }
 
@@ -131,6 +130,18 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
         node = new ProofScriptNode(plugin, arguments, children, arg);
 
     };
+
+    @Override
+    public void visit(ASTProofSourceFile arg) throws ASTVisitException {
+        // 'proof sourcefile "/path/filename.p"'
+        // is interpreted as 'properties proof.sourcefile "/path/filename.p"'
+        if (env.hasProperty(PROOF_SOURCE_PROPERTY)) {
+            throw new ASTVisitException("There is more than one 'proof source' directive or " +
+                    "definitions of property " + PROOF_SOURCE_PROPERTY, arg);
+        }
+
+        env.addProperty(PROOF_SOURCE_PROPERTY, arg.getPath());
+    }
 
     /*
      * Some blocks allow for a directly following proof.
