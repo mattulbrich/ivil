@@ -23,7 +23,6 @@ import java.util.Map;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.auto.script.ProofScript;
-import de.uka.iti.pseudo.auto.script.ProofScript.Obligation;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
@@ -35,6 +34,7 @@ import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTPluginDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTPlugins;
+import de.uka.iti.pseudo.proof.ProofIdentifier;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.SelectList;
@@ -77,7 +77,7 @@ public class EnvironmentMaker {
     /**
      * A map of all proofs that have been scanned.
      */
-    private final Map<ProofScript.Obligation, ProofScript> proofScripts;
+    private final Map<ProofIdentifier, ProofScript> proofScripts;
 
     /**
      * Instantiates a new environment maker.
@@ -354,7 +354,7 @@ public class EnvironmentMaker {
      * @return an unmodifiable map from names to proof scripts.
      * @see ProofScriptExtractor
      */
-    public Map<Obligation, ProofScript> getProofScripts() {
+    public Map<ProofIdentifier, ProofScript> getProofScripts() {
         return Collections.unmodifiableMap(proofScripts);
     }
 

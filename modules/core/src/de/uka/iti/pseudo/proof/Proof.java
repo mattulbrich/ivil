@@ -20,6 +20,7 @@ import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -44,14 +45,16 @@ import de.uka.iti.pseudo.term.TermException;
  * tree may have changed.</li>
  * </ol>
  */
-public class Proof {
+public @NonNull class Proof {
 
     /**
      * The root node of the proof tree. This will never be null and always
      * contains the sequent to be be proved.
      */
-    private @NonNull
-    final ProofNode root;
+    private final ProofNode root;
+
+
+    private final ProofIdentifier proofObligation;
 
 
     /**
@@ -106,12 +109,47 @@ public class Proof {
      *
      * @param initialSequent
      *            the initial sequent
+     * @param env
+     *            the environment to work with
      */
     public Proof(Sequent initialSequent, Environment env) {
+        this(initialSequent, ProofIdentifier.UNNAMED_PROBLEM, env);
+    }
+
+    /**
+     * Instantiates a new proof with an initial sequent.
+     *
+     * @param initialSequent
+     *            the initial sequent
+     * @param proofObligation
+     *            the proof obligation identifier to which this proof belongs
+     * @param env
+     *            the environment to work with
+     */
+    public Proof(Sequent initialSequent, ProofIdentifier proofObligation, Environment env) {
+        this.proofObligation = proofObligation;
         this.env = env;
-        root = new ProofNode(this, initialSequent,
+        this.root = new ProofNode(this, initialSequent,
                 new SequentHistory.Annotation("formula on initial sequent"), env);
         openGoals.add(root);
+    }
+
+    /**
+     * Instantiates a new proof with an initial problem term.
+     *
+     * @param initialProblem
+     *            the initial problem
+     * @param proofObligation
+     *            the proof obligation identifier to which this proof belongs
+     * @param env
+     *            the environment to work with
+     * @throws TermException
+     *             the term exception
+     */
+    public Proof(Term initialProblem, ProofIdentifier proofObligation,
+            Environment env) throws TermException {
+        this(new Sequent(Collections.<Term> emptyList(),
+                Collections.<Term> singletonList(initialProblem)), proofObligation, env);
     }
 
     /**
@@ -124,13 +162,13 @@ public class Proof {
      * @param initialProblem
      *            the initial problem
      * @param env
+     *            the environment to work with
      *
      * @throws TermException
      *             if the initial problem is not suitable for toplevel usage.
      */
-    public Proof(@NonNull Term initialProblem, Environment env) throws TermException {
-        this(new Sequent(Collections.<Term> emptyList(), Collections
-                .<Term> singletonList(initialProblem)), env);
+    public Proof(Term initialProblem, Environment env) throws TermException {
+        this(initialProblem, ProofIdentifier.UNNAMED_PROBLEM, env);
     }
 
     /**
@@ -157,7 +195,8 @@ public class Proof {
         apply(ruleAppCert);
     }
 
-    public void apply(@NonNull RuleApplicationCertificate ruleAppCert)
+    // TODO DOC
+    public void apply(RuleApplicationCertificate ruleAppCert)
             throws ProofException {
 
         ProofNode goal;
@@ -242,7 +281,7 @@ public class Proof {
      *
      * @return the proof node which is parent of all nodes of the proof.
      */
-    public @NonNull ProofNode getRoot() {
+    public ProofNode getRoot() {
         return root;
     }
 

@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.auto.script.ProofScript;
-import de.uka.iti.pseudo.auto.script.ProofScript.Kind;
-import de.uka.iti.pseudo.auto.script.ProofScript.Obligation;
 import de.uka.iti.pseudo.auto.script.ProofScriptCommand;
 import de.uka.iti.pseudo.auto.script.ProofScriptNode;
 import de.uka.iti.pseudo.environment.Environment;
@@ -31,6 +29,8 @@ import de.uka.iti.pseudo.parser.file.ASTSortDeclarationBlock;
 import de.uka.iti.pseudo.parser.proof.ASTProofScript;
 import de.uka.iti.pseudo.parser.proof.ASTProofScriptNode;
 import de.uka.iti.pseudo.parser.proof.ASTProofSourceFile;
+import de.uka.iti.pseudo.proof.ProofIdentifier;
+import de.uka.iti.pseudo.proof.ProofIdentifier.Kind;
 import de.uka.iti.pseudo.util.Triple;
 
 public class ProofScriptExtractor extends ASTDefaultVisitor {
@@ -39,8 +39,8 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
 
     private final Environment env;
     private final PluginManager pluginManager;
-    private Map<Obligation, ProofScript> result;
-    private Obligation lastObligation = null;
+    private Map<ProofIdentifier, ProofScript> result;
+    private ProofIdentifier lastObligation = null;
     private ProofScriptNode node = null;
 
     public ProofScriptExtractor(Environment env) throws ASTVisitException  {
@@ -52,8 +52,8 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
         }
     }
 
-    public Map<Obligation, ProofScript> extractFrom(ASTFile astFile) throws ASTVisitException {
-        result = new HashMap<ProofScript.Obligation, ProofScript>();
+    public Map<ProofIdentifier, ProofScript> extractFrom(ASTFile astFile) throws ASTVisitException {
+        result = new HashMap<ProofIdentifier, ProofScript>();
         astFile.visit(this);
         return result;
     }
@@ -67,7 +67,7 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
     public void visit(ASTProofScript arg) throws ASTVisitException {
 
         Kind kind = arg.getKind();
-        ProofScript.Obligation obligation;
+        ProofIdentifier obligation;
 
         // no explicit obligation is given: refer to lastObligation
         if(kind == null) {
@@ -79,7 +79,7 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
             obligation = lastObligation;
         } else {
             String name = arg.getName();
-            obligation = new Obligation(kind, name);
+            obligation = new ProofIdentifier(kind, name);
         }
 
         arg.getChildren().get(0).visit(this);
@@ -159,7 +159,7 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
         // Only if the problem is named can we remember a named obligation.
         Token problemId = arg.getIdentifier();
         if(problemId != null) {
-            lastObligation = new Obligation(ProofScript.Kind.PROBLEM, problemId.image);
+            lastObligation = new ProofIdentifier(ProofIdentifier.Kind.PROBLEM, problemId.image);
         } else {
             lastObligation = null;
         }
@@ -168,12 +168,12 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
 
     @Override
     public void visit(ASTRule arg) throws ASTVisitException {
-        lastObligation = new Obligation(Kind.RULE, arg.getName().image);
+        lastObligation = new ProofIdentifier(Kind.RULE, arg.getName().image);
     }
 
     @Override
     public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
-        lastObligation = new Obligation(Kind.PROGRAM, arg.getName().image);
+        lastObligation = new ProofIdentifier(Kind.PROGRAM, arg.getName().image);
     }
 
     /*

@@ -42,6 +42,8 @@ import de.uka.iti.pseudo.gui.util.InputHistory;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofIdentifier;
+import de.uka.iti.pseudo.proof.ProofIdentifier.Kind;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
@@ -273,8 +275,10 @@ public class Main {
      * @return a freshly created proof center, <code>null</code> if the user
      *         aborted the creation
      */
-    public static @Nullable ProofCenter openProverFromURL(URL url) throws FileNotFoundException, ParseException,
-            ASTVisitException, TermException, IOException, StrategyException, EnvironmentException {
+    public static @Nullable ProofCenter openProverFromURL(URL url)
+            throws FileNotFoundException, ParseException,
+            ASTVisitException, TermException, IOException,
+            StrategyException, EnvironmentException {
 
         Pair<Environment, Map<String, Sequent>> result =
                 EnvironmentCreationService.createEnvironmentByExtension(url);
@@ -315,7 +319,7 @@ public class Main {
             }
         }
 
-        return openProver(env, problem, url);
+        return openProver(env, null, problem, url);
     }
     /**
      * Open a new {@link ProofCenter} for a given environment and the name of a
@@ -354,15 +358,16 @@ public class Main {
         LiteralProgramTerm problemTerm = LiteralProgramTerm.getInst(0, Modality.BOX, program, Environment.getTrue());
         Sequent problemSeq = new Sequent(Collections.<Term>emptyList(), Collections.singletonList(problemTerm));
 
-        return openProver(env, problemSeq, new URL(resource));
+        ProofIdentifier proofIdentifier = new ProofIdentifier(Kind.PROGRAM, program.getName());
+        return openProver(env, proofIdentifier, problemSeq, new URL(resource));
     }
 
 
-    public static ProofCenter openProver(Environment env, Sequent problemTerm)
-            throws IOException, StrategyException, TermException {
-        String resource = env.getResourceName();
-        return openProver(env, problemTerm, new URL(resource));
-    }
+//    public static ProofCenter openProver(Environment env, Sequent problemTerm)
+//            throws IOException, StrategyException, TermException {
+//        String resource = env.getResourceName();
+//        return openProver(env, proofIdentifier, problemTerm, new URL(resource));
+//    }
 
     /**
      * The internal method which does the actual opening. It creates a new
@@ -371,9 +376,10 @@ public class Main {
      *
      * @return a freshly created proof center
      */
-    private static ProofCenter openProver(Environment env, Sequent problemSeq, URL urlToRemember)
+    private static ProofCenter openProver(Environment env, ProofIdentifier proofIdentifier,
+            Sequent problemSeq, URL urlToRemember)
             throws IOException, StrategyException, TermException {
-        Proof proof = new Proof(problemSeq, env);
+        Proof proof = new Proof(problemSeq, proofIdentifier, env);
 
         ProofCenter proofCenter = new ProofCenter(proof, env);
 

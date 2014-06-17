@@ -27,6 +27,8 @@ import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.proof.ProofIdentifier;
+import de.uka.iti.pseudo.proof.ProofIdentifier.Kind;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.Rule;
@@ -310,7 +312,8 @@ public class AutomaticProblemProver implements Callable<Result> {
     public Result call() throws TermException, StrategyException,
             ProofException {
 
-        Proof proof = new Proof(problemSequent, env);
+        ProofIdentifier pid = new ProofIdentifier(Kind.PROBLEM, name);
+        Proof proof = new Proof(problemSequent, pid, env);
 
         StrategyManager strategyManager = new StrategyManager(proof, env);
         strategyManager.registerAllKnownStrategies();

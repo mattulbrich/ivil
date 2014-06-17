@@ -20,6 +20,8 @@ import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
+import de.uka.iti.pseudo.proof.ProofIdentifier;
+import de.uka.iti.pseudo.proof.ProofIdentifier.Kind;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
 import de.uka.iti.pseudo.term.Sequent;
@@ -58,7 +60,8 @@ public class AutomaticProblemChecker implements Callable<Result> {
         }
 
         Entry<String, Sequent> entry = problems.entrySet().iterator().next();
-        Proof proof = new Proof(entry.getValue(), env);
+        ProofIdentifier pid = new ProofIdentifier(Kind.PROBLEM, entry.getKey());
+        Proof proof = new Proof(entry.getValue(), pid, env);
 
         FileInputStream fis = new FileInputStream(proofFileName);
 

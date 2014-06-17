@@ -17,6 +17,7 @@ options {
 PARSER_BEGIN(Parser)
 package de.uka.iti.pseudo.parser;
 
+import de.uka.iti.pseudo.proof.ProofObligation;
 import de.uka.iti.pseudo.parser.file.*;
 import de.uka.iti.pseudo.parser.term.*;
 import de.uka.iti.pseudo.parser.program.*;

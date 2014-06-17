@@ -1,10 +1,10 @@
 package de.uka.iti.pseudo.parser.proof;
 
-import de.uka.iti.pseudo.auto.script.ProofScript.Kind;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTDeclarationBlock;
+import de.uka.iti.pseudo.proof.ProofIdentifier.Kind;
 
 public class ASTProofScript extends ASTDeclarationBlock {
 

@@ -17,7 +17,7 @@ ASTProofScript ProofScript():
   Token id = null;
   String name = null;
   Token first;
-  ProofScript.Kind kind = null;
+  ProofObligation.Kind kind = null;
   ASTProofScriptNode tree;
 }
 {
@@ -25,12 +25,12 @@ ASTProofScript ProofScript():
 
   (
     ( t = "rule" id=<IDENTIFIER> 
-        { kind = ProofScript.Kind.RULE; name = id.image; }
+        { kind = ProofObligation.Kind.RULE; name = id.image; }
     | t = "program" id=<IDENTIFIER> 
-        { kind = ProofScript.Kind.PROGRAM;  name = id.image;}
+        { kind = ProofObligation.Kind.PROGRAM;  name = id.image;}
        ( "." id=<IDENTIFIER> { name += "." + id.image; } )*
     | t = "problem" id=<IDENTIFIER> 
-        { kind = ProofScript.Kind.PROBLEM;  name = id.image;}
+        { kind = ProofObligation.Kind.PROBLEM;  name = id.image;}
     )
   )?
 
@@ -45,7 +45,8 @@ ASTProofScriptNode ProofTree():
   ASTProofScriptNode child;
 }
 {
-  t = <IDENTIFIER>    {  result = new ASTProofScriptNode(t);  }
+  t = <IDENTIFIER>
+      {  result = new ASTProofScriptNode(t);  }
 
   ( t = <IDENTIFIER>
     ( ":" ( t2=<STRING> { result.put(t, t2, Util.stripQuotes(t2.image)); }

@@ -7,14 +7,14 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.auto.script.ProofScript;
-import de.uka.iti.pseudo.auto.script.ProofScript.Kind;
-import de.uka.iti.pseudo.auto.script.ProofScript.Obligation;
 import de.uka.iti.pseudo.auto.script.ProofScriptCommand;
 import de.uka.iti.pseudo.auto.script.ProofScriptNode;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.environment.creation.ProofScriptExtractor;
 import de.uka.iti.pseudo.parser.Parser;
+import de.uka.iti.pseudo.proof.ProofIdentifier;
+import de.uka.iti.pseudo.proof.ProofIdentifier.Kind;
 import de.uka.iti.pseudo.util.Dump;
 
 public class TestProofScripts extends TestCaseWithEnv {
@@ -56,7 +56,7 @@ public class TestProofScripts extends TestCaseWithEnv {
             throw new Exception("ruletest.p not found");
         }
         EnvironmentMaker em = new EnvironmentMaker(fp, url);
-        Map<Obligation, ProofScript> scripts = em.getProofScripts();
+        Map<ProofIdentifier, ProofScript> scripts = em.getProofScripts();
 
         if(true) {
             Dump.dumpEnv(em.getEnvironment());
@@ -66,15 +66,15 @@ public class TestProofScripts extends TestCaseWithEnv {
         }
 
         assertEquals(6, scripts.size());
-        assertTrue(scripts.containsKey(new Obligation(Kind.RULE, "r1")));
-        assertTrue(scripts.containsKey(new Obligation(Kind.RULE, "r2")));
-        assertTrue(scripts.containsKey(new Obligation(Kind.PROBLEM, "p1")));
-        assertTrue(scripts.containsKey(new Obligation(Kind.PROBLEM, "p2")));
-        assertTrue(scripts.containsKey(new Obligation(Kind.PROGRAM, "Q1")));
-        assertTrue(scripts.containsKey(new Obligation(Kind.PROGRAM, "Q2")));
+        assertTrue(scripts.containsKey(new ProofIdentifier(Kind.RULE, "r1")));
+        assertTrue(scripts.containsKey(new ProofIdentifier(Kind.RULE, "r2")));
+        assertTrue(scripts.containsKey(new ProofIdentifier(Kind.PROBLEM, "p1")));
+        assertTrue(scripts.containsKey(new ProofIdentifier(Kind.PROBLEM, "p2")));
+        assertTrue(scripts.containsKey(new ProofIdentifier(Kind.PROGRAM, "Q1")));
+        assertTrue(scripts.containsKey(new ProofIdentifier(Kind.PROGRAM, "Q2")));
 
         // the proof for p1 has annotations which are special.
-        ProofScriptNode n = scripts.get(new Obligation(Kind.PROBLEM, "p1")).getRoot();
+        ProofScriptNode n = scripts.get(new ProofIdentifier(Kind.PROBLEM, "p1")).getRoot();
         checkPrefix(n, "");
     }
 

@@ -10,7 +10,7 @@
 package de.uka.iti.pseudo.auto.script;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.proof.ProofIdentifier;
 
 /**
  * A Proof script is a tree-structure containing individual proof steps. This
@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.util.Pair;
  *
  * @see ProofScriptNode
  * @see ProofScriptCommand
+ * @see ProofIdentifier
  */
 
 public class ProofScript {
@@ -26,66 +27,13 @@ public class ProofScript {
     /**
      * The proof obligation to which this scripts belongs.
      */
-    private final @NonNull Obligation obligation;
+    private final @NonNull ProofIdentifier obligation;
 
     /**
      * The root of the proof-script tree.
      */
     private final @NonNull ProofScriptNode root;
 
-    /**
-     * The kind of proof obligations that are considered. Together with a name
-     * they uniquely identify the object which is subject to a proof script.
-     */
-    public enum Kind {
-        /**
-         * The proof obligation is for the justification of a rule.
-         */
-        RULE, /**
-         * The proof obligation is for the justification of a lemma/sequent/problem.
-         */
-        PROBLEM, /**
-         * The proof obligation is for the justification of a program
-         */
-        PROGRAM
-    };
-
-    /**
-     * Obligations are immutable pairs of a {@link Kind} and a name.
-     */
-    public final static class Obligation extends Pair<Kind, String>{
-
-        /**
-         * Instantiates a new obligation.
-         *
-         * @param kind
-         *            the kind of th obligation
-         * @param name
-         *            the name of the obligation
-         */
-        public Obligation(@NonNull Kind kind, @NonNull String name) {
-            super(kind, name);
-        }
-
-        /**
-         * Gets the kind.
-         *
-         * @return the kind
-         */
-        public @NonNull Kind getKind() {
-            return fst();
-        }
-
-        /**
-         * Gets the name.
-         *
-         * @return the name
-         */
-        public @NonNull String getName() {
-            return snd();
-        }
-
-    }
 
     /**
      * Instantiates a new proof script.
@@ -93,19 +41,19 @@ public class ProofScript {
      * @param obligation
      *            the obligation to proof
      * @param node
-     *            the root of the proof scriüt tree
+     *            the root of the proof script tree
      */
-    public ProofScript(@NonNull Obligation obligation, @NonNull ProofScriptNode node) {
+    public ProofScript(@NonNull ProofIdentifier obligation, @NonNull ProofScriptNode node) {
         this.obligation = obligation;
         this.root = node;
     }
 
     /**
-     * Gets the proof obligation to which this scripts belons.
+     * Gets the proof obligation to which this scripts belongs.
      *
      * @return the obligation
      */
-    public @NonNull Obligation getObligation() {
+    public @NonNull ProofIdentifier getObligation() {
         return obligation;
     }
 
