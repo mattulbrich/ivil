@@ -10,7 +10,6 @@
 package de.uka.iti.pseudo.auto.script;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.proof.ProofIdentifier;
 
 /**
  * A Proof script is a tree-structure containing individual proof steps. This
@@ -24,10 +23,16 @@ import de.uka.iti.pseudo.proof.ProofIdentifier;
 
 public class ProofScript {
 
+    // will move to ProofObligation eventually
+    public static final String RULE_IDENTIFIER_PREFIX = "rule:";
+    public static final String LEMMA_IDENTIFIER_PREFIX = "lemma:";
+    public static final String PROGRAM_IDENTIFIER_PREFIX = "program:";
+    public static final String EMPTY_IDENTIFIER = "none";
+
     /**
      * The proof obligation to which this scripts belongs.
      */
-    private final @NonNull ProofIdentifier obligation;
+    private final @NonNull String obligationIdentifier;
 
     /**
      * The root of the proof-script tree.
@@ -39,22 +44,23 @@ public class ProofScript {
      * Instantiates a new proof script.
      *
      * @param obligation
-     *            the obligation to proof
+     *            the key (qualified name) of the obligation to which this proof
+     *            belongs
      * @param node
      *            the root of the proof script tree
      */
-    public ProofScript(@NonNull ProofIdentifier obligation, @NonNull ProofScriptNode node) {
-        this.obligation = obligation;
+    public ProofScript(@NonNull String key, @NonNull ProofScriptNode node) {
+        this.obligationIdentifier = key;
         this.root = node;
     }
 
     /**
-     * Gets the proof obligation to which this scripts belongs.
+     * Gets the key of the proof obligation to which this scripts belongs.
      *
      * @return the obligation
      */
-    public @NonNull ProofIdentifier getObligation() {
-        return obligation;
+    public @NonNull String getObligationIdentifier() {
+        return obligationIdentifier;
     }
 
     /**

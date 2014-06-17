@@ -75,6 +75,7 @@
     <copy todir="classes-test">
       <fileset dir="test">
         <include name="**/*.properties" />
+        <include name="**/*.proof" />
         <include name="**/*.p" />
         <include name="**/*.txt" />
         <include name="**/*.xsd" />

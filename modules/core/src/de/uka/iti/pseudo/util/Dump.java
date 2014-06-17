@@ -56,7 +56,7 @@ public final class Dump {
         try {
             Environment parent = env.getParent();
             if (parent != null) {
-                System.out.print("extending " + parent.getResourceName());
+                System.out.println("extending " + parent.getResourceName());
             }
         } catch (EnvironmentException e) {
             Log.stacktrace(e);
@@ -281,7 +281,7 @@ public final class Dump {
      *            proof script to dump
      */
     public static void dumpProofScript(ProofScript ps) {
-        System.out.println("proof " + ps.getObligation());
+        System.out.println("proof " + ps.getObligationIdentifier());
         dumpProofScriptNode(ps.getRoot(), 0);
     }
 

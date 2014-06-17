@@ -31,6 +31,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -42,8 +43,6 @@ import de.uka.iti.pseudo.gui.util.InputHistory;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.Proof;
-import de.uka.iti.pseudo.proof.ProofIdentifier;
-import de.uka.iti.pseudo.proof.ProofIdentifier.Kind;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
@@ -358,7 +357,7 @@ public class Main {
         LiteralProgramTerm problemTerm = LiteralProgramTerm.getInst(0, Modality.BOX, program, Environment.getTrue());
         Sequent problemSeq = new Sequent(Collections.<Term>emptyList(), Collections.singletonList(problemTerm));
 
-        ProofIdentifier proofIdentifier = new ProofIdentifier(Kind.PROGRAM, program.getName());
+        String proofIdentifier = ProofScript.PROGRAM_IDENTIFIER_PREFIX + program.getName();
         return openProver(env, proofIdentifier, problemSeq, new URL(resource));
     }
 
@@ -376,7 +375,7 @@ public class Main {
      *
      * @return a freshly created proof center
      */
-    private static ProofCenter openProver(Environment env, ProofIdentifier proofIdentifier,
+    private static ProofCenter openProver(Environment env, String proofIdentifier,
             Sequent problemSeq, URL urlToRemember)
             throws IOException, StrategyException, TermException {
         Proof proof = new Proof(problemSeq, proofIdentifier, env);

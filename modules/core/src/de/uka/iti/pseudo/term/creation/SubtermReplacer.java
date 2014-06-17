@@ -79,7 +79,8 @@ public final class SubtermReplacer extends RebuildingTermVisitor {
         Term result = str.resultingTerm;
 
         if (result == null) {
-            Log.log(Log.ERROR, "Internal error in term indexing!");
+            Log.log(Log.ERROR, "Internal error in term indexing: replace in " + term
+                    + " " + subtermNo + " with " + replaceWith);
             throw new TermException("The index " + subtermNo
                     + " is outside the range [0," + str.counter + "] for term "
                     + term);

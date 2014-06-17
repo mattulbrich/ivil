@@ -19,6 +19,7 @@ import java.util.Observer;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.Sequent;
@@ -54,7 +55,7 @@ public @NonNull class Proof {
     private final ProofNode root;
 
 
-    private final ProofIdentifier proofObligation;
+    private final String obligationIdentifier;
 
 
     /**
@@ -113,7 +114,7 @@ public @NonNull class Proof {
      *            the environment to work with
      */
     public Proof(Sequent initialSequent, Environment env) {
-        this(initialSequent, ProofIdentifier.UNNAMED_PROBLEM, env);
+        this(initialSequent, ProofScript.EMPTY_IDENTIFIER, env);
     }
 
     /**
@@ -126,8 +127,8 @@ public @NonNull class Proof {
      * @param env
      *            the environment to work with
      */
-    public Proof(Sequent initialSequent, ProofIdentifier proofObligation, Environment env) {
-        this.proofObligation = proofObligation;
+    public Proof(Sequent initialSequent, String proofObligationIdentifier, Environment env) {
+        this.obligationIdentifier = proofObligationIdentifier;
         this.env = env;
         this.root = new ProofNode(this, initialSequent,
                 new SequentHistory.Annotation("formula on initial sequent"), env);
@@ -146,10 +147,10 @@ public @NonNull class Proof {
      * @throws TermException
      *             the term exception
      */
-    public Proof(Term initialProblem, ProofIdentifier proofObligation,
+    public Proof(Term initialProblem, String proofObligationIdentifier,
             Environment env) throws TermException {
         this(new Sequent(Collections.<Term> emptyList(),
-                Collections.<Term> singletonList(initialProblem)), proofObligation, env);
+                Collections.<Term> singletonList(initialProblem)), proofObligationIdentifier, env);
     }
 
     /**
@@ -168,7 +169,7 @@ public @NonNull class Proof {
      *             if the initial problem is not suitable for toplevel usage.
      */
     public Proof(Term initialProblem, Environment env) throws TermException {
-        this(initialProblem, ProofIdentifier.UNNAMED_PROBLEM, env);
+        this(initialProblem, ProofScript.EMPTY_IDENTIFIER, env);
     }
 
     /**

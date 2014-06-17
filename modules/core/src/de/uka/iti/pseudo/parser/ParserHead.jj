@@ -17,7 +17,6 @@ options {
 PARSER_BEGIN(Parser)
 package de.uka.iti.pseudo.parser;
 
-import de.uka.iti.pseudo.proof.ProofObligation;
 import de.uka.iti.pseudo.parser.file.*;
 import de.uka.iti.pseudo.parser.term.*;
 import de.uka.iti.pseudo.parser.program.*;
@@ -47,30 +46,30 @@ public class Parser {
     public ASTFile parseFile(File file) throws FileNotFoundException, ParseException {
        return parseFile(new FileReader(file), file.getPath());
     }
-    
+
     public ASTFile parseURL(URL url) throws ParseException, IOException {
         Reader reader = new InputStreamReader(url.openStream());
         return parseFile(reader, url.toString());
      }
-    
+
     public ASTFile parseFile(Reader reader, String filename) throws ParseException {
         ReInit(reader);
         ASTFile result = File();
         result.setFilename(filename);
         return result;
     }
-    
+
     public ASTTerm parseTerm(Reader reader, String filename) throws ParseException
-    {  
+    {
         ReInit(reader);
         ASTTerm term = TermEOF();
         term.setFilename(filename);
         return term;
     }
-    
-    
+
+
     public List<ASTStatement> parseProgram(Reader reader, String filename) throws ParseException
-    {  
+    {
         ReInit(reader);
         List<ASTStatement> statementList = StatementList();
         for(ASTStatement ast : statementList) {
@@ -78,18 +77,28 @@ public class Parser {
         }
         return statementList;
     }
-    
+
+    public List<ASTProofScript> parseProofScripts(Reader reader, String filename) throws ParseException
+    {
+        ReInit(reader);
+        List<ASTProofScript> proofList = ProofScriptList();
+        for(ASTProofScript ast : proofList) {
+            ast.setFilename(filename);
+        }
+        return proofList;
+    }
+
     private void generateParserException(int[] expectedSequence) throws ParseException
     {
         int expected[][] = { expectedSequence };
         throw new ParseException(token, expected, tokenImage);
     }
-    
+
     public static void main(String args[]) throws Exception {
         Parser p = new Parser();
         p.parseFile(new File(args[0]));
     }
-    
+
 }
 
 PARSER_END(Parser)

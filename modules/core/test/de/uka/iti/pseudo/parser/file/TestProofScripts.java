@@ -13,8 +13,6 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.environment.creation.ProofScriptExtractor;
 import de.uka.iti.pseudo.parser.Parser;
-import de.uka.iti.pseudo.proof.ProofIdentifier;
-import de.uka.iti.pseudo.proof.ProofIdentifier.Kind;
 import de.uka.iti.pseudo.util.Dump;
 
 public class TestProofScripts extends TestCaseWithEnv {
@@ -49,33 +47,38 @@ public class TestProofScripts extends TestCaseWithEnv {
         }
     }
 
+    // revealed a bug
     public void testParse() throws Exception {
         Parser fp = new Parser();
         URL url = getClass().getResource("scripttest.p");
         if(url == null) {
-            throw new Exception("ruletest.p not found");
+            throw new Exception("scripttest.p not found");
         }
         EnvironmentMaker em = new EnvironmentMaker(fp, url);
-        Map<ProofIdentifier, ProofScript> scripts = em.getProofScripts();
+        Map<String, ProofScript> scripts = em.getProofScripts();
 
-        if(true) {
+        if(VERBOSE) {
             Dump.dumpEnv(em.getEnvironment());
             for (ProofScript ps : scripts.values()) {
                 Dump.dumpProofScript(ps);
             }
         }
 
-        assertEquals(6, scripts.size());
-        assertTrue(scripts.containsKey(new ProofIdentifier(Kind.RULE, "r1")));
-        assertTrue(scripts.containsKey(new ProofIdentifier(Kind.RULE, "r2")));
-        assertTrue(scripts.containsKey(new ProofIdentifier(Kind.PROBLEM, "p1")));
-        assertTrue(scripts.containsKey(new ProofIdentifier(Kind.PROBLEM, "p2")));
-        assertTrue(scripts.containsKey(new ProofIdentifier(Kind.PROGRAM, "Q1")));
-        assertTrue(scripts.containsKey(new ProofIdentifier(Kind.PROGRAM, "Q2")));
+        assertEquals(7, scripts.size());
+        assertTrue(scripts.containsKey(ProofScript.RULE_IDENTIFIER_PREFIX + "r1"));
+        assertTrue(scripts.containsKey(ProofScript.RULE_IDENTIFIER_PREFIX + "r2"));
+        assertTrue(scripts.containsKey(ProofScript.LEMMA_IDENTIFIER_PREFIX + "p1"));
+        assertTrue(scripts.containsKey(ProofScript.LEMMA_IDENTIFIER_PREFIX + "p2"));
+        assertTrue(scripts.containsKey(ProofScript.PROGRAM_IDENTIFIER_PREFIX + "Q1"));
+        assertTrue(scripts.containsKey(ProofScript.PROGRAM_IDENTIFIER_PREFIX + "Q2"));
+        assertTrue(scripts.containsKey(ProofScript.RULE_IDENTIFIER_PREFIX + "rule_proved_outside"));
 
         // the proof for p1 has annotations which are special.
-        ProofScriptNode n = scripts.get(new ProofIdentifier(Kind.PROBLEM, "p1")).getRoot();
+        ProofScriptNode n = scripts.get(ProofScript.LEMMA_IDENTIFIER_PREFIX + "p1").getRoot();
         checkPrefix(n, "");
+
+        env = em.getEnvironment();
+        assertEquals("scripttest.proof", env.getProperty(ProofScriptExtractor.PROOF_SOURCE_PROPERTY));
     }
 
     private void checkPrefix(ProofScriptNode n, String string) {
@@ -103,10 +106,18 @@ public class TestProofScripts extends TestCaseWithEnv {
         testEnvFail("properties proof.sourcefile \"source.p\" proof source \"source2.p\"");
     }
 
-    public void testScriptProperty() throws Exception {
-        env = testEnv("proof source \"/path/sources.p\"");
-        assertEquals("/path/sources.p",
-                env.getProperty(ProofScriptExtractor.PROOF_SOURCE_PROPERTY));
+    public void testProofScriptSource() throws Exception {
+        Parser fp = new Parser();
+        URL url = getClass().getResource("scripttest.p");
+        if(url == null) {
+            throw new Exception("scripttest.p not found");
+        }
+        EnvironmentMaker em = new EnvironmentMaker(fp, url);
+        Map<String, ProofScript> scripts = em.getProofScripts();
+        env = em.getEnvironment();
+
+
+
     }
 
 }

@@ -1,7 +1,10 @@
 include
         "$base.p"
         "$int.p"
-        
+
+proof source
+        "scripttest.proof"
+
 plugins
    proofScriptCommand "de.uka.iti.pseudo.parser.file.TestProofScripts$MockProofScriptCommand"
 
@@ -13,6 +16,10 @@ proof (mock)
 rule r2
  find 1
  replace 3
+
+rule known_rule_proved_outside
+ find 1
+ replace 4
 
 problem p1: 1=1
 

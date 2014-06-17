@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.auto.strategy.StrategyManager;
@@ -27,8 +28,6 @@ import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.proof.ProofIdentifier;
-import de.uka.iti.pseudo.proof.ProofIdentifier.Kind;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.Rule;
@@ -312,7 +311,7 @@ public class AutomaticProblemProver implements Callable<Result> {
     public Result call() throws TermException, StrategyException,
             ProofException {
 
-        ProofIdentifier pid = new ProofIdentifier(Kind.PROBLEM, name);
+        String pid = ProofScript.LEMMA_IDENTIFIER_PREFIX + name;
         Proof proof = new Proof(problemSequent, pid, env);
 
         StrategyManager strategyManager = new StrategyManager(proof, env);

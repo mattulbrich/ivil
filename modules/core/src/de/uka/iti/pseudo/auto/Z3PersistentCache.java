@@ -141,7 +141,7 @@ public class Z3PersistentCache {
         if(!checkedForGlobalInstance) {
             Settings settings = Settings.getInstance();
             String cacheFileName = settings.getExpandedProperty(KEY_PERSISTENT_CACHE, null);
-            if(cacheFileName != null) {
+            if(cacheFileName != null && cacheFileName.length() > 0) {
                 try {
                     globalInstance = new Z3PersistentCache(cacheFileName);
                     globalInstance.writebackAtExit();

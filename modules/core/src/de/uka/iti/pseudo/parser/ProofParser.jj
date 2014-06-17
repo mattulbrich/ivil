@@ -11,31 +11,37 @@ ASTProofSourceFile ProofSourceFile():
       { return new ASTProofSourceFile(first, Util.stripQuotes(t.image)); }
 }
 
+List<ASTProofScript> ProofScriptList():
+{
+  List<ASTProofScript> result = new ArrayList<ASTProofScript>();
+  ASTProofScript script;
+}
+{
+  ( script = ProofScript() { result.add(script); } )*
+    { return result; }
+}
+
 ASTProofScript ProofScript():
 {
   Token t = null;
   Token id = null;
   String name = null;
   Token first;
-  ProofObligation.Kind kind = null;
   ASTProofScriptNode tree;
 }
 {
   first = "proof"
 
   (
-    ( t = "rule" id=<IDENTIFIER> 
-        { kind = ProofObligation.Kind.RULE; name = id.image; }
-    | t = "program" id=<IDENTIFIER> 
-        { kind = ProofObligation.Kind.PROGRAM;  name = id.image;}
+    ( t = "rule" id=<IDENTIFIER>    { name = ProofScript.RULE_IDENTIFIER_PREFIX + id.image; }
+    | t = "problem" id=<IDENTIFIER> { name = ProofScript.LEMMA_IDENTIFIER_PREFIX + id.image; }
+    | t = "program" id=<IDENTIFIER> { name = ProofScript.PROGRAM_IDENTIFIER_PREFIX + id.image; }
        ( "." id=<IDENTIFIER> { name += "." + id.image; } )*
-    | t = "problem" id=<IDENTIFIER> 
-        { kind = ProofObligation.Kind.PROBLEM;  name = id.image;}
     )
   )?
 
   "(" tree=ProofTree() ")"
-     { return new ASTProofScript(first, kind, name, tree); }
+     { return new ASTProofScript(first, name, tree); }
 }
 
 ASTProofScriptNode ProofTree():
@@ -62,4 +68,52 @@ ASTProofScriptNode ProofTree():
   )
 
   { return result; }
+}
+
+/*
+ * Other tokens beside <IDENTIFIER> can be used as identifiers for arguments.
+ */
+Token PropertyIdentifier():
+{ 
+  Token t;
+}
+{
+  ( t = <IDENTIFIER>
+  | t = <ADD>
+  | t = <AS>
+  | t = <ASSIGNABLE>
+  | t = <AXIOM>
+  | t = <BINDER>
+  | t = <CLOSE>
+  | t = <DESCRIPTION>
+  | t = <FIND>
+  | t = <FUNCTION>
+  | t = <INCLUDE>
+  | t = <INFIX>
+  | t = <NEWGOAL>
+  | t = <NOT>
+  | t = <PLUGIN >
+  | t = <PREFIX>
+  | t = <PROBLEM>
+  | t = <PROGRAM>
+  | t = <PROOF>
+  | t = <PROPERTIES>
+  | t = <REMOVE>
+  | t = <REPLACE>
+  | t = <RULE>
+  | t = <SAMEGOAL>
+  | t = <SORT>
+  | t = <TAGS>
+  | t = <UNIQUE>
+  | t = <WHERE>
+  | t = <ASSUME>
+  | t = <ASSERT>
+  | t = <GOTO>
+  | t = <HAVOC>
+  | t = <END>
+  | t = <_SKIP>
+  | t = <SOURCE>
+  | t = <SOURCELINE>
+  )
+  { return t; }
 }

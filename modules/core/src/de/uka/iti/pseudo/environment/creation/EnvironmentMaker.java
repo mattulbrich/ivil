@@ -34,7 +34,6 @@ import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTPluginDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTPlugins;
-import de.uka.iti.pseudo.proof.ProofIdentifier;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.SelectList;
@@ -77,7 +76,7 @@ public class EnvironmentMaker {
     /**
      * A map of all proofs that have been scanned.
      */
-    private final Map<ProofIdentifier, ProofScript> proofScripts;
+    private final Map<String, ProofScript> proofScripts;
 
     /**
      * Instantiates a new environment maker.
@@ -221,7 +220,7 @@ public class EnvironmentMaker {
         astFile.visit(new EnvironmentRuleDefinitionVisitor(env));
         // call this after the EnvironmentProgramMaker
         problemSequents = new EnvironmentProblemExtractor(env).handle(astFile);
-        proofScripts = new ProofScriptExtractor(env).extractFrom(astFile);
+        proofScripts = new ProofScriptExtractor(parser, env).extractFrom(astFile);
 
         new RuleAxiomExtractor(env).extractAxioms();
     }
@@ -354,7 +353,7 @@ public class EnvironmentMaker {
      * @return an unmodifiable map from names to proof scripts.
      * @see ProofScriptExtractor
      */
-    public Map<ProofIdentifier, ProofScript> getProofScripts() {
+    public Map<String, ProofScript> getProofScripts() {
         return Collections.unmodifiableMap(proofScripts);
     }
 

@@ -15,13 +15,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 
+import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
-import de.uka.iti.pseudo.proof.ProofIdentifier;
-import de.uka.iti.pseudo.proof.ProofIdentifier.Kind;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
 import de.uka.iti.pseudo.term.Sequent;
@@ -60,8 +59,8 @@ public class AutomaticProblemChecker implements Callable<Result> {
         }
 
         Entry<String, Sequent> entry = problems.entrySet().iterator().next();
-        ProofIdentifier pid = new ProofIdentifier(Kind.PROBLEM, entry.getKey());
-        Proof proof = new Proof(entry.getValue(), pid, env);
+        String key = ProofScript.LEMMA_IDENTIFIER_PREFIX + entry.getKey();
+        Proof proof = new Proof(entry.getValue(), key, env);
 
         FileInputStream fis = new FileInputStream(proofFileName);
 
