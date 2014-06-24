@@ -8,7 +8,7 @@ uses "SelSort.sort(int[]).p"
 uses "$seq.p"
 
 uses inline
-  plugin prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.SeqPrettyPrinter"
+  plugins prettyPrinter "de.uka.iti.pseudo.prettyprint.plugin.SeqPrettyPrinter"
 end
 
 option

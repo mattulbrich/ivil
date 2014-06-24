@@ -17,5 +17,5 @@ properties
   
   CompoundStrategy.strategies "SimplificationStrategy,BreakpointStrategy,SMTStrategy"
   
-problem
+lemma problem
   cond(true, 3, 2) > 2

@@ -15,7 +15,7 @@ program P
   x := y || y := x
   assert x = y_ & y = x_
 
-problem
+lemma problem
   [0;P]
   
   

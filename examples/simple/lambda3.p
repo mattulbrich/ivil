@@ -11,7 +11,7 @@ program P
   m := (\lambda x; x/2)
   assert $load(m, 3) = $load(m, 2)
 
-problem
+lemma problem
   [0;P]
   
   

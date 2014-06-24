@@ -35,6 +35,6 @@ program P source "first.src"
   after1:  assert val >0
 
 
-problem 
+lemma problem 
   [0; P]true
 

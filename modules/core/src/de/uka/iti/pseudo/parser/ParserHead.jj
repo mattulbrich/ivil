@@ -158,7 +158,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < NOT: "not" >
 | < PLUGIN : "plugins" >
 | < PREFIX: "prefix" >
-// | < PROBLEM: "problem" >
+| < PROBLEM: "problem" >
 | < PROGRAM: "program" >
 | < PROOF: "proof" >
 | < PROPERTIES: "properties" >

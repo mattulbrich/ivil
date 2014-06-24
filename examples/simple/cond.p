@@ -4,5 +4,5 @@ include
   "$fol.p"
   "$decproc.p"
   
-problem
+lemma problem
   (\forall x as int; (\forall x as int; x = x))

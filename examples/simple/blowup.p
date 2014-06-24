@@ -29,4 +29,4 @@ program P
  after:
   assert (\forall x; x+1 = 1+x)
 
-problem [0;P]
+lemma problem [0;P]true

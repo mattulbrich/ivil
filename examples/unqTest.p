@@ -9,5 +9,5 @@ function
   bool u3(int) unique
   bool u4(int) unique
 
-problem
+lemma problem
   !u1=u2 & !u3(3)=u4(3) & !u4(3)=u4(4) & u3(3)=u3(3)

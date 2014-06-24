@@ -23,7 +23,7 @@ ASTFile File():
         | LOOKAHEAD(2) block=RuleDeclaration()
         | block=LemmaDeclaration()
         | block=ProgramDeclaration()
-        // | block=Problem()
+        | block=Problem()
         | LOOKAHEAD(2) block=ProofSourceFile()
         | block=ProofScript()
         )   { blocks.add(block); }
@@ -304,6 +304,26 @@ ASTProgramDeclaration ProgramDeclaration():
    ( "source" source=<STRING> )?
    statements=StatementList()
      { return new ASTProgramDeclaration(first, name, source, statements); } 
+}
+
+/*
+ * For legacy code; will be removed soon ...
+ */
+ASTLemmaDeclaration Problem():
+{
+  Token id=null, first, t, v=null;
+  ASTTerm term;
+  List<Pair<Token, Token>> properties = new ArrayList<Pair<Token, Token>>();
+}
+{
+  first="problem"
+
+  ( LOOKAHEAD(2) id = <IDENTIFIER> ":" )?
+
+  term = Term()
+
+  {  if(id == null) id = first; // use "problem" as identifier
+     return new ASTLemmaDeclaration(first, id, term, properties); }
 }
 
 ASTLemmaDeclaration LemmaDeclaration():

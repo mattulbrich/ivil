@@ -65,6 +65,6 @@ program P source "./java1.java"
     sourceline 13
     assert (\forall o; (\forall f; sel(h, o, f) = sel(heapBegin, o, f)))
 
-problem
+lemma problem
   heapBegin = h -> [0; P]true
 

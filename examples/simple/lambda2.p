@@ -6,5 +6,5 @@ include
 function
  map(int, int) m assignable
 
-problem
+lemma problem
   m = $store(m, 2, 3) -> $load((\lambda x; $load(m, x) + x), 2) = 5

@@ -20,7 +20,7 @@ function
   int x assignable
   bool phi
 
-axiom phi_holds :
+axiom phi_holds
   phi
 
 program P
@@ -35,4 +35,5 @@ program P
  after:
   assert phi
 
-problem [0;P]true
+lemma problem 
+  [0;P]true

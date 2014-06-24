@@ -14,4 +14,4 @@ program P
   assert false ; "lemma to be proved later §(rule oops)"
   assert false ; "lemma with §(cut '1 = 1')"
 
-problem [0;P]true
+lemma problem [0;P]true

@@ -7,5 +7,5 @@ include
 function
   int a assignable
 
-problem
-(\exists x; x > 0)
+lemma problem
+  (\exists x; x > 0)

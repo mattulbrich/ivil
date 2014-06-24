@@ -20,4 +20,5 @@ program T
   i := i - 1
   goto loop 
 
-problem [0;T]true
+lemma problem 
+  [0;T]true
