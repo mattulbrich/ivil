@@ -71,12 +71,15 @@ public class EnvironmentMaker {
     private final Parser parser;
 
     /**
-     * A map of proof obligations contained in this environment
+     * A map of proof obligations contained in the environment.
      */
     private final Map<String, ProofObligation> proofObligations =
             new HashMap<String, ProofObligation>();
 
-    private final Map<String, ProofScript> associatedProofScripts =
+    /**
+     * A map of proof scriplets contained in this environment.
+     */
+    private final Map<String, ProofScript> associatedProofScriplets =
             new HashMap<String, ProofScript>();
 
     /**
@@ -150,7 +153,7 @@ public class EnvironmentMaker {
      * @throws IOException
      *             if the URL/file cannot be read successfully.
      */
-    public EnvironmentMaker(Parser parser, @NonNull InputStream stream, URL resource)
+    public EnvironmentMaker(Parser parser, @NonNull InputStream stream, @NonNull URL resource)
             throws ParseException, ASTVisitException, IOException {
         this(parser,
                 parser.parseFile(new InputStreamReader(stream), resource.toString()),
@@ -226,7 +229,7 @@ public class EnvironmentMaker {
 
         astFile.visit(new ProofScriptExtractor(parser, env,
                 proofObligations,
-                associatedProofScripts));
+                associatedProofScriplets));
 
     }
 
@@ -334,28 +337,36 @@ public class EnvironmentMaker {
     }
 
     /**
-     * TODO DOC!
-     * Gets the collection of problem terms as specified in the source file.
+     * Gets the map of proof obligations.
      *
-     * If the environment file does not specify any problems, the set of
-     * programs defined in the environment is inspected to create problems from
-     * them.
+     * They are indexed by their unique name within the environment.
      *
-     * Returns an empty map null if the environment does not define a problem
-     * term and has no program.
+     * Proof obligation result from programs, lemmas and rules. All proof
+     * obligations are listed the map.
      *
-     * @return an unmodifiable map from names to sequents.
-     * @see EnvironmentProblemExtractor
+     * Returns an empty map null if the environment does not define proof
+     * obligations.
+     *
+     * Proof obligations may carry proof scripts.
+     *
+     * @return an unmodifiable map from names to {@link ProofObligation}s.
+     *
+     * @see EnvironmentProofObligationExtractor
      */
     public @NonNull Map<String, ProofObligation> getProofObligations() {
         return Collections.unmodifiableMap(proofObligations);
     }
 
     /**
-     * @return the associatedProofScripts
+     * Gets a map of proof scriplets.
+     *
+     * Scriplets are scripts which do not directly corrspond to a
+     * {@link ProofObligation} but have a unique name, too.
+     *
+     * @return an unmodifiable view to the map of proof scriplets.
      */
-    public Map<String, ProofScript> getAssociatedProofScripts() {
-        return Collections.unmodifiableMap(associatedProofScripts);
+    public Map<String, ProofScript> getProofScriptlets() {
+        return Collections.unmodifiableMap(associatedProofScriplets);
     }
 
     /*

@@ -1,9 +1,20 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2012 Karlsruhe Institute of Technology
+ *
+ * The system is protected by the GNU General Public License.
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
+
 package de.uka.iti.pseudo.environment.creation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Lemma;
 import de.uka.iti.pseudo.environment.Program;
@@ -19,22 +30,57 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Modality;
 
+/**
+ * The vistor EnvironmentProofObligationExtractor extracts proof obligations
+ * from an AST.
+ *
+ * To this end it traverses the toplevel AST nodes and records all rules, lemmas
+ * and programs.
+ *
+ * Since the order of symbols is of importance for the proof environments, this
+ * cannot be done on the final environment, but needs to be done on the AST.
+ */
 class EnvironmentProofObligationExtractor extends ASTDefaultVisitor {
 
+    /**
+     * The environment upon which to operate.
+     * Parsing for it has already been finished.
+     */
     private final Environment env;
+
+    /**
+     * The proof obligations storage.
+     */
     private final Map<String, ProofObligation> proofObligations;
+
+    /**
+     * The list of lemmas and rules encountered so far.
+     */
     private final List<Object> availableLemmasAndRules = new ArrayList<Object>();;
 
-    public EnvironmentProofObligationExtractor(Environment env, Map<String, ProofObligation> proofObligations) {
+    /**
+     * Instantiates a new environment proof obligation extractor.
+     *
+     * @param env the environment to consider
+     * @param proofObligations the store for proof obligations
+     */
+    public EnvironmentProofObligationExtractor(@NonNull Environment env,
+            @NonNull Map<String, ProofObligation> proofObligations) {
         this.env = env;
         this.proofObligations = proofObligations;
     }
 
+    /*
+     * do nothing by default.
+     */
     @Override
     protected void visitDefault(ASTElement arg) throws ASTVisitException {
         // do nothing
     }
 
+    /*
+     * visit all children of a file node
+     */
     @Override
     public void visit(ASTFile arg) throws ASTVisitException {
         for (ASTElement child : arg.getChildren()) {
@@ -42,6 +88,9 @@ class EnvironmentProofObligationExtractor extends ASTDefaultVisitor {
         }
     }
 
+    /*
+     * For a program add the total and the partial proof obligations.
+     */
     @Override
     public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
 
@@ -55,6 +104,11 @@ class EnvironmentProofObligationExtractor extends ASTDefaultVisitor {
 
     }
 
+    /*
+     * For a lemma, add the according proof obligation.
+     * This proof obligation may see all available lemmas and rules
+     * After the creation, add the lemma to the set of available items.
+     */
     @Override
     public void visit(ASTLemmaDeclaration arg) throws ASTVisitException {
 
@@ -70,6 +124,14 @@ class EnvironmentProofObligationExtractor extends ASTDefaultVisitor {
         availableLemmasAndRules.add(lemma);
     }
 
+    /*
+     * For a rule, add the according proof obligation.
+     * This proof obligation may see all available lemmas and rules
+     * After the creation, add the rule to the set of available items.
+     *
+     * A rule may induce an equally named lemma (see RuleAxiomExtractor).
+     * Add this lemma also to the set of allowed symbols if needed.
+     */
     @Override
     public void visit(ASTRule arg) {
         String name = arg.getName().image;

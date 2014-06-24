@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
@@ -24,48 +25,51 @@ import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 /**
  * The Class Lemma encapsulates a lemma definition within an environment.
  *
- * It essentially has a name and a boolean toplevel term.
+ * It essentially consists of a name and a boolean toplevel term.
  *
  * Properties may be attached to a lemma. In particular, the property "axiom" is
- * added if the lemma is actually declared as an axiom.
+ * added if the lemma is declared as an axiom.
+ *
+ * Lemmas (which are not axioms) give rise to {@link ProofObligation}s.
  */
 public final class Lemma implements Named {
 
     /**
      * The name of this axiom.
      */
-    private final String name;
+    private final @NonNull String name;
 
     /**
      * The properties.
      */
-    private final Map<String, String> properties;
+    private final @DeepNonNull Map<String, String> properties;
 
     /**
      * The axiom formula.
      */
-    private final Term term;
+    private final @NonNull Term term;
 
     /**
      * The definition location of the axiom.
      */
-    private final ASTLocatedElement location;
+    private final @NonNull ASTLocatedElement location;
 
     /**
-     * Instantiates a new axiom.
+     * Instantiates a new lemma.
      *
-     * <P>The term must be boolean and
+     * <P>
+     * The term must be boolean and
      *
      * @param name
-     *            name of the axiom
+     *            name of the lemma
      * @param term
      *            the term
      * @param properties
      *            the properties
      * @param location
-     *            the location
+     *            the location at which the definition resides
      * @throws EnvironmentException
-     *             the environment exception
+     *             if the term is not suited for this purpose
      */
     public Lemma(@NonNull String name, @NonNull Term term,
             @NonNull Map<String, String> properties,
@@ -80,12 +84,12 @@ public final class Lemma implements Named {
         try {
             term.visit(tcv);
         } catch (TermException e) {
-            throw new EnvironmentException("Axiom '" + name + "' is not top a level term", e);
+            throw new EnvironmentException("Lemma '" + name + "' is not top a level term", e);
         }
     }
 
     /**
-     * gets a property. Properties are specified using the "tag" keyword in
+     * Gets a property. Properties are specified using the "tag" keyword in
      * environments. If the property is not set, null is returned. If the
      * property has been defined without a value, an empty string "" is returned
      *
@@ -115,7 +119,7 @@ public final class Lemma implements Named {
 
 
     /**
-     * Gets the name of this axiom.
+     * Gets the name of this lemma.
      *
      * @return the name
      */
@@ -133,7 +137,15 @@ public final class Lemma implements Named {
         return location;
     }
 
-    public Term getTerm() {
+    /**
+     * Gets the formula of this lemma.
+     *
+     * It is a formula which can be added to a sequent (no schema vars, free
+     * variables etc)
+     *
+     * @return the term for this lemma
+     */
+    public @NonNull Term getTerm() {
         return term;
     }
 

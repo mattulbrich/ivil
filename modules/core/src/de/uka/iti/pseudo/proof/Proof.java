@@ -21,6 +21,7 @@ import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
@@ -114,7 +115,7 @@ public @NonNull class Proof {
      *            the environment to work with
      */
     public Proof(Sequent initialSequent, Environment env) {
-        this(initialSequent, ProofScript.EMPTY_IDENTIFIER, env);
+        this(initialSequent, ProofObligation.NO_PROOF_OBLIGATION, env);
     }
 
     /**
@@ -169,7 +170,7 @@ public @NonNull class Proof {
      *             if the initial problem is not suitable for toplevel usage.
      */
     public Proof(Term initialProblem, Environment env) throws TermException {
-        this(initialProblem, ProofScript.EMPTY_IDENTIFIER, env);
+        this(initialProblem, ProofObligation.NO_PROOF_OBLIGATION, env);
     }
 
     /**

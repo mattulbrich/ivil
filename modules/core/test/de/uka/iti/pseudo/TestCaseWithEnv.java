@@ -218,7 +218,7 @@ public abstract class TestCaseWithEnv extends TestCase {
         EnvironmentMaker em = new EnvironmentMaker(fp, url);
         Environment env = em.getEnvironment();
         Map<String, ProofObligation> problems = em.getProofObligations();
-        Map<String, ProofScript> scripts = em.getAssociatedProofScripts();
+        Map<String, ProofScript> scripts = em.getProofScriptlets();
         return Triple.make(env, problems, scripts);
     }
 
@@ -240,7 +240,7 @@ public abstract class TestCaseWithEnv extends TestCase {
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
         Environment env = em.getEnvironment();
         Map<String, ProofObligation> problems = em.getProofObligations();
-        Map<String, ProofScript> scripts = em.getAssociatedProofScripts();
+        Map<String, ProofScript> scripts = em.getProofScriptlets();
         return Triple.make(env, problems, scripts);
     }
 

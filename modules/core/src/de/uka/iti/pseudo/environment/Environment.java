@@ -107,6 +107,8 @@ public class Environment {
     private final Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
     private final Map<String, FixOperator> reverseFixityMap = new LinkedHashMap<String, FixOperator>();
     private final Map<String, Program> programMap = new LinkedHashMap<String, Program>();
+    private final Map<String, Rule> ruleMap = new HashMap<String, Rule>();
+
     // plugin manager is created lazily
     private @Nullable PluginManager pluginManager = null;
     // literal map is created lazily.
@@ -114,11 +116,6 @@ public class Environment {
 
     // Checkstyle: ON LineLength
 
-    /**
-     * The rules are kept as a sorted set and as a map.
-     */
-    private final List<Rule> rules = new ArrayList<Rule>();
-    private final Map<String, Rule> ruleMap = new HashMap<String, Rule>();
 
     /**
      * Instantiates a new environment which only contains the built ins.
@@ -230,7 +227,7 @@ public class Environment {
     public void setParent(@NonNull Environment environment)
             throws EnvironmentException {
         if (!sortMap.isEmpty() || !functionMap.isEmpty()
-                || !binderMap.isEmpty() || !rules.isEmpty()
+                || !binderMap.isEmpty() || !ruleMap.isEmpty()
                 || pluginManager != null) {
             Dump.dumpEnv(this);
             throw new EnvironmentException(
@@ -1077,7 +1074,6 @@ public class Environment {
                     + existing.getDeclaration().getLocation());
         }
 
-        rules.add(rule);
         ruleMap.put(name, rule);
     }
 
@@ -1114,7 +1110,7 @@ public class Environment {
         } else {
             retval = parentEnvironment.getAllRules();
         }
-        retval.addAll(rules);
+        retval.addAll(ruleMap.values());
         return retval;
     }
 
@@ -1122,10 +1118,10 @@ public class Environment {
      * get the list of all rules defined in this environment. Rules visible in
      * this environment but defined in a parent environment are ignored.
      *
-     * @return an unmodifiable list of rules
+     * @return an unmodifiable collection of rules
      */
-    public @NonNull List<Rule> getLocalRules() {
-        return Collections.unmodifiableList(rules);
+    public @NonNull Collection<Rule> getLocalRules() {
+        return ruleMap.values();
     }
 
     //
@@ -1345,6 +1341,16 @@ public class Environment {
         return resourceName;
     }
 
+    /**
+     * Gets the copy of this environment without the rules and lemmas.
+     *
+     * Sorts, functions, binders, infixmaps, numbers etc are copied.
+     *
+     * @return a copy of this environment with less content
+     *
+     * @throws EnvironmentException
+     *             if something fails during copying.
+     */
     public Environment getCopyWithoutRulesAndLemmas() throws EnvironmentException {
         Environment result = new Environment(resourceName, parentEnvironment);
         result.binderMap.putAll(binderMap);

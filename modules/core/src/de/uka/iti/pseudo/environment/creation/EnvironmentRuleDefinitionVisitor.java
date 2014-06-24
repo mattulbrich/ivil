@@ -46,19 +46,46 @@ import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
 
-// TODO Documentation needed
+/**
+ * The visitor EnvironmentRuleDefinitionVisitor is used to render ASTs for rules
+ * and lemmas into their equivalents for {@link Environment}s.
+ */
 public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
 
-    /**
+    /*
      * Results of various types are transferred during traversal using the
      * following fields:
      */
+    /**
+     * The intermediate resulting term.
+     */
     private Term resultingTerm;
+
+    /**
+     * The intermediate resulting matching location.
+     */
     private MatchingLocation resultingMatchingLocation;
+
+    /**
+     * The intermediate resulting whereclause.
+     */
     private WhereClause resultingWhereclause;
+
+    /**
+     * The intermediate resulting goal action.
+     */
     private GoalAction resultingGoalAction;
+
+    /**
+     * The environment to add rules and lemmas to.
+     */
     private final Environment env;
 
+    /**
+     * Instantiates a new environment rule definition visitor.
+     *
+     * @param env the env
+     */
     public EnvironmentRuleDefinitionVisitor(Environment env) {
         this.env = env;
     }
@@ -282,7 +309,8 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
 
         for(ASTRuleReplace replace : SelectList.select(ASTRuleReplace.class, arg.getChildren())) {
             if(replaceWith != null) {
-                throw new ASTVisitException("Goal actions must not contain more than one replace action", replace);
+                throw new ASTVisitException("Goal actions must not contain " +
+                        "more than one replace action", replace);
             }
             replace.visit(this);
             replaceWith = resultingTerm;
@@ -292,7 +320,8 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
                 arg.getChildren()).isEmpty();
 
         try {
-            resultingGoalAction = new GoalAction(kind, name, hasRemove, replaceWith, addAntecendent, addSuccendent);
+            resultingGoalAction = new GoalAction(kind, name, hasRemove, replaceWith,
+                    addAntecendent, addSuccendent);
         } catch (RuleException e) {
             throw new ASTVisitException(arg, e);
         }
@@ -307,6 +336,12 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
 
     /*
      * transform a ASTTerm to a Term.
+     */
+    /**
+     * Visit.
+     *
+     * @param arg the arg
+     * @throws ASTVisitException the aST visit exception
      */
     public void visit(ASTTerm arg) throws ASTVisitException {
         resultingTerm = TermMaker.makeTerm(arg, env);

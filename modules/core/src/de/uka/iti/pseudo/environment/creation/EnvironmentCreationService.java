@@ -12,18 +12,13 @@ package de.uka.iti.pseudo.environment.creation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Map;
 import java.util.ServiceLoader;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
 import checkers.nullness.quals.Pure;
-import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
-import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.environment.ProofObligationManager;
-import de.uka.iti.pseudo.term.Sequent;
-import de.uka.iti.pseudo.util.Pair;
 
 /**
  * Implementations of this class provide means to create environments from
@@ -39,6 +34,12 @@ import de.uka.iti.pseudo.util.Pair;
  *
  */
 public abstract class EnvironmentCreationService {
+
+    /**
+     * The service loader is used to create instances from the services file.
+     */
+    private static ServiceLoader<EnvironmentCreationService> serviceLoader =
+        ServiceLoader.load(EnvironmentCreationService.class);
 
     /**
      * Get the description of this creation service.
@@ -64,18 +65,19 @@ public abstract class EnvironmentCreationService {
     /**
      * Actually load the environment from the resource.
      *
-     * It returns the environment plus the embedded problem sequent if there is
-     * one. The second part of the return pair may be <code>null</code> if no
-     * problem sequent has been specified.
+     * It returns a ProofObligationManager which comprises the environment plus
+     * the embedded problem obligations plus additionally defined proof
+     * scriplets.
      *
-     * <p>The given URL is used both as source for the data and serves as the
-     * name of the resource.
+     * <p>
+     * The given URL is used both as source for the data and serves as the name
+     * of the resource.
      *
      * @param url
      *            the resource to read the environment from.
      *
-     * @return a pair of environment and problem sequent. The latter may be
-     *         <code>null</code>.
+     * @return a {@link ProofObligationManager} with the information from the
+     *         url.
      *
      * @throws IOException
      *             Signals that an I/O exception has occurred.
@@ -92,17 +94,17 @@ public abstract class EnvironmentCreationService {
     /**
      * Actually load the environment from the resource.
      *
-     * It returns the environment plus the embedded problem sequent if there is
-     * one. The second part of the return pair may be <code>null</code> if no
-     * problem sequent has been specified.
+     * It returns a ProofObligationManager which comprises the environment plus
+     * the embedded problem obligations plus additionally defined proof
+     * scriplets.
      *
      * @param stream
      *            the source the data should be taken from.
      * @param resource
      *            the resource name to set in the environment.
      *
-     * @return a pair of environment and problem sequent. The latter may be
-     *         <code>null</code>.
+     * @return a {@link ProofObligationManager} with the information from the
+     *         stream.
      *
      * @throws IOException
      *             Signals that an I/O exception has occurred.
@@ -112,12 +114,6 @@ public abstract class EnvironmentCreationService {
     public abstract ProofObligationManager createEnvironment(InputStream stream, URL resource)
           throws IOException, EnvironmentException;
 
-
-    /**
-     * The service loader is used to create instances from the services file.
-     */
-    private static ServiceLoader<EnvironmentCreationService> serviceLoader =
-        ServiceLoader.load(EnvironmentCreationService.class);
 
     /**
      * Retrieves an iterable object which allows to walk over all installed services.
@@ -136,8 +132,8 @@ public abstract class EnvironmentCreationService {
      * @param url
      *            the resource to load
      *
-     * @return a pair of environment and problem sequent. The latter may be
-     *         <code>null</code>.
+     * @return a {@link ProofObligationManager} with the information from the
+     *         url.
      *
      * @throws EnvironmentException
      *             if loading fails for some reason or if no loader is installed

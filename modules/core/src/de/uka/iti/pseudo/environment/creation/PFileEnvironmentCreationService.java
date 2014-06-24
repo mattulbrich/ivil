@@ -39,7 +39,7 @@ public class PFileEnvironmentCreationService extends EnvironmentCreationService 
             EnvironmentMaker em = new EnvironmentMaker(fp, inputStream, url);
             Environment env = em.getEnvironment();
             Map<String, ProofObligation> proofObligations = em.getProofObligations();
-            Map<String, ProofScript> scripts = em.getAssociatedProofScripts();
+            Map<String, ProofScript> scripts = em.getProofScriptlets();
 
             return new ProofObligationManager(env, proofObligations, scripts);
 
@@ -81,12 +81,13 @@ public class PFileEnvironmentCreationService extends EnvironmentCreationService 
      *
      * If the cause of this exception is not a {@link ASTVisitException}, return
      * null.
-     * @param e
+     *
+     * @param ex the exception
      *
      * @return the located of the most embedded {@link ASTVisitException} along
      *         the cause chain, <code>null</code> if cause is not of that type.
      */
-    public @Nullable String getCauseLocation(Throwable ex) {
+    public static @Nullable String getCauseLocation(Throwable ex) {
         String result = null;
         while(ex != null) {
             Throwable cause = ex.getCause();

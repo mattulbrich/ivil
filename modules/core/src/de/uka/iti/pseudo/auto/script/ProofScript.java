@@ -9,25 +9,23 @@
  */
 package de.uka.iti.pseudo.auto.script;
 
+import de.uka.iti.pseudo.environment.ProofObligation;
 import nonnull.NonNull;
 
 /**
- * A Proof script is a tree-structure containing individual proof steps. This
- * class captures the script as a whole and keeps the proof obligation to which
+ * A Proof script is a tree-structure of proof steps. This class captures a
+ * script as a whole and keeps a string reference the proof obligation to which
  * it belongs.
  *
  * @see ProofScriptNode
  * @see ProofScriptCommand
- * @see ProofIdentifier
+ * @see ProofObligation
  */
 
 public class ProofScript {
 
-    // will move to ProofObligation eventually
-    public static final String EMPTY_IDENTIFIER = "none";
-
     /**
-     * The proof obligation to which this scripts belongs.
+     * The proof obligation to which this script belongs.
      */
     private final @NonNull String obligationIdentifier;
 
@@ -35,7 +33,6 @@ public class ProofScript {
      * The root of the proof-script tree.
      */
     private final @NonNull ProofScriptNode root;
-
 
     /**
      * Instantiates a new proof script.
@@ -68,5 +65,4 @@ public class ProofScript {
     public @NonNull ProofScriptNode getRoot() {
         return root;
     }
-
 }

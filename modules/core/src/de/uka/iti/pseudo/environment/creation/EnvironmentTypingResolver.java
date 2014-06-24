@@ -38,7 +38,7 @@ import de.uka.iti.pseudo.util.SelectList;
  * schema variables may hinder this.
  *
  */
-public class EnvironmentTypingResolver extends ASTDefaultVisitor {
+class EnvironmentTypingResolver extends ASTDefaultVisitor {
 
     private final Environment env;
     private TypingResolver typingResolver;
