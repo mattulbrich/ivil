@@ -153,17 +153,23 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
     public void visit(ASTProofScriptNode arg) throws ASTVisitException {
 
         Token commandToken = arg.getCommand();
-        String command = commandToken.image;
-        ProofScriptCommand plugin;
-        try {
-            plugin = pluginManager.getPlugin(ProofScriptCommand.SERVICE,
-                    ProofScriptCommand.class, command);
-        } catch (EnvironmentException e) {
-            throw new ASTVisitException(arg, e);
+        ProofScriptCommand command;
+
+        if(commandToken == null) {
+            command = ProofScriptCommand.YIELD_COMMAND;
+        } else {
+
+            String commandName = commandToken.image;
+            try {
+                command = pluginManager.getPlugin(ProofScriptCommand.SERVICE,
+                        ProofScriptCommand.class, commandName);
+            } catch (EnvironmentException e) {
+                throw new ASTVisitException(arg, e);
+            }
         }
 
-        if(plugin == null) {
-            throw new ASTVisitException("Unknown proof script command '" + command + "'.",
+        if(command == null) {
+            throw new ASTVisitException("Unknown proof script command '" + commandToken + "'.",
                     arg);
         }
 
@@ -187,7 +193,7 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
             children.add(node);
         }
 
-        node = new ProofScriptNode(plugin, arguments, children, arg);
+        node = new ProofScriptNode(command, arguments, children, arg);
 
     };
 

@@ -12,11 +12,19 @@ import de.uka.iti.pseudo.util.Triple;
 public class ASTProofScriptNode extends ASTElement {
 
     private final Token command;
+    private final Token first;
 
     private final List<Triple<Token,Token,String>> arguments =
             new ArrayList<Triple<Token,Token,String>>();
 
+
+    public ASTProofScriptNode(Token first, Token command) {
+        this.first = first;
+        this.command = command;
+    }
+
     public ASTProofScriptNode(Token first) {
+        this.first = first;
         this.command = first;
     }
 
@@ -27,7 +35,7 @@ public class ASTProofScriptNode extends ASTElement {
 
     @Override
     public Token getLocationToken() {
-        return command;
+        return first;
     }
 
     public void put(Token key, Token valueToken, String value) {
@@ -40,7 +48,11 @@ public class ASTProofScriptNode extends ASTElement {
 
     @Override
     public String toString() {
-        return super.toString() + "[" + command + "]";
+        if(command != null) {
+            return super.toString() + "[" + command + "]";
+        } else {
+            return super.toString() + "(empty)";
+        }
     }
 
     public Token getCommand() {

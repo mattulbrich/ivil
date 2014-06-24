@@ -9,11 +9,13 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.auto.script.ProofScriptCommand;
 import de.uka.iti.pseudo.auto.script.ProofScriptNode;
+import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.environment.creation.ProofScriptExtractor;
 import de.uka.iti.pseudo.parser.Parser;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.util.Dump;
 import de.uka.iti.pseudo.util.Triple;
 
@@ -22,6 +24,18 @@ public class TestProofScripts extends TestCaseWithEnv {
     public static class MockProofScriptCommand implements ProofScriptCommand {
         @Override
         public String getName() { return "mock"; }
+
+        @Override
+        public void checkSyntax(ProofScriptNode node) throws StrategyException {
+            // no checks
+        }
+
+        @Override
+        public List<ProofNode> apply(ProofScriptNode node, ProofNode proofNode)
+                throws StrategyException {
+            // we do nothing
+            return null;
+        }
     }
 
     private Map<String, ProofObligation> proofObligations;
@@ -139,6 +153,11 @@ public class TestProofScripts extends TestCaseWithEnv {
 
     public void testSameObligationTwice() throws Exception {
         testEnvFail("proof problem p1 (mock) proof problem p1 (mock)");
+    }
+
+    public void testEmptyProofStep() throws Exception {
+        testEnv("lemma p2 true proof (mock; mock () ())");
+        testEnv("lemma p2 true proof ()");
     }
 
     public void testDeclarations() throws Exception {

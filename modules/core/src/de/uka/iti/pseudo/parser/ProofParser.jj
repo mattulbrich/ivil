@@ -34,14 +34,30 @@ ASTProofScript ProofScript():
 
   (
     ( t = "rule" id=<IDENTIFIER>    { name = ProofObligation.RulePO.PREFIX + id.image; }
-    | t = "lemma" id=<IDENTIFIER> { name = ProofObligation.LemmaPO.PREFIX + id.image; }
+    | t = "lemma" id=<IDENTIFIER>   { name = ProofObligation.LemmaPO.PREFIX + id.image; }
     | t = "program" id=<IDENTIFIER> { name = ProofObligation.ProgramPO.PREFIX + id.image; }
        ( "." id=<IDENTIFIER> { name += "." + id.image; } )*
     )
   )?
 
-  "(" tree=ProofTree() ")"
+  tree=ProofTreeInParens()
      { return new ASTProofScript(first, name, tree); }
+}
+
+ASTProofScriptNode ProofTreeInParens():
+{
+  ASTProofScriptNode result;
+  Token open;
+}
+{
+  open="("
+
+  ( result=ProofTree()
+  | /* epsilon */ { result = new ASTProofScriptNode(open, null); }
+  )
+
+  ")"
+    { return result; }
 }
 
 ASTProofScriptNode ProofTree():
@@ -64,7 +80,7 @@ ASTProofScriptNode ProofTree():
   )* 
 
   ( ";" child=ProofTree() { result.addChild(child); }
-  | ( "(" child=ProofTree() { result.addChild(child); } ")" )*
+  | ( child=ProofTreeInParens() { result.addChild(child); } )*
   )
 
   { return result; }
