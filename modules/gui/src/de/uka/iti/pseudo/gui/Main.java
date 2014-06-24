@@ -36,6 +36,7 @@ import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.ProofObligation;
+import de.uka.iti.pseudo.environment.ProofObligationManager;
 import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
 import de.uka.iti.pseudo.gui.actions.RecentProblemsMenu;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
@@ -288,14 +289,12 @@ public class Main {
             ASTVisitException, TermException, IOException,
             StrategyException, EnvironmentException {
 
-        Pair<Environment, Map<String, ProofObligation>> result =
+        ProofObligationManager proofObMan =
                 EnvironmentCreationService.createEnvironmentByExtension(url);
 
-        Environment env = result.fst();
+        Environment env = proofObMan.getEnvironment();
 
-        Map<String, ProofObligation> proofObls = result.snd();
-
-        if (proofObls.isEmpty()) {
+        if (!proofObMan.hasProofObligations()) {
             throw new EnvironmentException(
                     "This environment does not contain a problem description");
         }
@@ -305,34 +304,30 @@ public class Main {
 
         if (fragment == null || fragment.length() == 0) {
             // no #fragment specified
-            if(proofObls.size() == 1) {
-                // there is only one
-                po = proofObls.values().iterator().next();
+            proofObMan.computeDefaultProofObligation();
+            if(proofObMan.hasDefaultProofObligation()) {
+
+                po = proofObMan.getDefaultProofObligation();
+
             } else {
-                // is there a property?
-                String defaultPO = env.getLocalProperties().get(ProofObligation.DEFAULT_PO_PROPERTY);
-                if(defaultPO != null) {
-                    po = proofObls.get(defaultPO);
-                    if(po == null) {
-                        throw new EnvironmentException("Unknown proof obligation '" +
-                                    defaultPO + "' set as default proof obligation.");
-                    }
-                } else {
-                    // there are many, no default: ask the user
-                    Object[] nameArray = proofObls.keySet().toArray();
-                    String name = (String) JOptionPane.showInputDialog(null,
-                            "Please choose the proof problem to verify.",
-                            "Choose problem", JOptionPane.QUESTION_MESSAGE, null, nameArray, null);
-                    if(name == null) {
-                        // abort button pressed
-                        return null;
-                    }
-                    po = proofObls.get(name);
-                    assert po != null : "No null elements in problemSeqs";
+
+                // there are many, no default: ask the user
+                String[] availablePOs = proofObMan.getAvailableProofObligationNames();
+                String name = (String) JOptionPane.showInputDialog(null,
+                        "Please choose the proof obligation to verify.",
+                        "Choose obligation", JOptionPane.QUESTION_MESSAGE, null,
+                        availablePOs, null);
+                if(name == null) {
+                    // abort button pressed
+                    return null;
                 }
+                po = proofObMan.getProofObligation(name);
+                assert po != null : "No null elements in problemSeqs";
             }
+
         } else {
-            po = proofObls.get(fragment);
+            // there IS a fragment.
+            po = proofObMan.getProofObligation(fragment);
 
             if (po == null) {
                 throw new EnvironmentException("Unknown proof obligation '" +
@@ -340,7 +335,7 @@ public class Main {
             }
         }
 
-        return openProver(po, url);
+        return openProver(po, proofObMan, url);
     }
 
 //    /**
@@ -398,17 +393,20 @@ public class Main {
      *
      * @return a freshly created proof center
      */
-    private static ProofCenter openProver(ProofObligation po, URL urlToRemember)
+    private static ProofCenter openProver(ProofObligation po,
+            ProofObligationManager proofObMan, URL urlToRemember)
             throws IOException, StrategyException, TermException, EnvironmentException {
 
         Proof proof = po.initProof();
-        ProofCenter proofCenter = new ProofCenter(proof, proof.getEnvironment());
+        ProofCenter proofCenter = new ProofCenter(proof, proof.getEnvironment(),
+                proofObMan.getProofScriplets());
 
         showProofCenter(proofCenter);
         addToRecentProblems(urlToRemember);
 
         return proofCenter;
     }
+
 
     /**
      * adds a problem's URL to recent files; should be called after successfully

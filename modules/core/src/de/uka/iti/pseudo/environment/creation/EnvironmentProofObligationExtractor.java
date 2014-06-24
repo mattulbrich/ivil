@@ -1,6 +1,8 @@
 package de.uka.iti.pseudo.environment.creation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
@@ -16,6 +18,7 @@ class EnvironmentProofObligationExtractor {
 
     private final Environment env;
     private Map<String, ProofObligation> proofObligations;
+    private List<Object> availableLemmasAndRules;
 
     public EnvironmentProofObligationExtractor(Environment env) {
         this.env = env;
@@ -28,6 +31,7 @@ class EnvironmentProofObligationExtractor {
         }
 
         this.proofObligations = new HashMap<String, ProofObligation>();
+        this.availableLemmasAndRules = new ArrayList<Object>();
 
         createRulePOs();
         createLemmaPOs();
@@ -39,7 +43,7 @@ class EnvironmentProofObligationExtractor {
     private void createLemmaPOs() {
         for (Lemma lemma : env.getLocalLemmas()) {
             if(!lemma.getDefinedProperties().contains("axiom")) {
-                ProofObligation po = new ProofObligation.LemmaPO(env, lemma);
+                ProofObligation po = new ProofObligation.LemmaPO(env, lemma, availableLemmasAndRules);
                 proofObligations.put(po.getName(), po);
             }
         }
@@ -48,7 +52,7 @@ class EnvironmentProofObligationExtractor {
     private void createRulePOs() {
         for (Rule rule : env.getLocalRules()) {
             if(!rule.getDefinedProperties().contains("axiom")) {
-                ProofObligation po = new ProofObligation.RulePO(env, rule);
+                ProofObligation po = new ProofObligation.RulePO(env, rule, availableLemmasAndRules);
                 proofObligations.put(po.getName(), po);
             }
         }

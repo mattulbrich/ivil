@@ -15,9 +15,11 @@ import java.net.URL;
 import java.util.Map;
 
 import nonnull.Nullable;
+import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.ProofObligation;
+import de.uka.iti.pseudo.environment.ProofObligationManager;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -29,7 +31,7 @@ import de.uka.iti.pseudo.util.Pair;
 public class PFileEnvironmentCreationService extends EnvironmentCreationService {
 
     @Override
-    public Pair<Environment, Map<String, ProofObligation>> createEnvironment(InputStream inputStream, URL url)
+    public ProofObligationManager createEnvironment(InputStream inputStream, URL url)
             throws IOException, EnvironmentException {
         Parser fp = new Parser();
 
@@ -37,8 +39,9 @@ public class PFileEnvironmentCreationService extends EnvironmentCreationService 
             EnvironmentMaker em = new EnvironmentMaker(fp, inputStream, url);
             Environment env = em.getEnvironment();
             Map<String, ProofObligation> proofObligations = em.getProofObligations();
+            Map<String, ProofScript> scripts = em.getAssociatedProofScripts();
 
-            return Pair.make(env, proofObligations);
+            return new ProofObligationManager(env, proofObligations, scripts);
 
         } catch (ParseException e) {
             EnvironmentException resultEx = new EnvironmentException(e);

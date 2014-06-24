@@ -1,5 +1,11 @@
 package de.uka.iti.pseudo.environment;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.environment.creation.ruleextraction.RuleProblemExtractor;
 import de.uka.iti.pseudo.proof.Proof;
@@ -11,16 +17,14 @@ import de.uka.iti.pseudo.term.TermException;
 
 public abstract class ProofObligation {
 
-    public static final String DEFAULT_PO_PROPERTY = "dfsafasd";
-
     public static class LemmaPO extends ProofObligation {
 
         public static final String PREFIX = "lemma:";
 
         private final Lemma lemma;
 
-        public LemmaPO(Environment env, Lemma lemma) {
-            super(env, PREFIX + lemma.getName());
+        public LemmaPO(Environment env, Lemma lemma, List<Object> available) {
+            super(env, PREFIX + lemma.getName(), available);
             this.lemma = lemma;
         }
 
@@ -41,7 +45,8 @@ public abstract class ProofObligation {
         private final Modality modality;
 
         public ProgramPO(Environment env, Program program, Modality modality) {
-            super(env, PREFIX + program.getName() + getModalitySuffix(modality));
+            super(env, PREFIX + program.getName() + getModalitySuffix(modality),
+                    Collections.<Object>emptyList());
             assert modality == Modality.BOX || modality == Modality.BOX_TERMINATION;
             this.program = program;
             this.modality = modality;
@@ -67,6 +72,10 @@ public abstract class ProofObligation {
             }
         }
 
+        @Override
+        public Environment getProofEnvironment() {
+            return env;
+        }
     }
 
     public static class RulePO extends ProofObligation {
@@ -74,8 +83,8 @@ public abstract class ProofObligation {
         public static final String PREFIX = "rule:";
         private final Rule rule;
 
-        public RulePO(Environment env, Rule rule) {
-            super(env, PREFIX + rule.getName());
+        public RulePO(Environment env, Rule rule, List<Object> available) {
+            super(env, PREFIX + rule.getName(), available);
             this.rule = rule;
         }
 
@@ -93,11 +102,13 @@ public abstract class ProofObligation {
 
     protected final Environment env;
     private final String key;
+    private final Set<Object> availableLemmasAndRules;
     private ProofScript proofScript;
 
-    protected ProofObligation(Environment env, String key) {
+    protected ProofObligation(Environment env, String key, List<Object> availableLemmasAndRules) {
         this.env = env;
         this.key = key;
+        this.availableLemmasAndRules = new HashSet<Object>(availableLemmasAndRules);
     }
 
     public final String getName() {
@@ -106,20 +117,39 @@ public abstract class ProofObligation {
 
     public abstract Term getProblemTerm() throws EnvironmentException;
 
+    public Environment getProofEnvironment() throws EnvironmentException {
+
+        Environment result = env.getCopyWithoutRulesAndLemmas();
+
+        for (Rule rule : env.getLocalRules()) {
+            if(availableLemmasAndRules.contains(rule)) {
+                result.addRule(rule);
+            }
+        }
+
+        for (Lemma lemma : env.getLocalLemmas()) {
+            if(availableLemmasAndRules.contains(lemma)) {
+                result.addLemma(lemma);
+            }
+        }
+
+        return result;
+    }
+
     public final Proof initProof() throws EnvironmentException {
         try {
-            Proof result = new Proof(getProblemTerm(), getName(), env);
+            Proof result = new Proof(getProblemTerm(), getName(), getProofEnvironment());
             return result;
         } catch (TermException e) {
             throw new EnvironmentException(e);
         }
     }
 
-    public ProofScript getProofScript() {
+    public final ProofScript getProofScript() {
         return proofScript;
     }
 
-    public void setProofScript(ProofScript proofScript) {
+    public final void setProofScript(ProofScript proofScript) {
         assert proofScript.getObligationIdentifier().equals(getName());
         this.proofScript = proofScript;
     }

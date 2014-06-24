@@ -20,7 +20,7 @@ package de.uka.iti.pseudo.parser;
 public interface ASTLocatedElement {
 
     public static class Fixed implements ASTLocatedElement {
-        private static String string;
+        private final String string;
         public Fixed(String string){
             this.string = string;
         }

@@ -23,6 +23,7 @@ import javax.swing.SwingUtilities;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.auto.strategy.BreakpointStrategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
@@ -201,7 +202,8 @@ public class ProofCenter {
      *             signals that the strategy manager could not be properly
      *             initialized.
      */
-    public ProofCenter(@NonNull final Proof proof, @NonNull Environment env) throws IOException, StrategyException {
+    public ProofCenter(@NonNull final Proof proof, @NonNull Environment env,
+            @NonNull Map<String, ProofScript> scripletsMap) throws IOException, StrategyException {
         this.proof = proof;
         this.env = env;
         this.prettyPrinter = new PrettyPrint(env);
@@ -212,7 +214,7 @@ public class ProofCenter {
         // ensure that the environment is fixed
         env.setFixed();
 
-        this.strategyManager = new StrategyManager(proof, env);
+        this.strategyManager = new StrategyManager(proof, env, scripletsMap);
         this.strategyManager.registerAllKnownStrategies();
 
         proof.addObserver(new ProofObserver(this));
@@ -247,6 +249,12 @@ public class ProofCenter {
 
         prepareRuleLists();
     }
+
+    public ProofCenter(Proof p, Environment env) throws IOException, StrategyException {
+        this(p, env, Collections.<String, ProofScript>emptyMap());
+        Log.log(Log.WARNING, "This constructor should actually not be called any more ...");
+    }
+
 
     /*
      * Prepare rule lists.

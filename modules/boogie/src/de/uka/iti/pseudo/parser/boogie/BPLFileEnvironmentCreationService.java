@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.ProofObligation;
+import de.uka.iti.pseudo.environment.ProofObligationManager;
 import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
 import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
 import de.uka.iti.pseudo.term.Modality;
@@ -40,14 +41,14 @@ public final class BPLFileEnvironmentCreationService extends EnvironmentCreation
     }
 
     @Override
-    public Pair<Environment, Map<String, ProofObligation>> createEnvironment(InputStream inputStream, URL url)
+    public ProofObligationManager createEnvironment(InputStream inputStream, URL url)
            throws IOException, EnvironmentException {
         try {
             BPLParser p = new BPLParser(inputStream);
             EnvironmentCreationState s = new EnvironmentCreationState(p.parse(url));
 
             Environment env = s.make();
-            return Pair.make(env, createProgramProblems(env));
+            return new ProofObligationManager(env, createProgramProblems(env));
         } catch (ParseException e) {
             EnvironmentException envEx = new EnvironmentException(e);
             Token currentToken = e.currentToken;

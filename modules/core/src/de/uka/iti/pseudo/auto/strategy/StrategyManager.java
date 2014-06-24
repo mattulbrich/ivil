@@ -10,12 +10,14 @@
 package de.uka.iti.pseudo.auto.strategy;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -23,30 +25,30 @@ import de.uka.iti.pseudo.util.settings.Settings;
 /**
  * A StrategyManager is essentially a collection of all applicable strategies
  * for a proof context.
- * 
+ *
  * It has got one distinguished selected strategy which can be set and
  * retrieved. The initially selected strategy is retrieved by querying
  * {@link TestSettings} for the key {@value StrategyManager#DEFAULT_STRATEGY_KEY}.
- * 
+ *
  * New Strategies can be registered by their class. There can only be one
  * strategy per implementation (per manager).
  */
 public class StrategyManager {
-    
+
     /**
      * query the settings for this key to determine the first selected
      * strategy.
      */
     private static final String DEFAULT_STRATEGY_KEY = "pseudo.auto.defaultStrategy";
-    
-    private static final String DEFAULT_STRATEGY_CLASSNAME = 
+
+    private static final String DEFAULT_STRATEGY_CLASSNAME =
         Settings.getInstance().getProperty(DEFAULT_STRATEGY_KEY, "");
-    
+
     /**
      * The registered strategies as map from their implementing class to the
      * actual strategy.
      */
-    private Map<Class<? extends Strategy>, Strategy> registeredStrategies = 
+    private final Map<Class<? extends Strategy>, Strategy> registeredStrategies =
         new LinkedHashMap<Class<? extends Strategy>, Strategy>();
 
     /**
@@ -58,37 +60,43 @@ public class StrategyManager {
     /**
      * The proof to which this manager is bound.
      */
-    private Proof proof;
+    private final Proof proof;
 
     /**
      * The environment of the proof to this manager.
      */
-    private Environment env;
+    private final Environment env;
 
     /**
      * Instantiates a new strategy manager.
-     * 
+     *
      * @param proof
      *            the proof to bind to
      * @param env
      *            the environment to bind to
+     * @param scripletsMap
      */
-    public StrategyManager(@NonNull Proof proof, @NonNull Environment env) {
+    public StrategyManager(@NonNull Proof proof, @NonNull Environment env,
+            @NonNull Map<String, ProofScript> scripletsMap) {
         this.proof = proof;
         this.env = env;
     }
 
+    public StrategyManager(Proof proof, Environment env) {
+        this(proof, env, Collections.<String,ProofScript>emptyMap());
+    }
+
     /**
      * Register a new strategy by its class.
-     * 
+     *
      * The class must not yet have been registered. A new instance of the class
      * is created, initialised and added to the repository. If it is the first
      * class to be registered, it is automatically set to be the selected
      * strategy.
-     * 
+     *
      * @param clss
      *            the strategy class to register
-     * 
+     *
      * @throws StrategyException
      *             if the class is already registered or if the initialisation
      *             of the strategy object fails
@@ -99,7 +107,7 @@ public class StrategyManager {
             throw new StrategyException("Class " + clss
                     + " has already been registered");
         }
-        
+
         try {
             Strategy newInstance = clss.newInstance();
             registerInternally(newInstance);
@@ -116,7 +124,7 @@ public class StrategyManager {
      * <li>make it the selected strategy if this is class to be selected first
      * and nothing else has been selected yet.
      * </ol>
-     * 
+     *
      * @throws StrategyException
      *             possibly thrown by
      *             {@link Strategy#init(Proof, Environment, StrategyManager)}
@@ -124,7 +132,7 @@ public class StrategyManager {
     private void registerInternally(Strategy strategy) throws StrategyException {
         strategy.init(proof, env, this);
         registeredStrategies.put(strategy.getClass(), strategy);
-        if (selectedStrategy == null && 
+        if (selectedStrategy == null &&
                 strategy.getClass().getName().equals(DEFAULT_STRATEGY_CLASSNAME)) {
             selectedStrategy = strategy;
         }
@@ -133,12 +141,12 @@ public class StrategyManager {
     /**
      * Register all strategies which are known to the {@link ServiceLoader}
      * mechanism.
-     * 
+     *
      * The classes which are listed in a text file (see {@link ServiceLoader}
      * for details) are registered. For each of them a new instance is created
      * and added to the system. If no class has been registered yet, the first
      * newly created object becomes the selected stratey.
-     * 
+     *
      * @throws StrategyException
      *             if a class has already been registered or if the
      *             initialisation process fails for a strategy.
@@ -146,9 +154,10 @@ public class StrategyManager {
     public void registerAllKnownStrategies() throws StrategyException {
         for (Strategy strategy : ServiceLoader.load(Strategy.class)) {
             Class<? extends Strategy> clss = strategy.getClass();
-            if (registeredStrategies.containsKey(clss))
+            if (registeredStrategies.containsKey(clss)) {
                 throw new StrategyException("Class " + clss
                         + " has already been registered");
+            }
             registerInternally(strategy);
         }
     }
@@ -156,27 +165,28 @@ public class StrategyManager {
     /**
      * Gets a strategy by its implementing class. The class must be registered
      * for this not to return null.
-     * 
+     *
      * @param clss
      *            the implementing class for which the strategy is to be
      *            returned
-     * 
+     *
      * @throws StrategyException
      *             if the argument has not been registered previously.
-     * 
+     *
      * @return the strategy
      */
     @SuppressWarnings("unchecked")
     public <T extends  Strategy> T getStrategy(Class<T> clss) throws StrategyException {
         Strategy strategy = registeredStrategies.get(clss);
-        if(strategy == null)
+        if(strategy == null) {
             throw new StrategyException("Unregistered strategy " + clss);
+        }
         return (T) strategy;
     }
 
     /**
      * Gets all strategies registered in this manager
-     * 
+     *
      * @return an immutable collection of strategies.
      */
     public Collection<Strategy> getAllStrategies() {
@@ -185,9 +195,9 @@ public class StrategyManager {
 
     /**
      * Gets the currently selected strategy.
-     * 
+     *
      * As soon as one class has been registered, this does not return null
-     * 
+     *
      * @return the selected strategy, null if no class has been registered yet.
      */
     public Strategy getSelectedStrategy() {
@@ -197,7 +207,7 @@ public class StrategyManager {
     /**
      * Sets the currently selected strategy. The strategy must be an object
      * which is controlled by this manager.
-     * 
+     *
      * @param selectedStrategy
      *            the new selected strategy
      */

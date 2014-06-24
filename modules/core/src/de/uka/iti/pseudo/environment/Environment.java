@@ -1345,4 +1345,19 @@ public class Environment {
         return resourceName;
     }
 
+    public Environment getCopyWithoutRulesAndLemmas() throws EnvironmentException {
+        Environment result = new Environment(resourceName, parentEnvironment);
+        result.binderMap.putAll(binderMap);
+        result.functionMap.putAll(functionMap);
+        result.infixMap.putAll(infixMap);
+        result.numberMap.putAll(numberMap);
+        // TODO Check this! Perhaps make a copy or fix it or ...
+        result.pluginManager = this.pluginManager;
+        result.prefixMap.putAll(prefixMap);
+        result.programMap.putAll(programMap);
+        result.propertiesMap.putAll(propertiesMap);
+        result.sortMap.putAll(sortMap);
+        return result;
+    }
+
 }
