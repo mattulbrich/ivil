@@ -22,11 +22,14 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 
 /**
- * The Class Axiom encapsulates an axiom definition within an environment.
+ * The Class Lemma encapsulates a lemma definition within an environment.
  *
  * It essentially has a name and a boolean toplevel term.
+ *
+ * Properties may be attached to a lemma. In particular, the property "axiom" is
+ * added if the lemma is actually declared as an axiom.
  */
-public final class Axiom {
+public final class Lemma implements Named {
 
     /**
      * The name of this axiom.
@@ -64,7 +67,7 @@ public final class Axiom {
      * @throws EnvironmentException
      *             the environment exception
      */
-    public Axiom(@NonNull String name, @NonNull Term term,
+    public Lemma(@NonNull String name, @NonNull Term term,
             @NonNull Map<String, String> properties,
             @NonNull ASTLocatedElement location) throws EnvironmentException {
         super();
@@ -116,6 +119,7 @@ public final class Axiom {
      *
      * @return the name
      */
+    @Override
     public String getName() {
         return name;
     }

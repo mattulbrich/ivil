@@ -8,11 +8,12 @@
  * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.justify;
+package de.uka.iti.pseudo.environment.creation.ruleextraction;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
+import de.uka.iti.pseudo.environment.creation.ruleextraction.RuleProblemExtractor;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;

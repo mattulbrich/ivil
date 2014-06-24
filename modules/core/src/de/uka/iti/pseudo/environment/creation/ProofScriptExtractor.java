@@ -3,7 +3,6 @@ package de.uka.iti.pseudo.environment.creation;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,17 +15,18 @@ import de.uka.iti.pseudo.auto.script.ProofScriptNode;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.PluginManager;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.Token;
-import de.uka.iti.pseudo.parser.file.ASTAxiomDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTBinderDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTFunctionDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
+import de.uka.iti.pseudo.parser.file.ASTLemmaDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTPlugins;
 import de.uka.iti.pseudo.parser.file.ASTProblemSequent;
 import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
@@ -44,15 +44,22 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
 
     private final Environment env;
     private final PluginManager pluginManager;
-    private Map<String, ProofScript> result;
     private String lastObligation = null;
     private ProofScriptNode node = null;
 
     private final Parser parser;
 
-    public ProofScriptExtractor(Parser parser, Environment env) throws ASTVisitException  {
+    private final Map<String, ProofObligation> proofObligations;
+    private final Map<String, ProofScript> associatedProofScripts;
+
+    public ProofScriptExtractor(Parser parser, Environment env,
+            Map<String, ProofObligation> proofObligations,
+            Map<String, ProofScript> associatedProofScripts) throws ASTVisitException  {
         this.parser = parser;
         this.env = env;
+        this.proofObligations = proofObligations;
+        this.associatedProofScripts = associatedProofScripts;
+
         try {
             this.pluginManager = env.getPluginManager();
         } catch (EnvironmentException e) {
@@ -60,16 +67,9 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
         }
     }
 
-    public Map<String, ProofScript> extractFrom(ASTFile astFile) throws ASTVisitException {
-        result = new HashMap<String, ProofScript>();
-        astFile.visit(this);
-        return result;
-    }
-
     /*
      * Some blocks allow for a directly following proof.
      */
-
     private void extractSourcedScripts(ASTProofSourceFile ast)
             throws ASTVisitException {
         try {
@@ -102,7 +102,7 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
             if(lastObligation == null) {
                 throw new ASTVisitException(
                         "A proof script without explict proof obligation can only be " +
-                        "stated directly after a program, rule or problem declaration.", arg);
+                        "stated directly after a program, rule or lemma declaration.", arg);
             }
             obligationName = lastObligation;
         } else {
@@ -111,14 +111,42 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
 
         arg.getChildren().get(0).visit(this);
 
-        if(result.containsKey(obligationName)) {
-            throw new ASTVisitException("The proof script for " + obligationName +
-                    " has already been defined earlier.", arg);
-        }
-
-        result.put(obligationName, new ProofScript(obligationName, node));
+        registerProofScript(arg, obligationName);
 
         lastObligation = null;
+    }
+
+    private void registerProofScript(ASTProofScript arg, String obligationName)
+            throws ASTVisitException {
+
+        if(obligationName.indexOf('.') > 0) {
+            // This is of the form type:Identifier.Identifier
+            // That is ... it is an associated proof script!
+
+            ProofScript po = associatedProofScripts.get(obligationName);
+            if(po != null) {
+                throw new ASTVisitException("There is already a proof script for "
+                                + obligationName, arg);
+            }
+
+            associatedProofScripts.put(obligationName, new ProofScript(obligationName, node));
+
+        } else {
+
+            // no "." --> toplevel name
+            ProofObligation po = proofObligations.get(obligationName);
+            if(po == null) {
+                throw new ASTVisitException("There is no proof obligation " + obligationName +
+                        " in this file.", arg);
+            }
+
+            if(po.getProofScript() != null) {
+                throw new ASTVisitException("The proof script for " + obligationName +
+                        " has already been defined.", arg);
+            }
+
+            po.setProofScript(new ProofScript(obligationName, node));
+        }
     }
 
     @Override
@@ -188,32 +216,29 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
     }
 
     @Override
-    public void visit(ASTProblemSequent arg) throws ASTVisitException {
+    public void visit(ASTLemmaDeclaration arg) throws ASTVisitException {
         // Only if the problem is named can we remember a named obligation.
-        Token problemId = arg.getIdentifier();
-        if(problemId != null) {
-            lastObligation = ProofScript.LEMMA_IDENTIFIER_PREFIX + problemId;
-        } else {
-            lastObligation = null;
-        }
-
+        Token name = arg.getName();
+        lastObligation = ProofObligation.LemmaPO.PREFIX + name;
     }
 
     @Override
     public void visit(ASTRule arg) throws ASTVisitException {
-        lastObligation = ProofScript.RULE_IDENTIFIER_PREFIX + arg.getName().image;
+        lastObligation = ProofObligation.RulePO.PREFIX + arg.getName().image;
     }
 
     @Override
     public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
-        lastObligation = ProofScript.PROGRAM_IDENTIFIER_PREFIX + arg.getName().image;
+        lastObligation = ProofObligation.ProgramPO.PREFIX +
+                arg.getName().image +
+                ProofObligation.ProgramPO.SUFFIX_TOTAL;
     }
 
     /*
      * In all other cases, all I have to do is to forget about a last obligation.
      */
     @Override
-    public void visit(ASTAxiomDeclaration arg) throws ASTVisitException {
+    public void visit(ASTProblemSequent arg) throws ASTVisitException {
         lastObligation = null;
     }
 

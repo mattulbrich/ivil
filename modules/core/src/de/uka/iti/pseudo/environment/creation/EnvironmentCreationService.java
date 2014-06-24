@@ -20,6 +20,7 @@ import nonnull.Nullable;
 import checkers.nullness.quals.Pure;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.util.Pair;
 
@@ -80,7 +81,7 @@ public abstract class EnvironmentCreationService {
      * @throws EnvironmentException
      *             if loading fails for some reason
      */
-    public final @NonNull Pair<Environment, Map<String, Sequent>>
+    public final @NonNull Pair<Environment, Map<String, ProofObligation>>
         createEnvironment(@NonNull URL url) throws IOException, EnvironmentException {
 
         return createEnvironment(url.openStream(), url);
@@ -107,7 +108,7 @@ public abstract class EnvironmentCreationService {
      * @throws EnvironmentException
      *             if loading fails for some reason
      */
-    public abstract Pair<Environment, Map<String,Sequent>>
+    public abstract Pair<Environment, Map<String, ProofObligation>>
           createEnvironment(InputStream stream, URL resource)
           throws IOException, EnvironmentException;
 
@@ -144,7 +145,7 @@ public abstract class EnvironmentCreationService {
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    public static Pair<Environment, Map<String, Sequent>> createEnvironmentByExtension(URL url)
+    public static Pair<Environment, Map<String, ProofObligation>> createEnvironmentByExtension(URL url)
             throws EnvironmentException, IOException {
 
         int dotPos = url.getPath().lastIndexOf('.');

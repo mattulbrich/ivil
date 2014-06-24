@@ -17,7 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import de.uka.iti.pseudo.environment.Axiom;
+import de.uka.iti.pseudo.environment.Lemma;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
@@ -107,10 +107,10 @@ import de.uka.iti.pseudo.term.statement.Statement;
  * This is the heart of the loader. This Visitor transforms the gathered
  * informations into IVIL equivalents. As expressions can contain code and code
  * can contain expressions, there is no useful way to make this visitor smaller.
- * 
+ *
  * The treatment of most nodes is straight forward, the other nodes have
  * individual comments, which hopefully explain how the translation is done.
- * 
+ *
  * @author timm.felden@felden.com
  */
 public final class ProgramMaker extends DefaultASTVisitor {
@@ -121,7 +121,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
     /**
      * This triple consist of (preconditions, body, postconditions). It is
      * needed to append specifications of procedures to their implementation.
-     * 
+     *
      * @author timm.felden@felden.com
      */
     static public final class StatementTripel {
@@ -147,7 +147,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
     // variables can get a desired name instead of the default ones
     private String desiredName = null;
 
-    private Map<String, Variable> boundVars = new HashMap<String, Variable>();
+    private final Map<String, Variable> boundVars = new HashMap<String, Variable>();
 
     /**
      * This String is nonnull iff breaks are meaningfull. In that case, they
@@ -188,8 +188,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     protected void defaultAction(ASTElement node) throws ASTVisitException {
-        for (ASTElement e : node.getChildren())
+        for (ASTElement e : node.getChildren()) {
             e.visit(this);
+        }
     }
 
     /**
@@ -199,8 +200,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
         if (axiom instanceof FunctionCallExpression) {
             sb.append("_").append(((FunctionCallExpression) axiom).getName());
         }
-        for (ASTElement t : axiom.getChildren())
+        for (ASTElement t : axiom.getChildren()) {
             createRecAxiomName(sb, t);
+        }
     }
 
     @Override
@@ -215,8 +217,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // add axiom
         Term axiom = state.translation.terms.get(node.getAxiom());
         try {
-            state.env.addAxiom(new Axiom(state.env.createNewAxiomName(sb.toString()), axiom,
-                    new HashMap<String, String>(), node));
+            HashMap<String, String> map = new HashMap<String, String>();
+            map.put("axiom", "");
+            state.env.addLemma(new Lemma(state.env.createNewLemmaName(sb.toString()), axiom,
+                    map, node));
         } catch (EnvironmentException e) {
             e.printStackTrace();
         }
@@ -260,7 +264,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                 Term where = state.translation.terms.get(node.getWhereClause());
                 if (where.equals(Environment.getTrue()))
+                 {
                     return; // Don't add assume true
+                }
 
                 if (node.getParent() instanceof GlobalVariableDeclaration) {
                     whereStatements.add(new AssumeStatement(node.getLocationToken().beginLine, where));
@@ -303,6 +309,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
         try {
             Type t = state.typeMap.get(node.getNames().get(0));
 
+            HashMap<String, String> map = new HashMap<String, String>();
+            map.put("axiom", "");
             if (node.hasExtends()) {
                 for (VariableDeclaration v : node.getNames()) {
                     // add edges
@@ -314,8 +322,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
                                         .get(state.names
                                         .findVariable(p.getName(), node))), t) });
 
-                        state.env.addAxiom(new Axiom(v.getName() + "<:" + p.getName(), ext,
-                                new HashMap<String, String>(), node));
+                        state.env.addLemma(new Lemma(v.getName() + "<:" + p.getName(), ext,
+                                map, node));
                     }
 
                     // add axiom that specify that all known parents were
@@ -338,7 +346,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                     axiom = Binding.getInst(state.env.getBinder("\\forall"), bool_t, x, new Term[] { axiom });
 
-                    state.env.addAxiom(new Axiom("parents of " + v.getName(), axiom, new HashMap<String, String>(),
+                    state.env.addLemma(new Lemma("parents of " + v.getName(), axiom, map,
                             node));
                 }
             }
@@ -356,18 +364,19 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                     // || ∀c: x <: c
                     // if this is null, no child exists, thus x <: v <-> x = v
-                    if (null != usage)
+                    if (null != usage) {
                         for (VariableDeclaration c : usage) {
                             axiom = Application.getInst(state.env.getFunction("$or"), bool_t, new Term[] { axiom,
                                     extend(x, state.names.findVariable(c.getName(), node)) });
                         }
+                    }
 
                     axiom = Application.getInst(state.env.getFunction("$impl"), bool_t,
                             new Term[] { extend(x, v), axiom });
 
                     axiom = Binding.getInst(state.env.getBinder("\\forall"), bool_t, x, new Term[] { axiom });
 
-                    state.env.addAxiom(new Axiom("children of " + v.getName(), axiom, new HashMap<String, String>(),
+                    state.env.addLemma(new Lemma("children of " + v.getName(), axiom, map,
                             node));
                 }
             }
@@ -382,13 +391,15 @@ public final class ProgramMaker extends DefaultASTVisitor {
         }
     }
 
+    @Override
     public void visit(ExtendsExpression node) throws ASTVisitException {
         defaultAction(node);
 
         Term[] args = new Term[2];
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
+        }
 
         try {
             state.translation.terms.put(node,
@@ -402,8 +413,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(FunctionDeclaration node) throws ASTVisitException {
-        for (ASTElement e : node.getInParameters())
+        for (ASTElement e : node.getInParameters()) {
             e.visit(this);
+        }
         node.getOutParemeter().visit(this);
 
         // add definition
@@ -418,8 +430,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 args[0] = state.translation.terms.get(node.getExpression());
 
                 Term[] inArgs = new Term[node.getInParameters().size()];
-                for (int i = 0; i < inArgs.length; i++)
+                for (int i = 0; i < inArgs.length; i++) {
                     inArgs[i] = boundVars.get(state.translation.variableNames.get(node.getInParameters().get(i)));
+                }
 
                 // add "f(x) == expr"
                 args = new Term[] {
@@ -436,9 +449,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                 // add universal type quantification over type parameters before
                 // ordinary quantifiers
-                for (int i = 0; i < node.getTypeParameters().size(); i++)
+                for (int i = 0; i < node.getTypeParameters().size(); i++) {
                     args = new Term[] { TypeVariableBinding.getInst(TypeVariableBinding.Kind.ALL, state.typeMap.get(node
                             .getTypeParameters().get(i)), args[0]) };
+                }
 
             } catch (TermException e) {
                 throw new ASTVisitException(e);
@@ -446,7 +460,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             // add axiom
             try {
-                state.env.addAxiom(new Axiom("def_" + node.getName(), args[0], new HashMap<String, String>(), node));
+                HashMap<String, String> map = new HashMap<String, String>();
+                map.put("axiom", "");
+                state.env.addLemma(new Lemma("def_" + node.getName(), args[0], map, node));
             } catch (EnvironmentException e) {
                 throw new ASTVisitException(e);
             }
@@ -477,16 +493,21 @@ public final class ProgramMaker extends DefaultASTVisitor {
         }
 
         // first visit modifies clauses to ensure old names exist
-        for (ASTElement e : node.getSpecification())
-            if (e instanceof ModifiesClause)
+        for (ASTElement e : node.getSpecification()) {
+            if (e instanceof ModifiesClause) {
                 e.visit(this);
+            }
+        }
 
-        for (ASTElement e : node.getSpecification())
-            if (!(e instanceof ModifiesClause))
+        for (ASTElement e : node.getSpecification()) {
+            if (!(e instanceof ModifiesClause)) {
                 e.visit(this);
+            }
+        }
 
-        if (node.isImplemented())
+        if (node.isImplemented()) {
             node.getBody().visit(this);
+        }
 
         state.translation.declarations.put(node, statements);
         statements = null;
@@ -551,8 +572,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
     @Override
     public void visit(Postcondition node) throws ASTVisitException {
 
-        if (node.isFree())
+        if (node.isFree()) {
             return;
+        }
 
         defaultAction(node);
 
@@ -649,7 +671,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                         .getLocationToken().beginLine, state.translation.terms.get(node.getGuard())));
                 statements.bodyAnnotations.add(null);
             }
-            
+
             statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
             statements.bodyAnnotations.add("$goto;" + labelThen + ";" + labelElse);
 
@@ -737,18 +759,20 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     inv.visit(this);
 
                     if (inv.isFree()) {
-                        if (null == freeInvariant)
+                        if (null == freeInvariant) {
                             freeInvariant = state.translation.terms.get(inv.getExpression());
-                        else
+                        } else {
                             freeInvariant = Application.getInst(state.env.getFunction("$and"),
                                     Environment.getBoolType(),
                                     new Term[] { state.translation.terms.get(inv.getExpression()), freeInvariant });
+                        }
                     } else {
-                        if (null == invariant)
+                        if (null == invariant) {
                             invariant = state.translation.terms.get(inv.getExpression());
-                        else
+                        } else {
                             invariant = Application.getInst(state.env.getFunction("$and"), Environment.getBoolType(),
                                     new Term[] { state.translation.terms.get(inv.getExpression()), invariant });
+                        }
                     }
                 }
             }
@@ -874,7 +898,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 // assume where
                 Term where = state.translation.terms.get(decl.getWhereClause());
                 if (where.equals(Environment.getTrue()))
+                 {
                     return; // Don't add assume true
+                }
 
                 statements.bodyStatements.add(new AssumeStatement(node.getLocationToken().beginLine, where));
                 statements.bodyAnnotations.add(null);
@@ -926,19 +952,22 @@ public final class ProgramMaker extends DefaultASTVisitor {
         LinkedList<Postcondition> assumptions = new LinkedList<Postcondition>();
 
         for (Specification s : P.getSpecification()) {
-            if (s instanceof Precondition)
+            if (s instanceof Precondition) {
                 assertions.add((Precondition) s);
-            else if (s instanceof Postcondition)
+            } else if (s instanceof Postcondition) {
                 assumptions.add((Postcondition) s);
+            }
         }
 
         String oldIns[] = new String[P.getInParameters().size()];
-        for (int i = 0; i < oldIns.length; i++)
+        for (int i = 0; i < oldIns.length; i++) {
             oldIns[i] = state.translation.variableNames.get(P.getInParameters().get(i));
+        }
 
         String oldOuts[] = new String[P.getOutParameters().size()];
-        for (int i = 0; i < oldOuts.length; i++)
+        for (int i = 0; i < oldOuts.length; i++) {
             oldOuts[i] = state.translation.variableNames.get(P.getOutParameters().get(i));
+        }
 
         // create new variables for in and out parameters
         Function newIns[] = new Function[oldIns.length];
@@ -1001,10 +1030,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
         }
 
         // overwrite variable names for in and out parameters
-        for (int i = 0; i < newIns.length; i++)
+        for (int i = 0; i < newIns.length; i++) {
             state.translation.variableNames.put(P.getInParameters().get(i), newIns[i].getName());
-        for (int i = 0; i < newOuts.length; i++)
+        }
+        for (int i = 0; i < newOuts.length; i++) {
             state.translation.variableNames.put(P.getOutParameters().get(i), newOuts[i].getName());
+        }
 
         Term PRE = Environment.getTrue();
         Term POST = Environment.getTrue();
@@ -1012,8 +1043,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // gather precondition
         try {
             for (Precondition cond : assertions) {
-                if (cond.isFree())
+                if (cond.isFree()) {
                     continue;
+                }
 
                 cond.getCondition().visit(this);
 
@@ -1044,8 +1076,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
         for (int i = 0; i < newIns.length; i++) {
             state.translation.variableNames.put(P.getInParameters().get(i), oldIns[i]);
         }
-        for (int i = 0; i < newOuts.length; i++)
+        for (int i = 0; i < newOuts.length; i++) {
             state.translation.variableNames.put(P.getOutParameters().get(i), oldOuts[i]);
+        }
 
         // add assumption
         Term assumption;
@@ -1054,9 +1087,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     PRE,
                     POST });
 
-            while (boundvars.size() > 0)
+            while (boundvars.size() > 0) {
                 assumption = Binding.getInst(state.env.getBinder("\\forall"), Environment.getBoolType(),
                         boundvars.remove(0), new Term[] { assumption });
+            }
 
             // TODO add type quantification to allow for uninfered polymorphic
             // variables
@@ -1081,21 +1115,24 @@ public final class ProgramMaker extends DefaultASTVisitor {
         LinkedList<Postcondition> assumptions = new LinkedList<Postcondition>();
 
         for (Specification s : P.getSpecification()) {
-            if (s instanceof Precondition)
+            if (s instanceof Precondition) {
                 assertions.add((Precondition) s);
-            else if (s instanceof Postcondition)
+            } else if (s instanceof Postcondition) {
                 assumptions.add((Postcondition) s);
-            else
+            } else {
                 modifies.add((ModifiesClause) s);
+            }
         }
 
         String oldIns[] = new String[P.getInParameters().size()];
-        for (int i = 0; i < oldIns.length; i++)
+        for (int i = 0; i < oldIns.length; i++) {
             oldIns[i] = state.translation.variableNames.get(P.getInParameters().get(i));
+        }
 
         String oldOuts[] = new String[P.getOutParameters().size()];
-        for (int i = 0; i < oldOuts.length; i++)
+        for (int i = 0; i < oldOuts.length; i++) {
             oldOuts[i] = state.translation.variableNames.get(P.getOutParameters().get(i));
+        }
 
         // create new variables for in and out parameters
         Function newIns[] = new Function[oldIns.length];
@@ -1165,10 +1202,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     assignments[i] = new Assignment(Application.getInst(newIns[i], newIns[i].getResultType()),
                             state.translation.terms.get(val));
                 }
-                for (int j = 0; i < assignments.length - oldOverwrite.length; i++, j++)
+                for (int j = 0; i < assignments.length - oldOverwrite.length; i++, j++) {
                     assignments[i] = oldStore[j];
-                for (int j = 0; i < assignments.length; i++, j++)
+                }
+                for (int j = 0; i < assignments.length; i++, j++) {
                     assignments[i] = oldOverwrite[j];
+                }
 
                 statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
                         .getLocationToken().beginLine, Arrays.asList(assignments)));
@@ -1181,16 +1220,19 @@ public final class ProgramMaker extends DefaultASTVisitor {
         }
 
         // overwrite variable names for in and out parameters
-        for (int i = 0; i < newIns.length; i++)
+        for (int i = 0; i < newIns.length; i++) {
             state.translation.variableNames.put(P.getInParameters().get(i), newIns[i].getName());
-        for (int i = 0; i < newOuts.length; i++)
+        }
+        for (int i = 0; i < newOuts.length; i++) {
             state.translation.variableNames.put(P.getOutParameters().get(i), newOuts[i].getName());
+        }
 
         // assert precondition
         try {
             for (Precondition cond : assertions) {
-                if (cond.isFree())
+                if (cond.isFree()) {
                     continue;
+                }
 
                 cond.getCondition().visit(this);
 
@@ -1206,7 +1248,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         // havoc modified values
         for (ModifiesClause clause : modifies) {
-            for (String name : clause.getTargets())
+            for (String name : clause.getTargets()) {
                 try {
                     VariableDeclaration decl = state.names.findVariable(name, node);
 
@@ -1218,6 +1260,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     e.printStackTrace();
                     throw new ASTVisitException(e);
                 }
+            }
         }
         // havoc out parameters
         for(Function out : newOuts){
@@ -1251,10 +1294,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
         }
 
         // restore variable names for in and out parameters
-        for (int i = 0; i < newIns.length; i++)
+        for (int i = 0; i < newIns.length; i++) {
             state.translation.variableNames.put(P.getInParameters().get(i), oldIns[i]);
-        for (int i = 0; i < newOuts.length; i++)
+        }
+        for (int i = 0; i < newOuts.length; i++) {
             state.translation.variableNames.put(P.getOutParameters().get(i), oldOuts[i]);
+        }
 
         // safe results
         try {
@@ -1269,8 +1314,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
                             newOuts[i],
                             newOuts[i].getResultType()));
                 }
-                for (int i = newOuts.length, j = 0; i < assignments.length; i++, j++)
+                for (int i = newOuts.length, j = 0; i < assignments.length; i++, j++) {
                     assignments[i] = new Assignment(oldStore[j].getValue(), oldStore[j].getTarget());
+                }
 
                 statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
                         .getLocationToken().beginLine, Arrays.asList(assignments)));
@@ -1319,8 +1365,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 Term args[] = new Term[1 + target.getSubterms().size()];
 
                 args[0] = name;
-                for (int i = 1; i < target.getSubterms().size(); i++)
+                for (int i = 1; i < target.getSubterms().size(); i++) {
                     args[i] = target.getSubterm(i);
+                }
 
                 args[args.length - 1] = nval;
 
@@ -1377,8 +1424,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(AssignmentStatement node) throws ASTVisitException {
-        for (ASTElement e : node.getChildren())
+        for (ASTElement e : node.getChildren()) {
             e.visit(this);
+        }
 
         int size = node.getAssignments().size();
         if (size > 1) {
@@ -1406,7 +1454,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             statements.bodyAnnotations.add(null);
         }
     }
-    
+
     @Override
     public void visit(CoercionExpression node) throws ASTVisitException {
     	defaultAction(node);
@@ -1419,8 +1467,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         Term[] args = new Term[2];
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
+        }
 
         try {
             state.translation.terms.put(node, Application.getInst(state.env.getFunction(node.getFunction()), Environment
@@ -1438,8 +1487,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         Term[] args = new Term[2];
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
+        }
 
         try {
             state.translation.terms.put(node,
@@ -1457,8 +1507,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         Term[] args = new Term[2];
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
+        }
 
         try {
             state.translation.terms.put(node, Application.getInst(state.env.getFunction("$impl"),
@@ -1475,8 +1526,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         Term[] args = new Term[2];
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
+        }
 
         try {
             state.translation.terms.put(node, Application.getInst(state.env.getFunction("$and"), Environment
@@ -1494,8 +1546,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         Term[] args = new Term[2];
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
+        }
 
         try {
             state.translation.terms.put(node, Application.getInst(state.env.getFunction("$or"), Environment
@@ -1518,15 +1571,16 @@ public final class ProgramMaker extends DefaultASTVisitor {
         }
 
         try {
-            if (node.isInequality())
+            if (node.isInequality()) {
                 state.translation.terms.put(node, Application.getInst(state.env.getFunction("$not"), Environment
                         .getBoolType(), new Term[] { Application.getInst(state.env.getFunction("$weq"),
                         Environment
                         .getBoolType(), args) }));
-            else
+            } else {
                 state.translation.terms.put(node,
                         Application.getInst(state.env.getFunction("$weq"), Environment
                         .getBoolType(), args));
+            }
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(e);
@@ -1539,8 +1593,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         Term[] args = new Term[2];
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
+        }
 
         try {
             state.translation.terms.put(node, Application.getInst(state.env.getFunction(node.getFunction()), Environment
@@ -1558,8 +1613,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         Term[] args = new Term[2];
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
+        }
 
         try {
             state.translation.terms.put(node,
@@ -1649,8 +1705,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
         try {
             Term args[] = new Term[domain.size() + 1];
             args[0] = state.translation.terms.get(node.getName());
-            for (int i = 0; i < domain.size(); i++)
+            for (int i = 0; i < domain.size(); i++) {
                 args[i + 1] = state.translation.terms.get(domain.get(i));
+            }
 
             Type range_t = state.typeMap.get(node);
 
@@ -1680,8 +1737,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
         try {
             Term args[] = new Term[d.size() + 2];
             args[0] = state.translation.terms.get(node.getName());
-            for (int i = 0; i < d.size(); i++)
+            for (int i = 0; i < d.size(); i++) {
                 args[i + 1] = state.translation.terms.get(d.get(i));
+            }
 
             args[args.length - 1] = state.translation.terms.get(node.getUpdate());
 
@@ -1738,8 +1796,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
         defaultAction(node);
 
         Term[] args = new Term[node.getOperands().size()];
-        for (int i = 0; i < args.length; i++)
+        for (int i = 0; i < args.length; i++) {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
+        }
 
         try {
             state.translation.terms.put(node, Application.getInst(state.env.getFunction("fun__" + node.getName()),
@@ -1757,18 +1816,20 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // modifiable can be null, if old is used in an environment where it
         // would not be allowed to be used according to Boogie2Manual. As old
         // would have no effect in such environments, we simply ignore it
-        if (oldMode && null != modifiable && modifiable.contains(decl))
+        if (oldMode && null != modifiable && modifiable.contains(decl)) {
             name = "old_" + name;
+        }
 
         try {
             Term bound = boundVars.get(name);
 
-            if (null != bound)
+            if (null != bound) {
                 state.translation.terms.put(node, bound);
-            else
+            } else {
                 state.translation.terms.put(node,
  Application.getInst(state.env.getFunction(name), state.typeMap
                         .get(node)));
+            }
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -1935,8 +1996,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
     public void visit(Trigger node) throws ASTVisitException {
         // triggers are currently ignored
     }
-    
-    // reviewed by m.u. No free variable in programs 
+
+    // reviewed by m.u. No free variable in programs
     @Override
     public void visit(CodeExpression node) throws ASTVisitException {
         // save statements of the current function or code expression to allow
@@ -1966,12 +2027,14 @@ public final class ProgramMaker extends DefaultASTVisitor {
         }
 
         // declare variables
-        for (LocalVariableDeclaration var : node.getVars())
+        for (LocalVariableDeclaration var : node.getVars()) {
             var.visit(this);
+        }
 
         // create code
-        for (CodeBlock b : node.getCode())
+        for (CodeBlock b : node.getCode()) {
             b.visit(this);
+        }
 
         String name = state.env.createNewProgramName("codeexpression" + node.getLocation().replace(":", "_"));
         Program C = null;
@@ -1992,7 +2055,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     Binding.getInst(
                     state.env.getBinder("\\some"), result_t,
                     variable,
-                    new Term[] { 
+                    new Term[] {
                         LiteralProgramTerm.getInst(0, Modality.BOX, C,
                                 tf.eq(variable, codeexpressionResult)
                             ) }));
@@ -2007,7 +2070,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         statements = savedTripel;
     }
 
-    // reviewed by m.u. No free variable in programs 
+    // reviewed by m.u. No free variable in programs
     @Override
     public void visit(CodeExpressionReturn node) throws ASTVisitException {
         // 'end rval = expr'

@@ -17,23 +17,24 @@ import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.util.Pair;
 
-public class ASTAxiomDeclaration extends ASTDeclarationBlock {
+public class ASTLemmaDeclaration extends ASTDeclarationBlock {
 
-    private Token name;
-    private List<Pair<Token, Token>> properties;
-    
-    public ASTAxiomDeclaration(Token first, Token name, ASTTerm term, List<Pair<Token, Token>> properties) {
+    private final Token name;
+    private final List<Pair<Token, Token>> properties;
+
+    public ASTLemmaDeclaration(Token first, Token name, ASTTerm term, List<Pair<Token, Token>> properties) {
         super(first);
         this.name = name;
         this.properties = properties;
-        
+
         addChild(term);
     }
-    
+
     public List<Pair<Token, Token>> getProperties() {
         return properties;
     }
 
+    @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }

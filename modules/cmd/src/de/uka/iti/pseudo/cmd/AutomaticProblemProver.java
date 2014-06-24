@@ -23,7 +23,9 @@ import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.auto.strategy.StrategyManager;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
@@ -76,12 +78,10 @@ public class AutomaticProblemProver implements Callable<Result> {
     /**
      * The sequent of the probleam under inspection
      */
-    private final Sequent problemSequent;
 
     /**
      * The name of the problem under inspection
      */
-    private final String name;
 
     /**
      * Relay error messages to source files. (will disappear when result is more
@@ -118,6 +118,8 @@ public class AutomaticProblemProver implements Callable<Result> {
             detectedProgramTerm = literalProgramTerm;
         };
     };
+
+    private final ProofObligation proofObligation;
 
     /**
      * Make a detailed report on the result.
@@ -288,15 +290,13 @@ public class AutomaticProblemProver implements Callable<Result> {
      *            the rule application limit
      */
     public AutomaticProblemProver(@NonNull File file, @NonNull Environment env,
-            @NonNull PrettyPrint prettyPrint, @NonNull String name,
-            @NonNull Sequent problemSequent,
+            @NonNull PrettyPrint prettyPrint, @NonNull ProofObligation proofObligation,
             boolean relayToSource, int timeout, int ruleApplicationLimit) {
         super();
         this.file = file;
         this.env = env;
         this.prettyPrint = prettyPrint;
-        this.name = name;
-        this.problemSequent = problemSequent;
+        this.proofObligation = proofObligation;
         this.relayToSource = relayToSource;
         this.timeout = timeout;
         this.ruleApplicationLimit = ruleApplicationLimit;
@@ -309,10 +309,10 @@ public class AutomaticProblemProver implements Callable<Result> {
      */
     @Override
     public Result call() throws TermException, StrategyException,
-            ProofException {
+            ProofException, EnvironmentException {
 
-        String pid = ProofScript.LEMMA_IDENTIFIER_PREFIX + name;
-        Proof proof = new Proof(problemSequent, pid, env);
+        Proof proof = proofObligation.initProof();
+        String name = proofObligation.getName();
 
         StrategyManager strategyManager = new StrategyManager(proof, env);
         strategyManager.registerAllKnownStrategies();

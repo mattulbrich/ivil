@@ -8,10 +8,9 @@
  * See LICENSE.TXT (distributed with this file) for details.
  */
 
-package de.uka.iti.pseudo.justify;
+package de.uka.iti.pseudo.environment.creation.ruleextraction;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -43,44 +42,45 @@ import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
  * </dl>
  * </dd>
  */
-public class SchemaVariableUseVisitor extends DefaultTermVisitor.DepthTermVisitor {
-	
+class SchemaVariableUseVisitor extends DefaultTermVisitor.DepthTermVisitor {
+
 	/**
 	 * A mapping from schema variables to the set of bound variables (or schema
 	 * variables) which are bound in <b>all</b> appearances of the schema
 	 * variable.
-	 * 
+	 *
 	 * The value is always a valid object and never <code>null</code>.
 	 */
-	private @NonNull Map<SchemaVariable, SortedSet<BindableIdentifier>> seenBindables =
+	private @NonNull
+    final Map<SchemaVariable, SortedSet<BindableIdentifier>> seenBindables =
 		new HashMap<SchemaVariable, SortedSet<BindableIdentifier>>();
 
-	
+
 	/**
 	 * The current bindings to build {@link #seenBindables}.
 	 */
-	private Stack<BindableIdentifier> currentBindings =
+	private final Stack<BindableIdentifier> currentBindings =
 		new Stack<BindableIdentifier>();
-	
+
 	/**
 	 * The set of all identifiers which are bound in bindings in the term
 	 */
-	private SortedSet<BindableIdentifier> boundIdentifiers =
+	private final SortedSet<BindableIdentifier> boundIdentifiers =
 		new TreeSet<BindableIdentifier>();
-	
+
 	/**
 	 * Gets the set of identifiers which have been used in bindings.
-	 * 
+	 *
 	 * @return the set of bound identifiers
 	 */
 	public @NonNull SortedSet<BindableIdentifier> getBoundIdentifiers() {
 		return boundIdentifiers;
 	}
-	
+
 	/**
 	 * Gets a mapping from schema variables to sets of those bindable
-	 * identifiers which are observed in every appearance. 
-	 * 
+	 * identifiers which are observed in every appearance.
+	 *
 	 * @return a map with non-null values.
 	 */
 	public @NonNull Map<SchemaVariable, SortedSet<BindableIdentifier>> getSeenBindablesMap() {
@@ -95,7 +95,7 @@ public class SchemaVariableUseVisitor extends DefaultTermVisitor.DepthTermVisito
 		super.visit(binding);
 		currentBindings.pop();
 	}
-	
+
 	@Override
 	public void visit(SchemaVariable schemaVariable) throws TermException {
 		Set<BindableIdentifier> seen = seenBindables.get(schemaVariable);
@@ -106,5 +106,5 @@ public class SchemaVariableUseVisitor extends DefaultTermVisitor.DepthTermVisito
 		}
 
 	}
-	
+
 }

@@ -7,7 +7,7 @@
  * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.justify;
+package de.uka.iti.pseudo.environment.creation.ruleextraction;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,7 +22,6 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
-import de.uka.iti.pseudo.environment.creation.RuleFormulaExtractor;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;

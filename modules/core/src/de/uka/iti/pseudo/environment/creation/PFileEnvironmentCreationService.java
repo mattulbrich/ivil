@@ -15,31 +15,30 @@ import java.net.URL;
 import java.util.Map;
 
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.Token;
-import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.util.Pair;
 
 public class PFileEnvironmentCreationService extends EnvironmentCreationService {
 
     @Override
-    public Pair<Environment, Map<String,Sequent>> createEnvironment(InputStream inputStream, URL url)
+    public Pair<Environment, Map<String, ProofObligation>> createEnvironment(InputStream inputStream, URL url)
             throws IOException, EnvironmentException {
         Parser fp = new Parser();
 
         try {
             EnvironmentMaker em = new EnvironmentMaker(fp, inputStream, url);
             Environment env = em.getEnvironment();
-            Map<String, Sequent> problemSequents = em.getProblemSequents();
+            Map<String, ProofObligation> proofObligations = em.getProofObligations();
 
-            return Pair.make(env, problemSequents);
+            return Pair.make(env, proofObligations);
 
         } catch (ParseException e) {
             EnvironmentException resultEx = new EnvironmentException(e);

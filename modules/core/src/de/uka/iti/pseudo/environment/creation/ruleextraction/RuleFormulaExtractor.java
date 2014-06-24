@@ -7,7 +7,7 @@
  * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.environment.creation;
+package de.uka.iti.pseudo.environment.creation.ruleextraction;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ import de.uka.iti.pseudo.term.creation.TermFactory;
  *
  * The result of this process still contains schema entities.
  *
- * @see de.uka.iti.pseudo.justify.RuleProblemExtractor
+ * @see de.uka.iti.pseudo.environment.creation.ruleextraction.RuleProblemExtractor
  * @see RuleAxiomExtractor
  */
 public class RuleFormulaExtractor {

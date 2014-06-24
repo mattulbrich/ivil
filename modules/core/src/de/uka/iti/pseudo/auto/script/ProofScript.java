@@ -24,9 +24,6 @@ import nonnull.NonNull;
 public class ProofScript {
 
     // will move to ProofObligation eventually
-    public static final String RULE_IDENTIFIER_PREFIX = "rule:";
-    public static final String LEMMA_IDENTIFIER_PREFIX = "lemma:";
-    public static final String PROGRAM_IDENTIFIER_PREFIX = "program:";
     public static final String EMPTY_IDENTIFIER = "none";
 
     /**

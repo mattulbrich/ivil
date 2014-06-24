@@ -8,13 +8,14 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.justify;
+package de.uka.iti.pseudo.environment.creation.ruleextraction;
 
 import java.util.Map;
 import java.util.SortedSet;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.creation.ruleextraction.SchemaVariableUseVisitor;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;

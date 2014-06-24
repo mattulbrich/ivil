@@ -14,7 +14,7 @@ public class TestMapTypes extends TestCaseWithEnv {
     public void testMapApplicationOnTerm() throws Exception {
         makeEnv("sort S as [int]int\n" +
         		"function S map assignable\n" +
-        		"problem ({map := map}map)[5] = 5");
+        		"lemma L1 ({map := map}map)[5] = 5");
     }
 
     public void testMapDeclarations() throws Exception {

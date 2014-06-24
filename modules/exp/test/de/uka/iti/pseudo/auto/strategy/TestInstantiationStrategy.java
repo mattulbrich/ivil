@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 import java.util.Map;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
@@ -13,7 +14,7 @@ import de.uka.iti.pseudo.term.Sequent;
 
 public class TestInstantiationStrategy extends TestCaseWithEnv {
 
-    private Map<String, Sequent> problems;
+    private Map<String, ProofObligation> problems;
 
     @Override
     protected void setUp() throws Exception {
@@ -21,12 +22,12 @@ public class TestInstantiationStrategy extends TestCaseWithEnv {
         ASTFile ast = fp.parseFile(new InputStreamReader(getClass().getResourceAsStream("instTest.p")), "*test*");
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
         env = em.getEnvironment();
-        problems = em.getProblemSequents();
+        problems = em.getProofObligations();
     }
 
 
     public void testExEqInst1() throws Exception {
-        Proof proof = new Proof(problems.get("exEqInst1"), env);
+        Proof proof = problems.get("lemma:exEqInst1").initProof();
         InstantiationStrategy strategy = new InstantiationStrategy();
         StrategyManager sm = new StrategyManager(proof, env);
         strategy.init(proof, env, sm);
@@ -45,7 +46,7 @@ public class TestInstantiationStrategy extends TestCaseWithEnv {
     }
 
     public void testExEqInst2() throws Exception {
-        Proof proof = new Proof(problems.get("exEqInst2"), env);
+        Proof proof = problems.get("lemma:exEqInst2").initProof();
         InstantiationStrategy strategy = new InstantiationStrategy();
         StrategyManager sm = new StrategyManager(proof, env);
         strategy.init(proof, env, sm);

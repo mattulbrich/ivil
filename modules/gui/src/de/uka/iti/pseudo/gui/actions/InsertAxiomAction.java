@@ -33,7 +33,7 @@ import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import de.uka.iti.pseudo.environment.Axiom;
+import de.uka.iti.pseudo.environment.Lemma;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
@@ -102,7 +102,7 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
         Log.log("Selected axiom: " + axiomName);
 
         if(axiomName != null) {
-            Axiom axiom = env.getAxiom(axiomName);
+            Lemma axiom = env.getLemma(axiomName);
             Proof proof = pc.getProof();
 
             assert axiom != null : "the axiom must be found in the environment";
@@ -155,7 +155,7 @@ class AxiomChooserDialog extends JDialog {
             split.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
             split.setDividerLocation(230);
             {
-                axiomList = new JList(collectAxiomNames(environment));
+                axiomList = new JList(collectLemmaNames(environment));
                 split.setTopComponent(new JScrollPane(axiomList));
             }
             {
@@ -173,7 +173,7 @@ class AxiomChooserDialog extends JDialog {
                             axiomFormula.setText("");
                         } else {
                             String name = (String)axiomList.getSelectedValue();
-                            Axiom ax = environment.getAxiom(name);
+                            Lemma ax = environment.getLemma(name);
                             axiomFormula.setText(prettyPrint.print(ax.getTerm()).toString());
                         }
                     }
@@ -221,10 +221,10 @@ class AxiomChooserDialog extends JDialog {
         setLocationRelativeTo(parentFrame);
     }
 
-    private Vector<String> collectAxiomNames(Environment environment) {
+    private Vector<String> collectLemmaNames(Environment environment) {
         Log.enter(System.currentTimeMillis());
         Vector<String> ret = new Vector<String>();
-        for (Axiom axiom : environment.getAllAxioms()) {
+        for (Lemma axiom : environment.getAllLemmas()) {
             ret.add(axiom.getName());
         }
         Collections.sort(ret);

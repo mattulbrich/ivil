@@ -17,4 +17,5 @@ program P
   assert 1=1 ; "proof using §mock"
   end
 
-problem [0;P]true
+lemma test_case
+  [0;P]true

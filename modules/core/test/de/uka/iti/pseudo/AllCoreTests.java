@@ -27,6 +27,7 @@ import de.uka.iti.pseudo.environment.TestTypeVariableCollector;
 import de.uka.iti.pseudo.parser.TestProgramParser;
 import de.uka.iti.pseudo.parser.TestTermParser;
 import de.uka.iti.pseudo.parser.file.TestFileParser;
+import de.uka.iti.pseudo.parser.file.TestProofObligations;
 import de.uka.iti.pseudo.parser.file.TestProofScripts;
 import de.uka.iti.pseudo.parser.file.TestRuleParsing;
 import de.uka.iti.pseudo.proof.TestProofNode;
@@ -128,6 +129,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestTypeVariableUnification.class);
         suite.addTestSuite(TestLocalSymbolTable.class);
         suite.addTestSuite(TestProofScripts.class);
+        suite.addTestSuite(TestProofObligations.class);
         //$JUnit-END$
         return suite;
     }

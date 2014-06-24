@@ -1,4 +1,4 @@
 
 
-proof rule rule_proved_outside
+proof rule known_rule_proved_outside
 ( mock "aha" )

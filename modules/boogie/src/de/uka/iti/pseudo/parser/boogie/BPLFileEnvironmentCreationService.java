@@ -18,19 +18,16 @@ import java.util.Map;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
 import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
-import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Modality;
-import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 public final class BPLFileEnvironmentCreationService extends EnvironmentCreationService {
-
-    private static final Term[] NO_TERMS = new Term[0];
 
     @Override
     public String getDescription() {
@@ -43,7 +40,7 @@ public final class BPLFileEnvironmentCreationService extends EnvironmentCreation
     }
 
     @Override
-    public Pair<Environment, Map<String, Sequent>> createEnvironment(InputStream inputStream, URL url)
+    public Pair<Environment, Map<String, ProofObligation>> createEnvironment(InputStream inputStream, URL url)
            throws IOException, EnvironmentException {
         try {
             BPLParser p = new BPLParser(inputStream);
@@ -68,21 +65,18 @@ public final class BPLFileEnvironmentCreationService extends EnvironmentCreation
         }
     }
 
-    private Map<String, Sequent> createProgramProblems(Environment env) throws TermException {
+    private Map<String, ProofObligation> createProgramProblems(Environment env) throws TermException {
 
         final boolean termination =
                 Settings.getInstance().getBoolean("pseudo.boogie.programTermination", true);
         Modality modality = termination ? Modality.BOX_TERMINATION : Modality.BOX;
-        String suffix = termination ? "_total" : "_partial";
 
         Term trueTerm = Environment.getTrue();
-        Map<String, Sequent> problemSequents = new HashMap<String, Sequent>();
+        Map<String, ProofObligation> problemSequents = new HashMap<String, ProofObligation>();
 
         for (Program p : env.getAllPrograms()) {
-            String name = p.getName();
-            LiteralProgramTerm lpt = LiteralProgramTerm.getInst(0, modality, p, trueTerm);
-            Sequent sequent = new Sequent(NO_TERMS, new Term[] { lpt });
-            problemSequents.put(name + suffix, sequent);
+            ProofObligation po = new ProofObligation.ProgramPO(env, p, modality);
+            problemSequents.put(po.getName(), po);
         }
 
         return problemSequents;

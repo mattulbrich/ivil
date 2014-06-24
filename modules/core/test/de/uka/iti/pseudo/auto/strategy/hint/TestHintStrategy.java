@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.auto.strategy.HintStrategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyManager;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
@@ -17,7 +18,7 @@ import de.uka.iti.pseudo.term.Sequent;
 
 public class TestHintStrategy extends TestCaseWithEnv {
 
-    private Sequent problem;
+    private ProofObligation proofObl;
 
     @Override
     protected void setUp() throws Exception {
@@ -25,13 +26,13 @@ public class TestHintStrategy extends TestCaseWithEnv {
         ASTFile ast = fp.parseFile(new InputStreamReader(getClass().getResourceAsStream("hinttest.p")), "*test*");
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
         env = em.getEnvironment();
-        problem = em.getProblemSequents().get("");
+        proofObl = em.getProofObligations().get("lemma:test_case");
     }
 
 
     public void testHintStrategy() throws Exception {
         // make first rule application
-        Proof proof = new Proof(problem, env);
+        Proof proof = proofObl.initProof();
         RuleApplicationMaker ram = new RuleApplicationMaker(env);
         ProofNode root = proof.getRoot();
         ram.setProofNode(root);

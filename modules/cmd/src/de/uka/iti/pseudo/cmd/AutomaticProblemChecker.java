@@ -17,6 +17,7 @@ import java.util.concurrent.Callable;
 
 import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
@@ -51,16 +52,16 @@ public class AutomaticProblemChecker implements Callable<Result> {
         Parser parser = new Parser();
         EnvironmentMaker em = new EnvironmentMaker(parser, file);
         Environment env = em.getEnvironment();
-        Map<String, Sequent> problems = em.getProblemSequents();
+        Map<String, ProofObligation> problems = em.getProofObligations();
 
         if (problems.size() != 1) {
             throw new ProofException("The proof checker needs an environment " +
                     "with exactly one problem declaration: " + file);
         }
 
-        Entry<String, Sequent> entry = problems.entrySet().iterator().next();
-        String key = ProofScript.LEMMA_IDENTIFIER_PREFIX + entry.getKey();
-        Proof proof = new Proof(entry.getValue(), key, env);
+        Entry<String, ProofObligation> entry = problems.entrySet().iterator().next();
+        String key = ProofObligation.LemmaPO.PREFIX + entry.getKey();
+        Proof proof = entry.getValue().initProof();
 
         FileInputStream fis = new FileInputStream(proofFileName);
 

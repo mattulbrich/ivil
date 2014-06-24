@@ -19,7 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import de.uka.iti.pseudo.environment.Axiom;
+import de.uka.iti.pseudo.environment.Lemma;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -167,8 +167,8 @@ public class EnvironmentExporter {
     }
 
     public void exportAxiomsFrom(Environment env) {
-        Collection<Axiom> axioms = env.getLocalAxioms();
-        for (Axiom axiom : axioms) {
+        Collection<Lemma> axioms = env.getLocalLemmas();
+        for (Lemma axiom : axioms) {
             exportAxiom(axiom);
         }
     }
@@ -198,7 +198,7 @@ public class EnvironmentExporter {
         }
     }
 
-    private void exportAxiom(Axiom axiom) {
+    private void exportAxiom(Lemma axiom) {
         if(axiom.getDefinedProperties().contains(RuleTagConstants.KEY_GENERATED_AXIOM)) {
             return;
         }

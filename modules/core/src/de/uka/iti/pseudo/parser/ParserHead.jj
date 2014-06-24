@@ -17,6 +17,7 @@ options {
 PARSER_BEGIN(Parser)
 package de.uka.iti.pseudo.parser;
 
+import de.uka.iti.pseudo.environment.creation.ProofObligation;
 import de.uka.iti.pseudo.parser.file.*;
 import de.uka.iti.pseudo.parser.term.*;
 import de.uka.iti.pseudo.parser.program.*;
@@ -152,11 +153,12 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < FUNCTION: "function" >
 | < INCLUDE: "include" >
 | < INFIX: "infix" >
+| < LEMMA: "lemma" >
 | < NEWGOAL: "newgoal" >
 | < NOT: "not" >
 | < PLUGIN : "plugins" >
 | < PREFIX: "prefix" >
-| < PROBLEM: "problem" >
+// | < PROBLEM: "problem" >
 | < PROGRAM: "program" >
 | < PROOF: "proof" >
 | < PROPERTIES: "properties" >

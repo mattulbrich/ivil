@@ -21,9 +21,9 @@ rule known_rule_proved_outside
  find 1
  replace 4
 
-problem p1: 1=1
+lemma p1 1=1
 
-problem p2: 2=2
+lemma p2 2=2
 proof (mock)
 
 program Q1
@@ -34,10 +34,10 @@ program Q2
 proof (mock)
 
 proof rule r2 (mock)
-proof program Q1 (mock)
+proof program Q1_total (mock)
 
 (* a longer proof with arguments *)
-proof problem p1 
+proof lemma p1 
   (mock "" a:"a" b:b c "d";
    mock "0";
    mock "00"

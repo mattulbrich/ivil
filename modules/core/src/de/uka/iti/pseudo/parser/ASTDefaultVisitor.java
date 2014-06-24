@@ -9,7 +9,6 @@
  */
 package de.uka.iti.pseudo.parser;
 
-import de.uka.iti.pseudo.parser.file.ASTAxiomDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTBinderDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTBinderDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTFile;
@@ -17,6 +16,7 @@ import de.uka.iti.pseudo.parser.file.ASTFunctionDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTFunctionDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTGoalAction;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
+import de.uka.iti.pseudo.parser.file.ASTLemmaDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
 import de.uka.iti.pseudo.parser.file.ASTPluginDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTPlugins;
@@ -318,7 +318,7 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(ASTAxiomDeclaration arg) throws ASTVisitException {
+    public void visit(ASTLemmaDeclaration arg) throws ASTVisitException {
         visitDefault(arg);
     }
 

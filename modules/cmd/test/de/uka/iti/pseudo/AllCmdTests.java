@@ -15,8 +15,8 @@ import java.io.IOException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import de.uka.iti.pseudo.auto.AutomationTests;
-import de.uka.iti.pseudo.justify.TestRuleProblemExtractor;
-import de.uka.iti.pseudo.justify.TestSchemaVariableUseVisitor;
+import de.uka.iti.pseudo.environment.creation.ruleextraction.TestRuleProblemExtractor;
+import de.uka.iti.pseudo.environment.creation.ruleextraction.TestSchemaVariableUseVisitor;
 
 public class AllCmdTests {
     

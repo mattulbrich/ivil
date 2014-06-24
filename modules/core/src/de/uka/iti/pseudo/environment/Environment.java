@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -43,8 +42,8 @@ import de.uka.iti.pseudo.util.Util;
  * <li>functions
  * <li>binders
  * <li>fix operators
- * <li>rules
- * <li>axioms
+ * <li>rules (and axiom rules)
+ * <li>lemmas (and axioms)
  * <li>programs
  * <li>properties
  * </ul>
@@ -104,7 +103,7 @@ public class Environment {
     private final Map<String, Function> functionMap = new LinkedHashMap<String, Function>();
     private final Map<String, Binder> binderMap = new LinkedHashMap<String, Binder>();
     private final Map<String, FixOperator> infixMap = new LinkedHashMap<String, FixOperator>();
-    private final Map<String, Axiom> axiomMap = new LinkedHashMap<String, Axiom>();
+    private final Map<String, Lemma> lemmaMap = new LinkedHashMap<String, Lemma>();
     private final Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
     private final Map<String, FixOperator> reverseFixityMap = new LinkedHashMap<String, FixOperator>();
     private final Map<String, Program> programMap = new LinkedHashMap<String, Program>();
@@ -299,8 +298,7 @@ public class Environment {
      *
      * @see SymbolTable#createNewProgramName(String)
      */
-    public @NonNull
-    String createNewProgramName(@NonNull String prefix) {
+    public @NonNull String createNewProgramName(@NonNull String prefix) {
         while (getProgram(prefix) != null) {
             prefix += "'";
         }
@@ -317,8 +315,7 @@ public class Environment {
      *
      * @return a freshly created list of all programs
      */
-    public @NonNull
-    List<Program> getAllPrograms() {
+    public @NonNull List<Program> getAllPrograms() {
         List<Program> programs;
 
         if (parentEnvironment == null) {
@@ -337,8 +334,7 @@ public class Environment {
      *
      * @return an unmodifiable list of the local programs
      */
-    public @NonNull
-    Collection<Program> getLocalPrograms() {
+    public @NonNull Collection<Program> getLocalPrograms() {
         return Collections.<Program>unmodifiableCollection(programMap.values());
     }
 
@@ -1133,95 +1129,95 @@ public class Environment {
     }
 
     //
-    // ---------- Handling axioms ----------
+    // ---------- Handling lemmas ----------
     //
 
     /**
-     * Adds an axiom to the environment.
+     * Adds an lemma to the environment.
      *
      * <p>
-     * No axiom by the same name must already exist in this (or a parent)
+     * No lemma by the same name must already exist in this (or a parent)
      * environment.
      *
-     * @param axiom
-     *            the axiom to add to the environment
+     * @param lemma
+     *            the lemma to add to the environment
      *
      * @throws EnvironmentException
      *             if the environment has already been fixed.
      */
-    public void addAxiom(@NonNull Axiom axiom) throws EnvironmentException {
+    public void addLemma(@NonNull Lemma lemma) throws EnvironmentException {
         if (isFixed()) {
             throw new EnvironmentException(
                     "cannot add to this environment, it has been fixed already");
         }
 
-        String name = axiom.getName();
-        Axiom existing = getAxiom(name);
+        String name = lemma.getName();
+        Lemma existing = getLemma(name);
         if (existing != null) {
-            throw new EnvironmentException("Axiom " + name
+            throw new EnvironmentException("Lemma " + name
                     + " has already been defined at "
                     + existing.getDeclaration().getLocation());
         }
 
-        axiomMap.put(name, axiom);
+        lemmaMap.put(name, lemma);
     }
 
     /**
-     * Gets an axiom by name.
+     * Gets an lemma by name.
      *
      * <p>
-     * If no axiom is defined by this name, the call is delegated to the parent
-     * environment. Null is returned if no axiom has been defined within all
+     * If no lemma is defined by this name, the call is delegated to the parent
+     * environment. Null is returned if no lemma has been defined within all
      * reachable environments.
      *
      * @param name
-     *            name of the requested axiom
+     *            name of the requested lemma
      *
-     * @return an axiom or null
+     * @return an lemma or null
      */
-    public @Nullable Axiom getAxiom(@NonNull String name) {
-        Axiom axiom = axiomMap.get(name);
+    public @Nullable Lemma getLemma(@NonNull String name) {
+        Lemma lemma = lemmaMap.get(name);
 
-        if (axiom == null && parentEnvironment != null) {
-            axiom = parentEnvironment.getAxiom(name);
+        if (lemma == null && parentEnvironment != null) {
+            lemma = parentEnvironment.getLemma(name);
         }
 
-        assert axiom == null || name.equals(axiom.getName());
+        assert lemma == null || name.equals(lemma.getName());
 
-        return axiom;
+        return lemma;
     }
 
     /**
-     * gets a collection containing all axioms of this environment and
+     * gets a collection containing all lemmas of this environment and
      * all parenting environments.
      *
      * <p>
      * The result is a freshly created collection which you may modify.
-     * The axioms are in "order of appearance".
+     * The lemmas are in "order of appearance".
      *
-     * @return a freshly created list of all defined axioms.
+     * @return a freshly created list of all defined lemmas.
      */
-    public @NonNull List<Axiom> getAllAxioms() {
-        List<Axiom> axioms;
+    public @NonNull List<Lemma> getAllLemmas() {
+        List<Lemma> lemmas;
 
         if (parentEnvironment == null) {
-            axioms = new ArrayList<Axiom>();
+            lemmas = new ArrayList<Lemma>();
         } else {
-            axioms = parentEnvironment.getAllAxioms();
+            lemmas = parentEnvironment.getAllLemmas();
         }
 
-        axioms.addAll(axiomMap.values());
-        return axioms;
+        lemmas.addAll(lemmaMap.values());
+        return lemmas;
     }
 
     /**
-     * Gets the axioms which are defined in this environment. The axioms of the
+     * Gets the lemmas which are defined in this environment. The lemmas of the
      * parent environments are not gathered.
      *
-     * @return an immutable collection to the locally defined axioms
+     * @return an immutable collection to the locally defined lemmas
      */
-    public @NonNull Collection<Axiom> getLocalAxioms() {
-        return axiomMap.values();
+    public @NonNull Collection<Lemma> getLocalLemmas() {
+        return lemmaMap.values();
     }
 
     //
@@ -1305,13 +1301,13 @@ public class Environment {
      * @param prefix
      *            the resulting function name will start with this prefix
      *
-     * @return an identifier that can be used as a axiom name for this
+     * @return an identifier that can be used as a lemma name for this
      *         environment
      */
-    public @NonNull String createNewAxiomName(@NonNull String prefix) {
+    public @NonNull String createNewLemmaName(@NonNull String prefix) {
         String newName = prefix;
 
-        for (int counter = 1; null != getAxiom(newName); counter++) {
+        for (int counter = 1; null != getLemma(newName); counter++) {
             newName = prefix + counter;
         }
 

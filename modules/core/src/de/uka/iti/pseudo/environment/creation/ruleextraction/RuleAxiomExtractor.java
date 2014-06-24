@@ -7,7 +7,7 @@
  * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.environment.creation;
+package de.uka.iti.pseudo.environment.creation.ruleextraction;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.uka.iti.pseudo.environment.Axiom;
+import de.uka.iti.pseudo.environment.Lemma;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.MetaFunction;
@@ -165,21 +165,20 @@ public class RuleAxiomExtractor {
 
         Term term = makeAxiomTerm(rule);
 
-
         Map<String, String> properties = GENERATED;
         if(rule.getDefinedProperties().contains(RuleTagConstants.EXCLUDE_FROM_DP)) {
             properties = new HashMap<String, String>(GENERATED);
             properties.put(RuleTagConstants.EXCLUDE_FROM_DP, "");
         }
 
-        Axiom axiom = new Axiom(rule.getName(), term, properties, ASTLocatedElement.CREATED);
+        Lemma axiom = new Lemma(rule.getName(), term, properties, ASTLocatedElement.CREATED);
 
         // DEBUG
 //        axiom.getTerm().visit(new ToplevelCheckVisitor());
 //        Term.SHOW_TYPES = true;
 //        axiom.dump();
 
-        env.addAxiom(axiom);
+        env.addLemma(axiom);
     }
 
     private Term makeAxiomTerm(Rule rule) throws RuleException, TermException {

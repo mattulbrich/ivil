@@ -12,13 +12,14 @@ package de.uka.iti.pseudo.gui;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -31,11 +32,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
-import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
 import de.uka.iti.pseudo.gui.actions.RecentProblemsMenu;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
@@ -46,10 +46,6 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
-import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.Modality;
-import de.uka.iti.pseudo.term.Sequent;
-import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.util.Log;
@@ -73,7 +69,7 @@ public class Main {
     private static final String CMDLINE_CONFIG = "-config";
     private static final String CMDLINE_HELP = "-help";
     private static final String CMDLINE_EDIT = "-edit";
-    private static final String CMDLINE_PROG = "-prog";
+    private static final String CMDLINE_PO = "-po";
     private static final String CMDLINE_PROOF = "-proof";
     private static final String CMDLINE_SAMPLES = "-samples";
     private static final String CMDLINE_LAST = "-last";
@@ -135,32 +131,45 @@ public class Main {
                         System.exit(0);
                     }
 
+                    if(commandLine.isSet(CMDLINE_CONFIG)) {
+                        Properties p = new Properties();
+                        p.load(new FileReader(commandLine.getString(CMDLINE_CONFIG, "")));
+                        Settings.getInstance().putAll(p);
+                    }
+
                     List<String> fileArguments = commandLine.getArguments();
 
                     if(commandLine.isSet(CMDLINE_LAST)) {
+                        // -last
                         String mostRecentProblem = RecentProblemsMenu.getMostRecentProblem();
                         if(mostRecentProblem != null) {
                             openProverFromURL(new URL(mostRecentProblem));
                         }
+
                     } else if(fileArguments.isEmpty()) {
+                        // no file args
                         startupWindow = new StartupWindow();
                         startupWindow.setVisible(true);
                         if(commandLine.isSet(CMDLINE_SAMPLES)) {
                             startupWindow.showSampleBrowser();
                         }
                     } else {
+
+                        // at least one file/url arg
                         File file = new File(fileArguments.get(0));
                         if (commandLine.isSet(CMDLINE_EDIT)) {
                             openEditor(file);
                         } else {
                             ProofCenter center;
-                            if(commandLine.isSet(CMDLINE_PROG)) {
-                                String program = commandLine.getString(CMDLINE_PROG, "");
-                                URL url = new URL("file", null, file.getAbsolutePath() + "#" + program);
+                            if(commandLine.isSet(CMDLINE_PO)) {
+                                // proof obligation set
+                                String proofObl = commandLine.getString(CMDLINE_PO, "");
+                                URL url = new URL("file", null, file.getAbsolutePath() + "#" + proofObl);
                                 center = openProverFromURL(url);
                             } else {
                                 center = openProver(file);
                             }
+
                             if(commandLine.isSet(CMDLINE_PROOF)) {
                                 String proofFile = commandLine.getString(CMDLINE_PROOF, "");
                                 ProofImport proofImport = new ProofXML();
@@ -198,7 +207,7 @@ public class Main {
         cl.addOption(CMDLINE_HELP, null, "Print usage");
         cl.addOption(CMDLINE_EDIT, null, "Edit the file instead of opening a prover frame");
         cl.addOption(CMDLINE_CONFIG, "file", "Read configuration from a file overwriting defaults.");
-        cl.addOption(CMDLINE_PROG, "program", "Specify the program to use as problem.");
+        cl.addOption(CMDLINE_PO, "id", "Specify the proof obligation to prove.");
         cl.addOption(CMDLINE_PROOF, "file", "Load proof from this file.");
         cl.addOption(CMDLINE_SAMPLES, null, "Open the sample browser");
         cl.addOption(CMDLINE_LAST, null, "Reload the most recent problem");
@@ -279,87 +288,101 @@ public class Main {
             ASTVisitException, TermException, IOException,
             StrategyException, EnvironmentException {
 
-        Pair<Environment, Map<String, Sequent>> result =
+        Pair<Environment, Map<String, ProofObligation>> result =
                 EnvironmentCreationService.createEnvironmentByExtension(url);
 
         Environment env = result.fst();
 
-        Map<String, Sequent> problemSeqs = result.snd();
+        Map<String, ProofObligation> proofObls = result.snd();
 
-        if (problemSeqs.isEmpty()) {
+        if (proofObls.isEmpty()) {
             throw new EnvironmentException(
                     "This environment does not contain a problem description");
         }
 
         String fragment = url.getRef();
-        Sequent problem;
+        ProofObligation po = null;
+
         if (fragment == null || fragment.length() == 0) {
             // no #fragment specified
-            if(problemSeqs.size() == 1) {
+            if(proofObls.size() == 1) {
                 // there is only one
-                problem = problemSeqs.values().iterator().next();
+                po = proofObls.values().iterator().next();
             } else {
-                // there are many; ask the user
-                Object[] nameArray = problemSeqs.keySet().toArray();
-                String name = (String) JOptionPane.showInputDialog(null, "Please choose the proof problem to verify.",
-                        "Choose problem", JOptionPane.QUESTION_MESSAGE, null, nameArray, null);
-                if(name == null) {
-                    // abort button pressed
-                    return null;
+                // is there a property?
+                String defaultPO = env.getLocalProperties().get(ProofObligation.DEFAULT_PO_PROPERTY);
+                if(defaultPO != null) {
+                    po = proofObls.get(defaultPO);
+                    if(po == null) {
+                        throw new EnvironmentException("Unknown proof obligation '" +
+                                    defaultPO + "' set as default proof obligation.");
+                    }
+                } else {
+                    // there are many, no default: ask the user
+                    Object[] nameArray = proofObls.keySet().toArray();
+                    String name = (String) JOptionPane.showInputDialog(null,
+                            "Please choose the proof problem to verify.",
+                            "Choose problem", JOptionPane.QUESTION_MESSAGE, null, nameArray, null);
+                    if(name == null) {
+                        // abort button pressed
+                        return null;
+                    }
+                    po = proofObls.get(name);
+                    assert po != null : "No null elements in problemSeqs";
                 }
-                problem = problemSeqs.get(name);
-                assert problem != null : "No null elements in problemSeqs";
             }
         } else {
-            problem = problemSeqs.get(fragment);
+            po = proofObls.get(fragment);
 
-            if (problem == null) {
-                throw new EnvironmentException("Unknown problem description '" + fragment + "' in URL " + url);
+            if (po == null) {
+                throw new EnvironmentException("Unknown proof obligation '" +
+                        fragment + "' in URL " + url);
             }
         }
 
-        return openProver(env, null, problem, url);
+        return openProver(po, url);
     }
-    /**
-     * Open a new {@link ProofCenter} for a given environment and the name of a
-     * program.
-     *
-     * <p>
-     * The problem term is created as <code>[0; programIdentifier]</code>. The
-     * URL to be stored in the history is created from the resource with
-     * <code>#programIdentifier</code> amended.
-     *
-     * <p>
-     * If the resource does not define a problem term, the fragment part of the
-     * url is inspected. If it refers to a program <code>PP</code> in the parsed
-     * environment, the term <code>[0; P]</code> is used as problem term. If
-     * there is no program fragment, or the fragment does not refer to a program
-     * in the environment, an exception is raised.
-     *
-     * @param env
-     *            the environment to create the problem for
-     *
-     * @param program
-     *            the name of the program to create the problem term for.
-     *
-     * @return a freshly created proof center
-     */
-    public static ProofCenter openProver(Environment env, Program program)
-            throws TermException, EnvironmentException, IOException, StrategyException {
 
-        String resource = env.getResourceName();
-
-        assert resource.indexOf('#') == -1 : "Resource already has a program reference";
-        // assert env.getAllPrograms().contains(program);
-
-        resource += "#" + program;
-
-        LiteralProgramTerm problemTerm = LiteralProgramTerm.getInst(0, Modality.BOX, program, Environment.getTrue());
-        Sequent problemSeq = new Sequent(Collections.<Term>emptyList(), Collections.singletonList(problemTerm));
-
-        String proofIdentifier = ProofScript.PROGRAM_IDENTIFIER_PREFIX + program.getName();
-        return openProver(env, proofIdentifier, problemSeq, new URL(resource));
-    }
+//    /**
+//     * Open a new {@link ProofCenter} for a given environment and the name of a
+//     * program.
+//     *
+//     * <p>
+//     * The problem term is created as <code>[0; programIdentifier]</code>. The
+//     * URL to be stored in the history is created from the resource with
+//     * <code>#programIdentifier</code> amended.
+//     *
+//     * <p>
+//     * If the resource does not define a problem term, the fragment part of the
+//     * url is inspected. If it refers to a program <code>PP</code> in the parsed
+//     * environment, the term <code>[0; P]</code> is used as problem term. If
+//     * there is no program fragment, or the fragment does not refer to a program
+//     * in the environment, an exception is raised.
+//     *
+//     * @param env
+//     *            the environment to create the problem for
+//     *
+//     * @param program
+//     *            the name of the program to create the problem term for.
+//     *
+//     * @return a freshly created proof center
+//     */
+//    public static ProofCenter openProver(Environment env, Program program)
+//            throws TermException, EnvironmentException, IOException, StrategyException {
+//
+//        String resource = env.getResourceName();
+//
+//        assert resource.indexOf('#') == -1 : "Resource already has a program reference";
+//        // assert env.getAllPrograms().contains(program);
+//
+//        resource += "#" + program;
+//
+//        LiteralProgramTerm problemTerm = LiteralProgramTerm.getInst(0, Modality.BOX, program, Environment.getTrue());
+//        Sequent problemSeq = new Sequent(Collections.<Term>emptyList(), Collections.singletonList(problemTerm));
+//
+//        String proofIdentifier = ProofScript.PROGRAM_IDENTIFIER_PREFIX + program.getName();
+//        return openProver(problemSeq, new URL(resource));
+//    }
 
 
 //    public static ProofCenter openProver(Environment env, Sequent problemTerm)
@@ -375,12 +398,11 @@ public class Main {
      *
      * @return a freshly created proof center
      */
-    private static ProofCenter openProver(Environment env, String proofIdentifier,
-            Sequent problemSeq, URL urlToRemember)
-            throws IOException, StrategyException, TermException {
-        Proof proof = new Proof(problemSeq, proofIdentifier, env);
+    private static ProofCenter openProver(ProofObligation po, URL urlToRemember)
+            throws IOException, StrategyException, TermException, EnvironmentException {
 
-        ProofCenter proofCenter = new ProofCenter(proof, env);
+        Proof proof = po.initProof();
+        ProofCenter proofCenter = new ProofCenter(proof, proof.getEnvironment());
 
         showProofCenter(proofCenter);
         addToRecentProblems(urlToRemember);

@@ -37,7 +37,7 @@ import java.util.TreeSet;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-import de.uka.iti.pseudo.environment.Axiom;
+import de.uka.iti.pseudo.environment.Lemma;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
@@ -248,7 +248,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
     /**
      * All axioms as they are extracted from the environment.
      */
-    private final Collection<Axiom> allAxioms;
+    private final Collection<Lemma> allAxioms;
 
     /**
      * All user specified inlined (that is given in SMT2) axioms are collected
@@ -331,7 +331,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         patternFunction = env.getFunction("$pattern");
         equalityFunction = env.getFunction("$eq");
         weakEqualityFunction = env.getFunction("$weq");
-        allAxioms = env.getAllAxioms();
+        allAxioms = env.getAllLemmas();
         allSorts = env.getAllSorts();
         inlinedAxioms = extractInlinedAxioms(env);
     }
@@ -611,7 +611,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      * Add axioms from the environment to the set of assumptions.
      */
     private void includeAxioms() throws IOException, TermException {
-        for (Axiom ax : allAxioms) {
+        for (Lemma ax : allAxioms) {
             if(!ax.getDefinedProperties().contains(RuleTagConstants.EXCLUDE_FROM_DP)) {
                 String translation = translate(ax.getTerm(), BOOL);
                 assumptions.add("Axiom " + ax.getName() + " from environment\n"

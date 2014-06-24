@@ -17,16 +17,16 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.AbstractMetaFunction;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.Lemma;
 import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
-import de.uka.iti.pseudo.environment.creation.EnvironmentProblemExtractor;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Application;
-import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
@@ -79,13 +79,25 @@ public class TestFileParser extends TestCaseWithEnv {
     // from syntax errors
     public void testRules2() throws Exception {
         testEnv("function int f(int) rule r find f(0)=0 |- samegoal replace 1=f(1) as int");
-        testEnv("problem arb as int =1");
+        testEnv("lemma testLemma arb as int =1");
     }
 
     public void testRules() throws Exception {
         // no replace in newgoals (was a bug)
         assertEnvFail("rule something find %a newgoal replace %b");
         assertEnvFail("rule something find 1 assume %b |- samegoal replace %b+1");
+    }
+
+    public void testAxiomRule() throws Exception {
+        Environment env1 = testEnv(
+                "axiom rule axiomRule find true replace true\n" +
+                "rule nonAxiomRule find true replace true");
+        Rule axiomRule = env1.getRule("axiomRule");
+        Rule nonAxiomRule = env1.getRule("nonAxiomRule");
+        assertNotNull(axiomRule);
+        assertNotNull(nonAxiomRule);
+        assertNotNull(axiomRule.getProperty("axiom"));
+        assertNull(nonAxiomRule.getProperty("axiom"));
     }
 
     // test findless rules
@@ -168,7 +180,7 @@ public class TestFileParser extends TestCaseWithEnv {
 
     public void testProtectedProduction() throws Exception {
         testEnv("function `int function(int)` rule `find` find `function(0)` samegoal replace `function(1) as int`");
-        testEnv("problem `1` `` ` =1`");
+        testEnv("lemma `lemma` `1` `` ` =1`");
     }
 
     public void testPrograms() throws Exception {
@@ -202,46 +214,51 @@ public class TestFileParser extends TestCaseWithEnv {
 
     }
 
-    public void testProblemSequent() throws Exception {
-        Parser fp = new Parser();
-        ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " +
-        		"function bool b  problem b, true |- b, false"), "*test*");
-        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
-        Map<String, Sequent> problems = em.getProblemSequents();
-        assertNotNull(problems);
-        assertEquals("b, true |- b, false", problems.get("").toString());
-    }
+    // no longer supported :-(
+//    public void testProblemSequent() throws Exception {
+//        Parser fp = new Parser();
+//        ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " +
+//        		"function bool b  problem b, true |- b, false"), "*test*");
+//        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
+//        Map<String, ProofObligation> problems = em.getProofObligations();
+//        assertNotNull(problems);
+//        assertEquals("b, true |- b, false", problems.get("").toString());
+//    }
 
     public void testProblemNotSequent() throws Exception {
         Parser fp = new Parser();
         ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " +
-                        "problem true"), "*test*");
+                        "lemma trueLemma true"), "*test*");
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
-        Map<String, Sequent> problems = em.getProblemSequents();
+        Map<String, ProofObligation> problems = em.getProofObligations();
         assertNotNull(problems);
         assertEquals(1, problems.size());
-        assertEquals(" |- true", problems.get("").toString());
+        ProofObligation proofObligation = problems.get("lemma:trueLemma");
+        assertNotNull(proofObligation);
+        assertEquals("true", proofObligation.getProblemTerm().toString());
     }
 
     public void testTwoNamedProblems() throws Exception {
         Parser fp = new Parser();
         ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " +
-                "problem problemA : true   problem problemB : false"), "*test*");
+                "lemma problemA true   lemma problemB false"), "*test*");
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
-        Map<String, Sequent> problems = em.getProblemSequents();
+        Map<String, ProofObligation> problems = em.getProofObligations();
         assertEquals(2, problems.size());
-        Sequent problemA = problems.get("problemA");
+        ProofObligation problemA = problems.get("lemma:problemA");
         assertNotNull(problemA);
-        assertEquals(" |- true", problemA.toString());
-        Sequent problemB = problems.get("problemB");
+        assertEquals("lemma:problemA", problemA.getName());
+        assertEquals(Environment.getTrue(), problemA.getProblemTerm());
+        ProofObligation problemB = problems.get("lemma:problemB");
         assertNotNull(problemB);
-        assertEquals(" |- false", problemB.toString());
+        assertEquals(Environment.getFalse(), problemB.getProblemTerm());
     }
 
-    public void testTwoUnnamedProblems() throws Exception {
+    // detected a bug
+    public void testTwoLemmasWithSameName() throws Exception {
         Parser fp = new Parser();
         ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " +
-                "problem true   problem true"), "*test*");
+                "lemma samename true   lemma samename false"), "*test*");
         try {
             new EnvironmentMaker(fp, ast, "none:test");
             fail("Should fail: 2 unnamed problems");
@@ -252,63 +269,54 @@ public class TestFileParser extends TestCaseWithEnv {
         }
     }
 
-    public void testLateUnnamedProblems() throws Exception {
-        Parser fp = new Parser();
-        ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " +
-                "problem problem_A : true   problem true"), "*test*");
-        try {
-            new EnvironmentMaker(fp, ast, "none:test");
-            fail("Should fail: Late unnamed problems");
-        } catch (ASTVisitException e) {
-            if(TestCaseWithEnv.VERBOSE) {
-                e.printStackTrace();
-            }
-        }
+    public void testAxiomLemmas() throws Exception {
+        Environment env1 = testEnv(
+                "axiom axiomLemma true\n" +
+                "lemma nonAxiomLemma true");
+        Lemma axiomLemma = env1.getLemma("axiomLemma");
+        Lemma nonAxiomLemma = env1.getLemma("nonAxiomLemma");
+        assertNotNull(axiomLemma);
+        assertNotNull(nonAxiomLemma);
+        assertNotNull(axiomLemma.getProperty("axiom"));
+        assertNull(nonAxiomLemma.getProperty("axiom"));
     }
 
-    // detected a bug
-    public void testTwoProblemsSameName() throws Exception {
-        Parser fp = new Parser();
-        ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " +
-                "problem name : true   problem name : true"), "*test*");
-        try {
-            new EnvironmentMaker(fp, ast, "none:test");
-            fail("Should fail: Two problems of same name");
-        } catch (ASTVisitException e) {
-            if(TestCaseWithEnv.VERBOSE) {
-                e.printStackTrace();
-            }
-        }
-    }
+    // does not apply any longer
+//    public void testLateUnnamedProblems() throws Exception {
+//        Parser fp = new Parser();
+//        ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " +
+//                "problem problem_A : true   problem true"), "*test*");
+//        try {
+//            new EnvironmentMaker(fp, ast, "none:test");
+//            fail("Should fail: Late unnamed problems");
+//        } catch (ASTVisitException e) {
+//            if(TestCaseWithEnv.VERBOSE) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+
 
     // no problem, only 2 programs
-    public void testAutoProblemsTBox() throws Exception {
+    public void testAutoProblems() throws Exception {
         Parser fp = new Parser();
         ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " +
-                "properties " + EnvironmentProblemExtractor.TERMINATION_PROPERTY + " \"true\" " +
                 "program P1 end " +
                 "program P2 end"), "*test*");
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
-        Map<String, Sequent> problems = em.getProblemSequents();
-        assertEquals(2, problems.size());
-        assertTrue(problems.containsKey("P1_total"));
-        assertTrue(problems.containsKey("P2_total"));
-        assertEquals(" |- [[0;P1]]true", problems.get("P1_total").toString());
-    }
+        Map<String, ProofObligation> problems = em.getProofObligations();
+        assertEquals(4, problems.size());
+        assertTrue(problems.containsKey("program:P1_total"));
+        assertTrue(problems.containsKey("program:P2_total"));
+        assertTrue(problems.containsKey("program:P1_partial"));
+        assertTrue(problems.containsKey("program:P2_partial"));
 
-    // no problem, only 2 programs
-    public void testAutoProblemsBox() throws Exception {
-        Parser fp = new Parser();
-        ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " +
-                "properties " + EnvironmentProblemExtractor.TERMINATION_PROPERTY + " \"false\" " +
-                "program P1 end " +
-                "program P2 end"), "*test*");
-        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
-        Map<String, Sequent> problems = em.getProblemSequents();
-        assertEquals(2, problems.size());
-        assertTrue(problems.containsKey("P1_partial"));
-        assertTrue(problems.containsKey("P2_partial"));
-            assertEquals(" |- [0;P1]true", problems.get("P1_partial").toString());
+        Term term = problems.get("program:P1_partial").getProblemTerm();
+        assertEquals("[0;P1]true", term.toString(false));
+
+        term = problems.get("program:P1_total").getProblemTerm();
+        assertEquals("[[0;P1]]true", term.toString(false));
+
     }
 
     public void testUnknownService() throws Exception {

@@ -33,9 +33,9 @@ ASTProofScript ProofScript():
   first = "proof"
 
   (
-    ( t = "rule" id=<IDENTIFIER>    { name = ProofScript.RULE_IDENTIFIER_PREFIX + id.image; }
-    | t = "problem" id=<IDENTIFIER> { name = ProofScript.LEMMA_IDENTIFIER_PREFIX + id.image; }
-    | t = "program" id=<IDENTIFIER> { name = ProofScript.PROGRAM_IDENTIFIER_PREFIX + id.image; }
+    ( t = "rule" id=<IDENTIFIER>    { name = ProofObligation.RulePO.PREFIX + id.image; }
+    | t = "lemma" id=<IDENTIFIER> { name = ProofObligation.LemmaPO.PREFIX + id.image; }
+    | t = "program" id=<IDENTIFIER> { name = ProofObligation.ProgramPO.PREFIX + id.image; }
        ( "." id=<IDENTIFIER> { name += "." + id.image; } )*
     )
   )?
@@ -92,9 +92,8 @@ Token PropertyIdentifier():
   | t = <INFIX>
   | t = <NEWGOAL>
   | t = <NOT>
-  | t = <PLUGIN >
+  | t = <PLUGIN>
   | t = <PREFIX>
-  | t = <PROBLEM>
   | t = <PROGRAM>
   | t = <PROOF>
   | t = <PROPERTIES>

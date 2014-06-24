@@ -1,12 +1,14 @@
 package de.uka.iti.pseudo.gui;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
@@ -25,8 +27,11 @@ public class TestExamples extends TestCaseWithEnv {
      *             no exception shall be thrown
      */
     public void testSimpleExamples() throws Exception {
-        String[] paths = { "examples/simple/simpleBlowup.p", "examples/simple/blowup.p", "examples/simple/cond.p",
-                "examples/simple/fakultaet.p", "examples/simple/properties.p" };
+        String[] paths = { "examples/simple/simpleBlowup.p",
+                "examples/simple/blowup.p",
+                "examples/simple/cond.p",
+                "examples/simple/fakultaet.p",
+                "examples/simple/properties.p" };
         for (String path : paths) {
 
             ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
@@ -35,8 +40,11 @@ public class TestExamples extends TestCaseWithEnv {
             EnvironmentMaker em = new EnvironmentMaker(fp, new File(path));
             Environment env = em.getEnvironment();
 
-            // FIXME We assume there is one and only one problem in the files
-            Proof proof = new Proof(em.getProblemSequents().get(""), env);
+            ProofObligation proofObligation = em.getProofObligations().get("test_case");
+            if(proofObligation == null) {
+                throw new IOException("There is no 'test_case' in " + path);
+            }
+            Proof proof = proofObligation.initProof();
 
             ProofCenter proofCenter = new ProofCenter(proof, env);
             MainWindow main = proofCenter.getMainWindow();

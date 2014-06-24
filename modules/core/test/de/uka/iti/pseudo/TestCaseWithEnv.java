@@ -14,16 +14,18 @@ import java.net.URL;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
-import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.util.Triple;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -196,7 +198,7 @@ public abstract class TestCaseWithEnv extends TestCase {
      *             various things can fail during the translation.
      */
     protected static Environment makeEnv(URL url) throws Exception {
-        return makeEnvAndProblems(url).fst();
+        return makeEnvAndProofObls(url).fst();
     }
 
     /**
@@ -210,13 +212,36 @@ public abstract class TestCaseWithEnv extends TestCase {
      * @throws Exception
      *             various things can fail during the translation.
      */
-    protected static Pair<Environment, Map<String, Sequent>>
-            makeEnvAndProblems(URL url) throws Exception {
+    protected static Triple<Environment, Map<String, ProofObligation>, Map<String, ProofScript>>
+            makeEnvAndProofObls(URL url) throws Exception {
         Parser fp = new Parser();
         EnvironmentMaker em = new EnvironmentMaker(fp, url);
         Environment env = em.getEnvironment();
-        Map<String, Sequent> problems = em.getProblemSequents();
-        return Pair.make(env, problems);
+        Map<String, ProofObligation> problems = em.getProofObligations();
+        Map<String, ProofScript> scripts = em.getAssociatedProofScripts();
+        return Triple.make(env, problems, scripts);
+    }
+
+    /**
+     * Parse a string to produce an environment.
+     *
+     * @param string
+     *            the string to parse
+     *
+     * @return the environment which was represented by the argument
+     *
+     * @throws Exception
+     *             various things can fail during the translation.
+     */
+    protected static Triple<Environment, Map<String, ProofObligation>, Map<String, ProofScript>>
+            makeEnvAndProofObls(String string) throws Exception {
+        Parser fp = new Parser();
+        ASTFile ast = fp.parseFile(new StringReader(string), "*test*");
+        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
+        Environment env = em.getEnvironment();
+        Map<String, ProofObligation> problems = em.getProofObligations();
+        Map<String, ProofScript> scripts = em.getAssociatedProofScripts();
+        return Triple.make(env, problems, scripts);
     }
 
     /**

@@ -22,7 +22,7 @@ public class TestRuleAxiomExtractor extends TestCaseWithEnv {
 
     public void testAxiomSchemaTyping() throws Exception {
         try {
-            new Axiom("invalid", TermMaker.makeAndTypeTerm("arb as %'a = arb as %'a", new SymbolTable(DEFAULT_ENV)),
+            new Lemma("invalid", TermMaker.makeAndTypeTerm("arb as %'a = arb as %'a", new SymbolTable(DEFAULT_ENV)),
                     new HashMap<String, String>(), ASTLocatedElement.CREATED);
             // axiom contains schema type %'a!
             fail("expected EnvironmentException, because the requested axiom is ill-typed");
@@ -40,7 +40,7 @@ public class TestRuleAxiomExtractor extends TestCaseWithEnv {
                 "  samegoal   add |- %a=2" +
                 "  tags asAxiom");
 
-        Axiom ax = env.getAxiom("R");
+        Lemma ax = env.getLemma("R");
 
         assertEquals(makeTerm("(\\forall a; $pattern(a," +
                 " !(!a=2 & a=2)))").toString(true), ax.getTerm().toString(true));
@@ -53,7 +53,7 @@ public class TestRuleAxiomExtractor extends TestCaseWithEnv {
                 "  replace %a+1=3" +
                 "  tags asAxiom");
 
-        Axiom ax = env.getAxiom("R");
+        Lemma ax = env.getLemma("R");
 
         assertEquals(makeTerm("(\\forall a; $pattern(a=2, a+1=3 -> a=2))"), ax.getTerm());
     }
@@ -64,7 +64,7 @@ public class TestRuleAxiomExtractor extends TestCaseWithEnv {
                 "rule R find 1 replace 2" +
                 "tags asAxiom");
 
-        Axiom ax = env.getAxiom("R");
+        Lemma ax = env.getLemma("R");
 
         assertNotNull(ax);
         assertEquals("", ax.getProperty("fromRule"));
@@ -76,7 +76,7 @@ public class TestRuleAxiomExtractor extends TestCaseWithEnv {
                 "rule R find 1+%a replace %a+1" +
                 "tags asAxiom");
 
-        Axiom ax = env.getAxiom("R");
+        Lemma ax = env.getLemma("R");
 
         assertEquals(makeTerm("(\\forall a; $pattern(1+a, 1+a=a+1))"), ax.getTerm());
     }
@@ -86,7 +86,7 @@ public class TestRuleAxiomExtractor extends TestCaseWithEnv {
                 "rule R find arb as %'a=arb as %'a replace true " +
                 "tags asAxiom");
 
-        Axiom ax = env.getAxiom("R");
+        Lemma ax = env.getLemma("R");
 
         assertEquals(makeTerm("(\\T_all 'ty_a; $pattern(arb as 'ty_a = arb as 'ty_a," +
                 "arb as 'ty_a = arb as 'ty_a))"), ax.getTerm());
@@ -97,7 +97,7 @@ public class TestRuleAxiomExtractor extends TestCaseWithEnv {
                 "rule R find p(arb as %'a) replace p(arb as 'ty_a) " +
                 "tags asAxiom");
 
-        Axiom ax = env.getAxiom("R");
+        Lemma ax = env.getLemma("R");
 
         assertEquals(makeTerm("(\\T_all 'ty_a1; $pattern(p(arb as 'ty_a1)," +
                 "p(arb as 'ty_a1) = p(arb as 'ty_a)))").toString(true), ax.getTerm().toString(true));
@@ -110,7 +110,7 @@ public class TestRuleAxiomExtractor extends TestCaseWithEnv {
         env = testEnv("rule R find %a = %b replace %b = %a " +
                 "tags asAxiom");
 
-        Axiom ax = env.getAxiom("R");
+        Lemma ax = env.getLemma("R");
 
         assertEquals(makeTerm("(\\T_all 'ty_b; (\\forall a as 'ty_b; (\\forall b as 'ty_b;" +
         		"$pattern(a = b, (a=b)=(b=a)))))").toString(true), ax.getTerm().toString(true));

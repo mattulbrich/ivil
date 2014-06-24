@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
-import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.TermException;
 
 /**
@@ -51,7 +51,7 @@ public class FileProblemProverBuilder {
      * The problem terms extracted from the file. Can be empty or created
      * automatically.
      */
-    private final Map<String, Sequent> problemSequents;
+    private final Map<String, ProofObligation> problemSequents;
 
     /**
      * The timeout after which the search will be given up.
@@ -134,7 +134,7 @@ public class FileProblemProverBuilder {
         // ensure that the environment is fixed
         env.setFixed();
 
-        problemSequents = em.getProblemSequents();
+        problemSequents = em.getProofObligations();
         prettyPrint = new PrettyPrint(env);
     }
 
@@ -168,9 +168,9 @@ public class FileProblemProverBuilder {
      */
     public List<AutomaticProblemProver> createProblemProvers() {
         ArrayList<AutomaticProblemProver> result = new ArrayList<AutomaticProblemProver>();
-        for (Map.Entry<String, Sequent> entry : problemSequents.entrySet()) {
+        for (ProofObligation proofObl : problemSequents.values()) {
             result.add(new AutomaticProblemProver(file, env, prettyPrint,
-                    entry.getKey(), entry.getValue(), relayToSource, timeout,
+                    proofObl, relayToSource, timeout,
                     ruleApplicationLimit));
         }
         return result;

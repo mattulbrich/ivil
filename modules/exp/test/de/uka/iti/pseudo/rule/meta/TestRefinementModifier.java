@@ -5,22 +5,24 @@ import java.util.Map;
 
 import junit.framework.AssertionFailedError;
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.prettyprint.AnnotatedString;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.term.Modality;
-import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor.DepthTermVisitor;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Dump;
-import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.util.Triple;
 
 public class TestRefinementModifier extends TestCaseWithEnv {
 
-    private Map<String, Sequent> problems;
+    private Map<String, ProofObligation> problems;
     private Term inivar;
 //    private Function markAbs;
 //    private Function markConcr;
@@ -29,8 +31,8 @@ public class TestRefinementModifier extends TestCaseWithEnv {
     protected void setUp() throws Exception {
         super.setUp();
 
-        Pair<Environment, Map<String, Sequent>> r =
-                makeEnvAndProblems(getClass().getResource("refinementMod.test.p"));
+        Triple<Environment, Map<String, ProofObligation>, Map<String, ProofScript>> r =
+                makeEnvAndProofObls(getClass().getResource("refinementMod.test.p"));
         env = r.fst();
         problems = r.snd();
         this.inivar = makeTerm("inivar");
@@ -69,8 +71,13 @@ public class TestRefinementModifier extends TestCaseWithEnv {
     }
 
 
+    private Term getProblem(String string) throws EnvironmentException {
+        return problems.get("refineMod").initProof().
+                getRoot().getSequent().getSuccedent().get(0);
+    }
+
     public void testRefinementMod() throws Exception {
-        Term problem = problems.get("refineMod").getSuccedent().get(0);
+        Term problem = getProblem("refineMod");
         RefinementModifier rmod = new RefinementModifier(env, problem, inivar);
         rmod.setMarkFunctions(env.getFunction("$markA"), env.getFunction("$markC"));
 
@@ -91,7 +98,7 @@ public class TestRefinementModifier extends TestCaseWithEnv {
     }
 
     public void testTerminatingRefinementMod() throws Exception {
-        Term problem = problems.get("terminatingRefMod").getSuccedent().get(0);
+        Term problem = getProblem("terminatingRefMod");
         RefinementModifier rmod = new RefinementModifier(env, problem, inivar);
         rmod.setMarkFunctions(env.getFunction("$markA"), env.getFunction("$markC"));
 
@@ -125,7 +132,7 @@ public class TestRefinementModifier extends TestCaseWithEnv {
     }
 
     public void testUsingTheMarks() throws Exception {
-        Term problem = problems.get("using").getSuccedent().get(0);
+        Term problem = getProblem("using");
         RefinementModifier rmod = new RefinementModifier(env, problem, inivar);
 
         try {
@@ -142,7 +149,7 @@ public class TestRefinementModifier extends TestCaseWithEnv {
     }
 
     public void testUsingTheMarks2() throws Exception {
-        Term problem = problems.get("using2").getSuccedent().get(0);
+        Term problem = getProblem("using2");
         // deliberately without variant!
         RefinementModifier rmod = new RefinementModifier(env, problem, Environment.getFalse());
         rmod.setMarkFunctions(env.getFunction("$markA"), env.getFunction("$markC"));
@@ -159,7 +166,7 @@ public class TestRefinementModifier extends TestCaseWithEnv {
     }
 
     public void testUsingTheMarks3() throws Exception {
-        Term problem = problems.get("using3").getSuccedent().get(0);
+        Term problem = getProblem("using3");
         RefinementModifier rmod = new RefinementModifier(env, problem, inivar);
 
         try {

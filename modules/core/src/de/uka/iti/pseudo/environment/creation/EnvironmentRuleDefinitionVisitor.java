@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.uka.iti.pseudo.environment.Axiom;
+import de.uka.iti.pseudo.environment.Lemma;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.WhereCondition;
@@ -22,8 +22,8 @@ import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.Token;
-import de.uka.iti.pseudo.parser.file.ASTAxiomDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTGoalAction;
+import de.uka.iti.pseudo.parser.file.ASTLemmaDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
 import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTRule;
@@ -84,10 +84,10 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
     }
 
     /*
-     * axioms are similar to rules ... so handle them here
+     * lemmas are similar to rules ... so handle them here
      */
     @Override
-    public void visit(ASTAxiomDeclaration arg) throws ASTVisitException {
+    public void visit(ASTLemmaDeclaration arg) throws ASTVisitException {
 
 
         String name = arg.getName().image;
@@ -110,8 +110,8 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
         }
 
         try {
-            Axiom axiom = new Axiom(name, term, properties, arg);
-            env.addAxiom(axiom);
+            Lemma axiom = new Lemma(name, term, properties, arg);
+            env.addLemma(axiom);
         } catch (EnvironmentException e) {
             throw new ASTVisitException(arg, e);
         }

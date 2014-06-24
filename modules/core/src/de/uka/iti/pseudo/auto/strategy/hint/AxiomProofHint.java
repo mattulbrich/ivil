@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Set;
 
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
-import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.Lemma;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -62,7 +62,7 @@ class AxiomHintAppFinder extends HintRuleAppFinder {
 
     private final Set<ProofNode> appliedProofNodes = new HashSet<ProofNode>();
     private final Rule addAxiomRule;
-    private final Axiom axioms[];
+    private final Lemma axioms[];
     private final Environment env;
 
     public AxiomHintAppFinder(Environment env, List<String> arguments) throws StrategyException {
@@ -80,10 +80,10 @@ class AxiomHintAppFinder extends HintRuleAppFinder {
             throw new StrategyException("Rule 'axiom' not known!");
         }
 
-        axioms = new Axiom[arguments.size() - 1];
+        axioms = new Lemma[arguments.size() - 1];
         for (int i = 0; i < axioms.length; i++) {
             String axName = arguments.get(i + 1);
-            Axiom axiom = env.getAxiom(axName);
+            Lemma axiom = env.getLemma(axName);
             if(axiom == null) {
                 throw new StrategyException("Unknown axiom in proof hint: " + axName);
             }
@@ -104,7 +104,7 @@ class AxiomHintAppFinder extends HintRuleAppFinder {
             return null;
         }
 
-        Axiom axiom = axioms[dist];
+        Lemma axiom = axioms[dist];
 
         RuleApplicationMaker ram = new RuleApplicationMaker(env);
         ram.setProofNode(node);

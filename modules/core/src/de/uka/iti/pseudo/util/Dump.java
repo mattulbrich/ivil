@@ -15,7 +15,7 @@ import java.util.Stack;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.auto.script.ProofScriptNode;
-import de.uka.iti.pseudo.environment.Axiom;
+import de.uka.iti.pseudo.environment.Lemma;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -94,8 +94,8 @@ public final class Dump {
             Dump.dumpRule(rule);
         }
 
-        System.out.println("Axioms:");
-        for (Axiom axiom : env.getLocalAxioms()) {
+        System.out.println("Lemmas:");
+        for (Lemma axiom : env.getLocalLemmas()) {
             Dump.dumpAxiom(axiom);
         }
 
@@ -191,7 +191,7 @@ public final class Dump {
      * @param axiom
      *            axiom to print out
      */
-    public static void dumpAxiom(Axiom axiom) {
+    public static void dumpAxiom(Lemma axiom) {
         System.err.println("  Axiom " + axiom.getName());
         System.err.println("        " + axiom.getTerm());
     }

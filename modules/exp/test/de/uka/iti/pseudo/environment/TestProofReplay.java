@@ -20,7 +20,7 @@ import de.uka.iti.pseudo.util.Util;
 public class TestProofReplay extends TestCase {
 
     private Environment env;
-    private Sequent problem;
+    private ProofObligation proofObl;
 
     private class Tree {
         RuleApplication ra;
@@ -52,11 +52,11 @@ public class TestProofReplay extends TestCase {
         EnvironmentMaker em = new EnvironmentMaker(parser, url);
         env = em.getEnvironment();
 
-        problem = em.getProblemSequents().values().iterator().next();
+        proofObl = em.getProofObligations().values().iterator().next();
     }
 
     public void testProofReplay() throws Exception {
-        Proof proof = new Proof(problem, env);
+        Proof proof = proofObl.initProof();
         runProof(proof);
         assertFalse(proof.hasOpenGoals());
 

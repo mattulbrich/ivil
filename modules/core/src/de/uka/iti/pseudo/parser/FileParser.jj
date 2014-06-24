@@ -1,10 +1,11 @@
-
 //
 // This file contains the grammar for files with sorts/functions/rules/program and problem definitions
 // structural elements that have nothing to do with Terms
 //
 
 
+// "axiom" may be the first token in rule and in lemma declarations
+// "proof" may proceed "proof source" and proof scripts
 ASTFile File():
 {
   ASTDeclarationBlock block;
@@ -19,12 +20,12 @@ ASTFile File():
         | block=SortDeclarationBlock()
         | block=FunctionDeclarationBlock()
         | block=BinderDeclarationBlock()
-        | block=RuleDeclaration()
-        | block=AxiomDeclaration()
+        | LOOKAHEAD(2) block=RuleDeclaration()
+        | block=LemmaDeclaration()
         | block=ProgramDeclaration()
-        | block=Problem()
-        | ( LOOKAHEAD(2) block=ProofSourceFile() 
-          | block=ProofScript() )
+        // | block=Problem()
+        | LOOKAHEAD(2) block=ProofSourceFile()
+        | block=ProofScript()
         )   { blocks.add(block); }
        )*
        
@@ -33,7 +34,7 @@ ASTFile File():
    { return new ASTFile(blocks); }
 }
 
-ASTProblemSequent Problem():
+/*ASTProblemSequent Problem():
 {
   List<ASTTerm> antecedent = new ArrayList<ASTTerm>();
   List<ASTTerm> succedent = new ArrayList<ASTTerm>();
@@ -70,7 +71,7 @@ ASTProblemSequent Problem():
          return new ASTProblemSequent(first, id, antecedent, succedent);
       }
    }
-}
+}*/
         
 
 ASTPlugins PluginsBlock():
@@ -305,24 +306,28 @@ ASTProgramDeclaration ProgramDeclaration():
      { return new ASTProgramDeclaration(first, name, source, statements); } 
 }
 
-ASTAxiomDeclaration AxiomDeclaration():
+ASTLemmaDeclaration LemmaDeclaration():
 {
   Token name, first, t, v=null;
   ASTTerm term;
   List<Pair<Token, Token>> properties = new ArrayList<Pair<Token, Token>>();
 }
 {
-  first="axiom"  name=<IDENTIFIER> ( ":" )? term = Term()
-    
-  ( "tags" 
-    ( 
+  ( first="axiom" { properties.add(new Pair<Token, Token>(first, null)); }
+  | first="lemma"
+  )
+
+  name=<IDENTIFIER> term = Term()
+
+  ( "tags"
+    (
       t=<IDENTIFIER> ( v=<STRING> )?
         { properties.add(new Pair<Token, Token>(t, v));
           v = null; } 
     )+
   )?
-  
-  { return new ASTAxiomDeclaration(first, name, term, properties); }
+
+  { return new ASTLemmaDeclaration(first, name, term, properties); }
 }
 
 ASTRule RuleDeclaration():
@@ -333,33 +338,30 @@ ASTRule RuleDeclaration():
   List<Pair<Token, Token>> properties = new ArrayList<Pair<Token, Token>>();
   ASTRuleElement elem;
   ASTLocatedTerm lt;
-  Token t, v = null, first, name, descr = null, target = null;
+  Token t, v = null, first, name, descr = null, target = null, axiom = null;
 }
 {
+
+  ( axiom="axiom" { properties.add(new Pair<Token, Token>(axiom, null)); } )?
   first="rule" name=<IDENTIFIER>
-  
+
   (
     t="find" lt=LocatedTerm(true) { list.add(new ASTRuleFind(t, lt)); }
   | t="assume" lt=LocatedTerm(false) { list.add(new ASTRuleAssume(t, lt)); }
   | t="where" elem=WhereClause(t) { list.add(elem); }
   )*
-  
+
   (
     (
       t="closegoal" { actions.add(new ASTGoalAction(t)); }
     | (target="samegoal" | target="newgoal") ( v=<STRING> )? aclist=AddReplaces() 
            { actions.add(new ASTGoalAction(target, v, aclist)); }
     )+
-  | 
+  |
     aclist = AddReplaces()  // implicit samegoal
       { actions.add(new ASTGoalAction(null, null, aclist)); }
   )
-  
-// This has been silently dropped from the syntax since never used
-//  (
-//    "description" descr=<STRING>
-//  )?
-  
+
   (
     "tags" 
     ( 
@@ -368,7 +370,7 @@ ASTRule RuleDeclaration():
           v = null; } 
     )+
   )?
-  
+
   { return new ASTRule(first, name, list, actions, descr, properties); }
 }
 
