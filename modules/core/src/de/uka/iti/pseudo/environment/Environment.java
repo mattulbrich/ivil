@@ -1350,7 +1350,11 @@ public class Environment {
         result.binderMap.putAll(binderMap);
         result.functionMap.putAll(functionMap);
         result.infixMap.putAll(infixMap);
-        result.numberMap.putAll(numberMap);
+        if(numberMap != null) {
+            result.numberMap = new HashMap<BigInteger, NumberLiteral>();
+            result.numberMap.putAll(numberMap);
+        }
+
         // TODO Check this! Perhaps make a copy or fix it or ...
         result.pluginManager = this.pluginManager;
         result.prefixMap.putAll(prefixMap);

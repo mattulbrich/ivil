@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Named;
 import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
@@ -88,5 +89,36 @@ public class TestProofObligations extends TestCaseWithEnv {
         assertEquals(makeTerm("[0;P1]true"),
                 proofObligations.get("program:P1_partial").getProblemTerm());
     }
+
+    public void testLemmaProofObligationEnv() throws Exception {
+
+        parseEnv("lemma l1 true axiom ax1 true lemma l2 true");
+
+        assertEquals(2, proofObligations.size());
+
+        Environment envL1 = proofObligations.get("lemma:l1").getProofEnvironment();
+        Environment envL2 = proofObligations.get("lemma:l2").getProofEnvironment();
+
+        assertEquals(asSet(), namesOf(envL1.getLocalLemmas()));
+        assertEquals(asSet("l1", "ax1"), namesOf(envL2.getLocalLemmas()));
+    }
+
+    public void testRuleProofObligationEnv() throws Exception {
+
+        parseEnv("rule r1 add true |- tags asAxiom \n" +
+                "axiom rule rax1 closegoal\n" +
+                "rule r2 add true |-");
+
+        assertEquals(2, proofObligations.size());
+
+        Environment envL1 = proofObligations.get("rule:r1").getProofEnvironment();
+        Environment envL2 = proofObligations.get("rule:r2").getProofEnvironment();
+
+        assertEquals(asSet(), namesOf(envL1.getLocalLemmas()));
+        assertEquals(asSet(), namesOf(envL1.getLocalRules()));
+        assertEquals(asSet("r1"), namesOf(envL2.getLocalLemmas()));
+        assertEquals(asSet("r1", "rax1"), namesOf(envL2.getLocalRules()));
+    }
+
 
 }

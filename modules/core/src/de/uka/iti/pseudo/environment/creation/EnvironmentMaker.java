@@ -73,7 +73,8 @@ public class EnvironmentMaker {
     /**
      * A map of proof obligations contained in this environment
      */
-    private final Map<String, ProofObligation> proofObligations;
+    private final Map<String, ProofObligation> proofObligations =
+            new HashMap<String, ProofObligation>();
 
     private final Map<String, ProofScript> associatedProofScripts =
             new HashMap<String, ProofScript>();
@@ -219,12 +220,14 @@ public class EnvironmentMaker {
         astFile.visit(new EnvironmentProgramMaker(env));
         astFile.visit(new EnvironmentRuleDefinitionVisitor(env));
         // call this after the EnvironmentProgramMaker
-        proofObligations = new EnvironmentProofObligationExtractor(env).extract();
+        new RuleAxiomExtractor(env).extractAxioms();
+
+        astFile.visit(new EnvironmentProofObligationExtractor(env, proofObligations));
+
         astFile.visit(new ProofScriptExtractor(parser, env,
                 proofObligations,
                 associatedProofScripts));
 
-        new RuleAxiomExtractor(env).extractAxioms();
     }
 
     /**
