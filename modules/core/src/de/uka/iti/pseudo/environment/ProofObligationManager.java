@@ -255,7 +255,7 @@ public class ProofObligationManager {
     /**
      * Gets the available proof obligation names.
      *
-     * @return the available proof obligation names
+     * @return a freshly created array
      */
     public String[] getAvailableProofObligationNames() {
         Collection<ProofObligation> available = getAvailableProofObligations();
@@ -270,7 +270,7 @@ public class ProofObligationManager {
     /**
      * Gets the names for the relevant proof obligations.
      *
-     * @return the relevant proof obligation names
+     * @return a freshly created array
      */
     public String[] getRelevantProofObligationNames() {
         Collection<ProofObligation> relevant = getRelevantProofObligations();

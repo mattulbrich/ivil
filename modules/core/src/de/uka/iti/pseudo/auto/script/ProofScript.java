@@ -25,6 +25,14 @@ import nonnull.NonNull;
 public class ProofScript {
 
     /**
+     * The environment property under which the "proof source" directive is
+     * stored.
+     *
+     * It contains the hash symbol such that it cannot be assigned manually.
+     */
+    public static final String PROOF_SOURCE_PROPERTY = "#proof.sourcefile";
+
+    /**
      * The proof obligation to which this script belongs.
      */
     private final @NonNull String obligationIdentifier;

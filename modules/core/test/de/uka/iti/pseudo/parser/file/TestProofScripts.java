@@ -13,7 +13,6 @@ import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.ProofObligation;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
-import de.uka.iti.pseudo.environment.creation.ProofScriptExtractor;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.util.Dump;
@@ -112,7 +111,7 @@ public class TestProofScripts extends TestCaseWithEnv {
         assertNotNull(obligations.get(key).getProofScript());
 
         env = em.getEnvironment();
-        assertEquals("scripttest.proof", env.getProperty(ProofScriptExtractor.PROOF_SOURCE_PROPERTY));
+        assertEquals("scripttest.proof", env.getProperty(ProofScript.PROOF_SOURCE_PROPERTY));
     }
 
     public void testTree() throws Exception {

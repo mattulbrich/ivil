@@ -11,6 +11,7 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Named;
 import de.uka.iti.pseudo.environment.ProofObligation;
+import de.uka.iti.pseudo.environment.ProofObligationManager;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 
@@ -119,6 +120,32 @@ public class TestProofObligations extends TestCaseWithEnv {
         assertEquals(asSet("r1"), namesOf(envL2.getLocalLemmas()));
         assertEquals(asSet("r1", "rax1"), namesOf(envL2.getLocalRules()));
     }
+
+    public void testRelevantPOs() throws Exception {
+
+        parseEnv("program P1 goto 0 program P2 goto 0");
+
+        ProofObligationManager pom = new ProofObligationManager(env, proofObligations);
+        assertEquals(4, pom.getAvailableProofObligations().size());
+        assertTrue(pom.hasProofObligations());
+        assertTrue(pom.getRelevantProofObligations().isEmpty());
+
+        parseEnv("properties ProofObligation.programs \"total\"\n" +
+                "program P1 goto 0 program P2 goto 0");
+        pom = new ProofObligationManager(env, proofObligations);
+
+        assertEquals(4, pom.getAvailableProofObligationNames().length);
+        assertEquals(asSet("program:P1_total", "program:P2_total"),
+                asSet(pom.getRelevantProofObligationNames()));
+
+        parseEnv("properties ProofObligation.programs \"parTIAL\"\n" +
+                "program P1 goto 0 program P2 goto 0");
+        pom = new ProofObligationManager(env, proofObligations);
+
+        assertEquals(asSet("program:P1_partial", "program:P2_partial"),
+                asSet(pom.getRelevantProofObligationNames()));
+    }
+
 
 
 }

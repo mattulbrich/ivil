@@ -60,14 +60,6 @@ import de.uka.iti.pseudo.util.Triple;
 class ProofScriptExtractor extends ASTDefaultVisitor {
 
     /**
-     * The environment property under which the "proof source" directive is
-     * stored.
-     *
-     * It contains the hash symbol such that it cannot be assigned manually.
-     */
-    public static final String PROOF_SOURCE_PROPERTY = "#proof.sourcefile";
-
-    /**
      * The environment to operate on.
      */
     private final Environment env;
@@ -295,11 +287,11 @@ class ProofScriptExtractor extends ASTDefaultVisitor {
     public void visit(ASTProofSourceFile arg) throws ASTVisitException {
         // 'proof sourcefile "/path/filename.p"'
         // is interpreted as 'properties proof.sourcefile "/path/filename.p"'
-        if (env.getLocalProperties().containsKey(PROOF_SOURCE_PROPERTY)) {
+        if (env.getLocalProperties().containsKey(ProofScript.PROOF_SOURCE_PROPERTY)) {
             throw new ASTVisitException("There is more than one 'proof source' directive", arg);
         }
 
-        env.addProperty(PROOF_SOURCE_PROPERTY, arg.getPath());
+        env.addProperty(ProofScript.PROOF_SOURCE_PROPERTY, arg.getPath());
         extractSourcedScripts(arg);
     }
 
