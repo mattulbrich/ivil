@@ -155,15 +155,25 @@ public class TestFileParser extends TestCaseWithEnv {
         		"axiom metaAxiom $$mock");
     }
 
+    // revealed a bug
+    public void testFileProperties() throws Exception {
+        Environment e = testEnv("properties prop \"value\"");
+        assertEquals("value", e.getProperty("prop"));
+
+        String string = "properties quoted \"\\\\Quotes: \\\"Hello\\\"\"";
+        e = testEnv(string);
+        assertEquals("\\Quotes: \"Hello\"", e.getProperty("quoted"));
+    }
+
     // assumed bug.
-    public void testProperties() throws Exception {
+    public void testRuleProperties() throws Exception {
         Environment e = testEnv("rule two_props closegoal tags Tag1 \"value1\" Tag2");
         Rule rule = e.getRule("two_props");
         assertEquals("value1", rule.getProperty("Tag1"));
         assertEquals("", rule.getProperty("Tag2"));
     }
 
-    public void testPropertiesWithQuotes() throws Exception {
+    public void testRulePropertiesWithQuotes() throws Exception {
         // Is in reality: tags quoted "\\Quotes: \"Hello\""
         String string = "rule quotes closegoal tags quoted \"\\\\Quotes: \\\"Hello\\\"\"";
 //        System.out.println(string);

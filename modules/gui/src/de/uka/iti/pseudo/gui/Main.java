@@ -304,7 +304,6 @@ public class Main {
 
         if (fragment == null || fragment.length() == 0) {
             // no #fragment specified
-            proofObMan.computeDefaultProofObligation();
             if(proofObMan.hasDefaultProofObligation()) {
 
                 po = proofObMan.getDefaultProofObligation();

@@ -44,6 +44,13 @@ class EnvironmentTypingResolver extends ASTDefaultVisitor {
     private TypingResolver typingResolver;
     private Type currentFindRawType;
 
+    /**
+     * Instantiates a new environment typing resolver.
+     *
+     * It is used to type entities within an AST.
+     *
+     * @param env the env
+     */
     public EnvironmentTypingResolver(Environment env) {
         this.env = env;
         typingResolver = new TypingResolver(env);
@@ -79,9 +86,11 @@ class EnvironmentTypingResolver extends ASTDefaultVisitor {
         for (ASTTerm child : SelectList.select(ASTTerm.class, arg.getChildren())) {
             try {
                 TypingContext typingContext = typingResolver.getTypingContext();
-                typingContext.solveConstraint(child.getTyping().getRawType(), Environment.getBoolType());
+                typingContext.solveConstraint(child.getTyping().getRawType(),
+                        Environment.getBoolType());
             } catch (UnificationException e) {
-                throw new ASTVisitException("Terms in the problem sequent must have type boolean.", arg, e);
+                throw new ASTVisitException(
+                        "Terms in the problem sequent must have type boolean.", arg, e);
             }
         }
     }
@@ -107,7 +116,8 @@ class EnvironmentTypingResolver extends ASTDefaultVisitor {
 
         try {
             TypingContext typingContext = typingResolver.getTypingContext();
-            typingContext.solveConstraint(arg.getTerm().getTyping().getRawType(), Environment.getBoolType());
+            typingContext.solveConstraint(arg.getTerm().getTyping().getRawType(),
+                    Environment.getBoolType());
         } catch (UnificationException e) {
             throw new ASTVisitException("Axioms must have type boolean.", arg, e);
         }
@@ -136,7 +146,8 @@ class EnvironmentTypingResolver extends ASTDefaultVisitor {
 
         // there must be a find clause if there is a replace clause
         if(currentFindRawType == null) {
-            throw new ASTVisitException("There must be a find clause if there is a replace clause", arg);
+            throw new ASTVisitException(
+                    "There must be a find clause if there is a replace clause", arg);
         }
 
         Type rawType = arg.getTerm().getTyping().getRawType();

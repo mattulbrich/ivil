@@ -26,8 +26,11 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.Token;
-import de.uka.iti.pseudo.util.Pair;
 
+/**
+ * The Class PFileEnvironmentCreationService creates Environment from ivil's
+ * .p-files.
+ */
 public class PFileEnvironmentCreationService extends EnvironmentCreationService {
 
     @Override

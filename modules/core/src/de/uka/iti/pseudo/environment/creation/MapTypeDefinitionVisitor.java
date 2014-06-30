@@ -29,10 +29,21 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 
-public class MapTypeDefinitionVisitor extends ASTDefaultVisitor {
+/**
+ * This class visits an AST to extract all map type definitions which are then
+ * added to the environment.
+ *
+ * @author Timm Felden
+ */
+class MapTypeDefinitionVisitor extends ASTDefaultVisitor {
 
     private final Environment env;
 
+    /**
+     * Instantiates a new map type definition visitor.
+     *
+     * @param env the environment to operate on
+     */
     public MapTypeDefinitionVisitor(Environment env) {
         this.env = env;
     }

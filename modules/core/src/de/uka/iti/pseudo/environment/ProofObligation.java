@@ -199,6 +199,14 @@ public abstract class ProofObligation {
         public Environment getProofEnvironment() {
             return env;
         }
+
+        /**
+         * Gets the modality for ths proof obligation for the program.
+         * @return either BOX or BOX_TERMINATION
+         */
+        public Modality getModality() {
+            return modality;
+        }
     }
 
     /**

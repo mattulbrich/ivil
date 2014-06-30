@@ -9,12 +9,15 @@
  */
 package de.uka.iti.pseudo.environment.creation.ruleextraction;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import nonnull.NonNull;
 
 import de.uka.iti.pseudo.environment.Lemma;
 import de.uka.iti.pseudo.environment.Environment;
@@ -44,30 +47,71 @@ import de.uka.iti.pseudo.term.creation.RebuildingTypeVisitor;
 import de.uka.iti.pseudo.term.creation.TermFactory;
 
 
-//not threadsafe
-// TODO DOC
+/**
+ * The class is used to extract axiomatic lemmas from rules.
+ *
+ * They may be axioms and need not be proved since the rules give rise to proof
+ * obligations already.
+ */
 public class RuleAxiomExtractor {
 
+    /**
+     * The rule tag which indicates that a rule is to be extracted as an axiom.
+     */
     private static final String AXIOM_EXTRACT_KEY = RuleTagConstants.KEY_AS_AXIOM;
 
+    /**
+     * A map to be used as properties. It contains only one key:
+     * {@link RuleTagConstants#KEY_GENERATED_AXIOM}
+     */
     private static final Map<String, String> GENERATED =
             Collections.singletonMap(RuleTagConstants.KEY_GENERATED_AXIOM, "");
 
+    /**
+     * The environment to operate on.
+     */
     private final Environment env;
+
+    /**
+     * The termfactory used to construct the terms.
+     */
     private final TermFactory tf;
 
+    /**
+     * The formula extractor makes the actual formula.
+     */
     private final RuleFormulaExtractor formulaExtractor;
 
+    /**
+     * The set of used type variables.
+     */
     private Set<TypeVariable> usedTypeVariables;
+
+    /**
+     * The set of new type variables.
+     */
     private final Set<TypeVariable> newTypeVariables = new HashSet<TypeVariable>();
+
+    /**
+     * The set of new variables.
+     */
     private final Set<Variable> newVariables = new HashSet<Variable>();
 
-    public RuleAxiomExtractor(Environment env) {
+    /**
+     * Instantiates a new rule axiom extractor.
+     *
+     * @param env the environment to operate on
+     */
+    public RuleAxiomExtractor(@NonNull Environment env) {
         this.env = env;
         this.tf = new TermFactory(env);
         this.formulaExtractor = new RuleFormulaExtractor(env);
     }
 
+    /**
+     * This visitor takes schema types and replaces them by type variables.
+     * These are listed in {@link #newTypeVariables}.
+     */
     private class TypeVisitor extends RebuildingTypeVisitor<Void> {
 
         @Override
@@ -88,6 +132,9 @@ public class RuleAxiomExtractor {
         }
     }
 
+    /**
+     * The term visitor. It replaces all schema variables and schema types.
+     */
     private class TermVisitor extends RebuildingTermVisitor {
 
         private final TypeVisitor tyv = new TypeVisitor();
@@ -145,9 +192,18 @@ public class RuleAxiomExtractor {
         }
     }
 
+    /**
+     * Extract axioms from the environment.
+     *
+     * The axioms are added to the environment under the same name as the rule.
+     * An exception is raised in case of a name clash.
+     *
+     * @throws ASTVisitException
+     *             if a name clash occurs.
+     */
     public void extractAxioms() throws ASTVisitException {
 
-        List<Rule> rules = env.getLocalRules();
+        Collection<Rule> rules = env.getLocalRules();
         for (Rule rule : rules) {
             if(rule.getDefinedProperties().contains(AXIOM_EXTRACT_KEY)) {
                 try {
@@ -161,6 +217,9 @@ public class RuleAxiomExtractor {
         }
     }
 
+    /*
+     * Extract an axiom from a single rule.
+     */
     private void extractAxiom(Rule rule) throws EnvironmentException, RuleException, TermException {
 
         Term term = makeAxiomTerm(rule);

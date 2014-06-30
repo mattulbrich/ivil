@@ -10,7 +10,6 @@
 package de.uka.iti.pseudo.rule;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.environment.creation.EnvironmentTypingResolver;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;

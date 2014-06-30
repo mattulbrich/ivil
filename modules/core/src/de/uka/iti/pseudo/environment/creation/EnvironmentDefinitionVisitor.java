@@ -12,6 +12,8 @@ package de.uka.iti.pseudo.environment.creation;
 import java.util.List;
 import java.util.Set;
 
+import nonnull.NonNull;
+
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -25,25 +27,36 @@ import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.file.ASTBinderDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTFunctionDeclaration;
-import de.uka.iti.pseudo.parser.file.ASTProperties;
 import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclaration;
 import de.uka.iti.pseudo.parser.term.ASTType;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.util.Util;
 
-// TODO DOC
-public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
+/**
+ * This Environment Definition Visitor extracts definitions of symbols from an
+ * AST into an environment.
+ */
+class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
 
     /**
      * The environment that is being built.
      */
     private final Environment env;
 
+    /**
+     * The resulting type reference returned by a type sub-AST.
+     */
     private Type resultingTypeRef;
 
-    public EnvironmentDefinitionVisitor(Environment env) {
+    /**
+     * Instantiates a new environment definition visitor.
+     *
+     * @param env the environment to build
+     */
+    public EnvironmentDefinitionVisitor(@NonNull Environment env) {
         this.env = env;
     }
 
@@ -91,7 +104,7 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
         arg.getRangeType().visit(this);
         Type resultTy = resultingTypeRef;
         List<ASTType> argumentTypes = arg.getArgumentTypes();
-        Type argTy[] = new Type[argumentTypes.size()];
+        Type[] argTy = new Type[argumentTypes.size()];
         int arity = argTy.length;
 
         for (int i = 0; i < arity; i++) {
@@ -155,7 +168,8 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
     }
 
     /*
-     * create a binder
+     * create a binder.
+     * rely upon results from children.
      */
     @Override
     public void visit(ASTBinderDeclaration arg) throws ASTVisitException {
@@ -169,7 +183,7 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
         Type varTy = resultingTypeRef;
 
         List<ASTType> argumentTypes = arg.getTypeReferenceList();
-        Type domTy[] = new Type[argumentTypes.size()];
+        Type[] domTy = new Type[argumentTypes.size()];
 
         for (int i = 0; i < domTy.length; i++) {
             argumentTypes.get(i).visit(this);
@@ -192,16 +206,12 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
         resultingTypeRef = TermMaker.makeType(arg, new SymbolTable(env));
     }
 
-    @Override
-    public void visit(ASTProperties plugins) throws ASTVisitException {
-        for(ASTElement child : plugins.getChildren()) {
-            child.visit(this);
-        }
-    }
-
+    /*
+     * Add a defined property to the environment.
+     */
     @Override
     public void visit(ASTPropertiesDeclaration property) throws ASTVisitException {
         String value = property.getValue();
-        env.addProperty(property.getName(), value.substring(1, value.length()-1));
+        env.addProperty(property.getName(), Util.stripQuotes(value));
     }
 }

@@ -68,7 +68,7 @@ import de.uka.iti.pseudo.util.Util;
  *
  * @see EnvironmentMaker
  */
-public class EnvironmentProgramMaker extends ASTDefaultVisitor {
+class EnvironmentProgramMaker extends ASTDefaultVisitor {
 
     /**
      * The environment upon which we work and to which the programs are to be added.

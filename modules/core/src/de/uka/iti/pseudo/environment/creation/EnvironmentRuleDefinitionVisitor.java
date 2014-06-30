@@ -50,7 +50,7 @@ import de.uka.iti.pseudo.util.Util;
  * The visitor EnvironmentRuleDefinitionVisitor is used to render ASTs for rules
  * and lemmas into their equivalents for {@link Environment}s.
  */
-public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
+class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
 
     /*
      * Results of various types are transferred during traversal using the

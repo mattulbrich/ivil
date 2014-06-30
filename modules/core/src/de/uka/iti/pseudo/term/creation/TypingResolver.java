@@ -24,7 +24,6 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
-import de.uka.iti.pseudo.environment.creation.EnvironmentTypingResolver;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;

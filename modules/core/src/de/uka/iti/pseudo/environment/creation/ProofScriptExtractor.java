@@ -1,3 +1,13 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2012 Karlsruhe Institute of Technology
+ *
+ * The system is protected by the GNU General Public License.
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
+
 package de.uka.iti.pseudo.environment.creation;
 
 import java.io.IOException;
@@ -9,6 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import nonnull.DeepNonNull;
+import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.auto.script.ProofScriptCommand;
 import de.uka.iti.pseudo.auto.script.ProofScriptNode;
@@ -38,23 +51,78 @@ import de.uka.iti.pseudo.parser.proof.ASTProofScriptNode;
 import de.uka.iti.pseudo.parser.proof.ASTProofSourceFile;
 import de.uka.iti.pseudo.util.Triple;
 
-public class ProofScriptExtractor extends ASTDefaultVisitor {
+/**
+ * This is an AST visitor to extract proof scripts.
+ *
+ * All read proof scripts are stored together with their proof obligations or in
+ * a map from their name if they are not associated with a proof obligation.
+ */
+class ProofScriptExtractor extends ASTDefaultVisitor {
 
-    public static final String PROOF_SOURCE_PROPERTY = "proof.sourcefile";
+    /**
+     * The environment property under which the "proof source" directive is
+     * stored.
+     *
+     * It contains the hash symbol such that it cannot be assigned manually.
+     */
+    public static final String PROOF_SOURCE_PROPERTY = "#proof.sourcefile";
 
+    /**
+     * The environment to operate on.
+     */
     private final Environment env;
+
+    /**
+     * The plugin manager of the the environment.
+     */
     private final PluginManager pluginManager;
-    private String lastObligation = null;
+
+    /**
+     * The identifier for the last obligation that has been parsed.
+     * <code>null</code> if the last element in the AST has no proof obligation.
+     */
+    private @Nullable String lastObligation = null;
+
+    /**
+     * The currently parsed node. Used as return value.
+     */
     private ProofScriptNode node = null;
 
+    /**
+     * The parser.
+     *
+     * Needed to parse "proof source" include files.
+     */
     private final Parser parser;
 
+    /**
+     * The proof obligations as a map from their names.
+     */
     private final Map<String, ProofObligation> proofObligations;
+
+    /**
+     * The associated proof scripts, mapped by name.
+     */
     private final Map<String, ProofScript> associatedProofScripts;
 
-    public ProofScriptExtractor(Parser parser, Environment env,
-            Map<String, ProofObligation> proofObligations,
-            Map<String, ProofScript> associatedProofScripts) throws ASTVisitException  {
+    /**
+     * Instantiates a new proof script extractor.
+     *
+     * @param parser
+     *            the parser to read .p files
+     * @param env
+     *            the environment to operate on
+     * @param proofObligations
+     *            the proof obligation map
+     * @param associatedProofScripts
+     *            the associated proof scripts map
+     * @throws ASTVisitException
+     *             if parsing fails
+     */
+    public ProofScriptExtractor(@NonNull Parser parser, @NonNull Environment env,
+            @DeepNonNull Map<String, ProofObligation> proofObligations,
+            @DeepNonNull Map<String, ProofScript> associatedProofScripts)
+                    throws ASTVisitException  {
         this.parser = parser;
         this.env = env;
         this.proofObligations = proofObligations;
@@ -67,8 +135,11 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
         }
     }
 
-    /*
-     * Some blocks allow for a directly following proof.
+    /**
+     * Extract proof scripts from the file included via "proof source".
+     *
+     * @param ast the ast
+     * @throws ASTVisitException the aST visit exception
      */
     private void extractSourcedScripts(ASTProofSourceFile ast)
             throws ASTVisitException {
@@ -92,6 +163,9 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
         assert false : "This visitor is not intended to reach this point: " + arg.getClass();
     }
 
+    /*
+     *
+     */
     @Override
     public void visit(ASTProofScript arg) throws ASTVisitException {
 
@@ -116,6 +190,18 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
         lastObligation = null;
     }
 
+    /**
+     * Register a proof script.
+     *
+     * Either with a proof obligation or as an associated proof obligation.
+     *
+     * @param arg
+     *            the proof script
+     * @param obligationName
+     *            the name
+     * @throws ASTVisitException
+     *             if name is already registered
+     */
     private void registerProofScript(ASTProofScript arg, String obligationName)
             throws ASTVisitException {
 
@@ -149,6 +235,11 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
         }
     }
 
+    /*
+     * parse a proof node.
+     *
+     * The empty () command gives a YIELD_COMMAND.
+     */
     @Override
     public void visit(ASTProofScriptNode arg) throws ASTVisitException {
 
@@ -197,13 +288,15 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
 
     };
 
+    /*
+     * Handle an inlcusion via "proof source"
+     */
     @Override
     public void visit(ASTProofSourceFile arg) throws ASTVisitException {
         // 'proof sourcefile "/path/filename.p"'
         // is interpreted as 'properties proof.sourcefile "/path/filename.p"'
         if (env.getLocalProperties().containsKey(PROOF_SOURCE_PROPERTY)) {
-            throw new ASTVisitException("There is more than one 'proof source' directive or " +
-                    "definitions of property " + PROOF_SOURCE_PROPERTY, arg);
+            throw new ASTVisitException("There is more than one 'proof source' directive", arg);
         }
 
         env.addProperty(PROOF_SOURCE_PROPERTY, arg.getPath());
@@ -214,6 +307,9 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
      * Some blocks allow for a directly following proof.
      */
 
+    /* (non-Javadoc)
+     * @see de.uka.iti.pseudo.parser.ASTDefaultVisitor#visit(de.uka.iti.pseudo.parser.file.ASTFile)
+     */
     @Override
     public void visit(ASTFile arg) throws ASTVisitException {
         for (ASTElement child : arg.getChildren()) {
@@ -221,6 +317,9 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
         }
     }
 
+    /*
+     * Some blocks allow for a directly following proof.
+     */
     @Override
     public void visit(ASTLemmaDeclaration arg) throws ASTVisitException {
         // Only if the problem is named can we remember a named obligation.
@@ -233,16 +332,21 @@ public class ProofScriptExtractor extends ASTDefaultVisitor {
         lastObligation = ProofObligation.RulePO.PREFIX + arg.getName().image;
     }
 
-    @Override
+    /*
     public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
         lastObligation = ProofObligation.ProgramPO.PREFIX +
                 arg.getName().image +
                 ProofObligation.ProgramPO.SUFFIX_TOTAL;
-    }
+    }*/
 
     /*
      * In all other cases, all I have to do is to forget about a last obligation.
      */
+    @Override
+    public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
+        lastObligation = null;
+    }
+
     @Override
     public void visit(ASTProblemSequent arg) throws ASTVisitException {
         lastObligation = null;

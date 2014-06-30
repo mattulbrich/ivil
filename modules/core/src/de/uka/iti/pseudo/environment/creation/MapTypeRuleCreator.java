@@ -23,8 +23,8 @@ import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.Sort;
+import de.uka.iti.pseudo.environment.SymbolTable;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -55,6 +55,9 @@ import de.uka.iti.pseudo.util.Util;
  *
  * @author Timm Felden, Mattias Ulbrich
  */
+
+// Checkstyle: ALLOFF
+
 public class MapTypeRuleCreator {
 
     private List<TypeVariable> boundVars;
@@ -87,7 +90,8 @@ public class MapTypeRuleCreator {
      * @throws ASTVisitException
      *             if type variables appear in domain or range.
      */
-    public MapTypeRuleCreator(@NonNull ASTLocatedElement declaringLocation) throws ASTVisitException {
+    public MapTypeRuleCreator(@NonNull ASTLocatedElement declaringLocation)
+            throws ASTVisitException {
         this.declaringLocation = declaringLocation;
     }
 
