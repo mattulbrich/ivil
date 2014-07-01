@@ -15,6 +15,8 @@ properties
   # SMTStrategy.closingRule "patient_smt"
   SimplificationStrategy.splitMode "DONT_SPLIT"
 
+  ProofObligation.default "program:selectionSort_total"
+
 function
   seq(int) seqId(int)
   seq('a) seqSwap(seq('a), int, int)

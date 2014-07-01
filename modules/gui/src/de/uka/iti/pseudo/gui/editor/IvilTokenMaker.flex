@@ -297,6 +297,7 @@ Natural               = {Digit}+
 |  "plugins"
 |  "prefix"
 |  "program"
+|  "proof"
 |  "properties"
 |  "remove"
 |  "replace"

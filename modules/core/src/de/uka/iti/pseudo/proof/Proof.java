@@ -56,6 +56,9 @@ public @NonNull class Proof {
     private final ProofNode root;
 
 
+    /**
+     * The name of the proof obligation to which this proof belongs.
+     */
     private final String obligationIdentifier;
 
 
@@ -400,10 +403,21 @@ public @NonNull class Proof {
     }
 
     /**
-     * @return the env
+     * Gets the environment to which this proof belongs.
+     *
+     * @return the environment in which this proof is conducted
      */
     public Environment getEnvironment() {
         return env;
+    }
+
+    /**
+     * Gets the unique name of the proof obligation which is shown in this proof.
+     *
+     * @return the obligationIdentifier
+     */
+    public String getObligationIdentifier() {
+        return obligationIdentifier;
     }
 
 }

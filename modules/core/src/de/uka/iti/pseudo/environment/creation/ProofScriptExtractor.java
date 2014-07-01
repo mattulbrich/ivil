@@ -88,14 +88,9 @@ class ProofScriptExtractor extends ASTDefaultVisitor {
     private final Parser parser;
 
     /**
-     * The proof obligations as a map from their names.
+     * The proof scripts, mapped by name.
      */
-    private final Map<String, ProofObligation> proofObligations;
-
-    /**
-     * The associated proof scripts, mapped by name.
-     */
-    private final Map<String, ProofScript> associatedProofScripts;
+    private final Map<String, ProofScript> proofScripts;
 
     /**
      * Instantiates a new proof script extractor.
@@ -104,21 +99,17 @@ class ProofScriptExtractor extends ASTDefaultVisitor {
      *            the parser to read .p files
      * @param env
      *            the environment to operate on
-     * @param proofObligations
-     *            the proof obligation map
-     * @param associatedProofScripts
-     *            the associated proof scripts map
+     * @param proofScripts
+     *            the proof scripts map, mapped by name. Scripts will be added here
      * @throws ASTVisitException
      *             if parsing fails
      */
     public ProofScriptExtractor(@NonNull Parser parser, @NonNull Environment env,
-            @DeepNonNull Map<String, ProofObligation> proofObligations,
-            @DeepNonNull Map<String, ProofScript> associatedProofScripts)
+            @DeepNonNull Map<String, ProofScript> proofScripts)
                     throws ASTVisitException  {
         this.parser = parser;
         this.env = env;
-        this.proofObligations = proofObligations;
-        this.associatedProofScripts = associatedProofScripts;
+        this.proofScripts = proofScripts;
 
         try {
             this.pluginManager = env.getPluginManager();
@@ -197,34 +188,14 @@ class ProofScriptExtractor extends ASTDefaultVisitor {
     private void registerProofScript(ASTProofScript arg, String obligationName)
             throws ASTVisitException {
 
-        if(obligationName.indexOf('.') > 0) {
-            // This is of the form type:Identifier.Identifier
-            // That is ... it is an associated proof script!
-
-            ProofScript po = associatedProofScripts.get(obligationName);
-            if(po != null) {
-                throw new ASTVisitException("There is already a proof script for "
-                                + obligationName, arg);
-            }
-
-            associatedProofScripts.put(obligationName, new ProofScript(obligationName, node));
-
-        } else {
-
-            // no "." --> toplevel name
-            ProofObligation po = proofObligations.get(obligationName);
-            if(po == null) {
-                throw new ASTVisitException("There is no proof obligation " + obligationName +
-                        " in this file.", arg);
-            }
-
-            if(po.getProofScript() != null) {
-                throw new ASTVisitException("The proof script for " + obligationName +
-                        " has already been defined.", arg);
-            }
-
-            po.setProofScript(new ProofScript(obligationName, node));
+        ProofScript po = proofScripts.get(obligationName);
+        if(po != null) {
+            throw new ASTVisitException("There is already a proof script for "
+                    + obligationName, arg);
         }
+
+        proofScripts.put(obligationName, new ProofScript(obligationName, node));
+
     }
 
     /*

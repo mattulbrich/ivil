@@ -79,7 +79,7 @@ public class EnvironmentMaker {
     /**
      * A map of proof scriplets contained in this environment.
      */
-    private final Map<String, ProofScript> associatedProofScriplets =
+    private final Map<String, ProofScript> proofScripts =
             new HashMap<String, ProofScript>();
 
     /**
@@ -226,10 +226,8 @@ public class EnvironmentMaker {
         new RuleAxiomExtractor(env).extractAxioms();
 
         astFile.visit(new EnvironmentProofObligationExtractor(env, proofObligations));
-
-        astFile.visit(new ProofScriptExtractor(parser, env,
-                proofObligations,
-                associatedProofScriplets));
+        astFile.visit(new ProofScriptExtractor(parser, env, proofScripts));
+        associateProofScripts();
 
     }
 
@@ -358,15 +356,12 @@ public class EnvironmentMaker {
     }
 
     /**
-     * Gets a map of proof scriplets.
+     * Gets a map of proof scripts.
      *
-     * Scriplets are scripts which do not directly corrspond to a
-     * {@link ProofObligation} but have a unique name, too.
-     *
-     * @return an unmodifiable view to the map of proof scriplets.
+     * @return an unmodifiable view to the map of proof scripts.
      */
-    public Map<String, ProofScript> getProofScriptlets() {
-        return Collections.unmodifiableMap(associatedProofScriplets);
+    public Map<String, ProofScript> getProofScripts() {
+        return Collections.unmodifiableMap(proofScripts);
     }
 
     /*
@@ -403,6 +398,18 @@ public class EnvironmentMaker {
             URL topURL = new URL(toplevel);
             URL url = new URL(topURL, filename);
             return url;
+        }
+    }
+
+    /*
+     * add the proof scripts to the proof obligations if available
+     */
+    private void associateProofScripts() {
+        for (ProofObligation po : proofObligations.values()) {
+            ProofScript ps = proofScripts.get(po.getName());
+            if(ps != null) {
+                po.setProofScript(ps);
+            }
         }
     }
 

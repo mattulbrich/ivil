@@ -2,6 +2,7 @@ package de.uka.iti.pseudo.parser.file;
 
 import java.io.StringReader;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -30,10 +31,10 @@ public class TestProofScripts extends TestCaseWithEnv {
         }
 
         @Override
-        public List<ProofNode> apply(ProofScriptNode node, ProofNode proofNode)
+        public List<ProofNode> apply(Map<String, String> arguments, ProofNode proofNode)
                 throws StrategyException {
             // we do nothing
-            return null;
+            return Collections.singletonList(proofNode);
         }
     }
 
@@ -189,7 +190,7 @@ public class TestProofScripts extends TestCaseWithEnv {
 
         Map<String, ProofScript> assocProofs = parsed.trd();
 
-        assertEquals(1, assocProofs.size());
+        assertEquals(3, assocProofs.size());
         assertNotNull(assocProofs.get("program:P1.step"));
     }
 

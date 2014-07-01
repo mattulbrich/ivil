@@ -30,7 +30,7 @@ lemma oddsum
   (\forall n; mult(n, O) = O) &
   (\forall n; (\forall m; mult(n, s(m)) = plus(mult(n,m),n))) &
   (\forall n; oddsum(s(n)) = plus(oddsum(n), s(plus(n,n)))) &
-  oddsum(O) = O&
+  oddsum(O) = O &
 
   (* Lemma proved outside the file *)
   (\forall c; (\forall a; (\forall b;

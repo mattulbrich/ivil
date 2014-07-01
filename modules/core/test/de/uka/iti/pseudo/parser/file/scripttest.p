@@ -31,7 +31,7 @@ program Q1
 
 program Q2
   assert 4=4
-proof (mock)
+proof program Q2_total (mock)
 
 proof rule r2 (mock)
 proof program Q1_total (mock)

@@ -9,6 +9,7 @@
  */
 package de.uka.iti.pseudo.auto.script;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +18,9 @@ import java.util.Map;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -120,6 +123,23 @@ public class ProofScriptNode {
      */
     public ASTLocatedElement getLocation() {
         return location;
+    }
+
+    public List<ProofNode> execute(ProofNode proofNode) throws StrategyException {
+        return command.apply(getArguments(), proofNode);
+    }
+
+    public boolean hasSameCommandAs(ProofScriptNode scriptNode) {
+        return command == scriptNode.command && arguments.equals(scriptNode.arguments);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ProofScriptNode) {
+            ProofScriptNode node = (ProofScriptNode) obj;
+            return hasSameCommandAs(node) && Arrays.equals(children, node.children);
+        }
+        return false;
     }
 
 }

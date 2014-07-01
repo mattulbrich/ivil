@@ -111,6 +111,7 @@ public abstract class EnvironmentCreationService {
      * @throws EnvironmentException
      *             if loading fails for some reason
      */
+
     public abstract ProofObligationManager createEnvironment(InputStream stream, URL resource)
           throws IOException, EnvironmentException;
 

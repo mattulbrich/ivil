@@ -42,7 +42,7 @@ public class PFileEnvironmentCreationService extends EnvironmentCreationService 
             EnvironmentMaker em = new EnvironmentMaker(fp, inputStream, url);
             Environment env = em.getEnvironment();
             Map<String, ProofObligation> proofObligations = em.getProofObligations();
-            Map<String, ProofScript> scripts = em.getProofScriptlets();
+            Map<String, ProofScript> scripts = em.getProofScripts();
 
             return new ProofObligationManager(env, proofObligations, scripts);
 

@@ -1360,7 +1360,6 @@ public class Environment {
             result.numberMap = new HashMap<BigInteger, NumberLiteral>();
             result.numberMap.putAll(numberMap);
         }
-
         // TODO Check this! Perhaps make a copy or fix it or ...
         result.pluginManager = this.pluginManager;
         result.prefixMap.putAll(prefixMap);

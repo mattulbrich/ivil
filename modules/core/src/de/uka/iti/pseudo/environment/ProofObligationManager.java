@@ -12,7 +12,6 @@ package de.uka.iti.pseudo.environment;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +88,7 @@ public class ProofObligationManager {
     private final Map<String, ProofObligation> proofObligations;
 
     /**
-     * The map of associated scripts.
+     * The map from names to scripts.
      * Also stored by their names.
      */
     private final Map<String, ProofScript> scripts;

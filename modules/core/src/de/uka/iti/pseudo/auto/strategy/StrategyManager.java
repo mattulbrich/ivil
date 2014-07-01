@@ -67,6 +67,8 @@ public class StrategyManager {
      */
     private final Environment env;
 
+    private final Map<String, ProofScript> scriptMap;
+
     /**
      * Instantiates a new strategy manager.
      *
@@ -74,12 +76,13 @@ public class StrategyManager {
      *            the proof to bind to
      * @param env
      *            the environment to bind to
-     * @param scripletsMap
+     * @param scriptMap
      */
     public StrategyManager(@NonNull Proof proof, @NonNull Environment env,
-            @NonNull Map<String, ProofScript> scripletsMap) {
+            @NonNull Map<String, ProofScript> scriptMap) {
         this.proof = proof;
         this.env = env;
+        this.scriptMap = scriptMap;
     }
 
     public StrategyManager(Proof proof, Environment env) {
@@ -214,6 +217,13 @@ public class StrategyManager {
     public void setSelectedStrategy(@NonNull Strategy selectedStrategy) {
         assert registeredStrategies.containsValue(selectedStrategy);
         this.selectedStrategy = selectedStrategy;
+    }
+
+    /**
+     * @return the scriptMap
+     */
+    public Map<String, ProofScript> getScriptMap() {
+        return Collections.unmodifiableMap(scriptMap);
     }
 
 }
