@@ -17,7 +17,7 @@ properties
   order.b "20"
   order.c "20"
 
-rule directEq
+axiom rule directEq
   find %a = %b
   where
     unorderedTerms %a, %b
@@ -25,5 +25,5 @@ rule directEq
   tags
     rewrite "fol simp"
 
-problem
+lemma problem
   a=b & b=c -> f(b)=f(a) & f(c)=f(b)

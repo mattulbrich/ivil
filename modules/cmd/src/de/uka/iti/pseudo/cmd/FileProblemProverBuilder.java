@@ -33,10 +33,6 @@ import de.uka.iti.pseudo.util.Log;
  */
 public class FileProblemProverBuilder {
 
-    public static enum ProofObligationOption {
-        ALL, DEFAULT, SELECTED
-    }
-
     /**
      * The file under inspection
      */
@@ -117,10 +113,10 @@ public class FileProblemProverBuilder {
      * @throws EnvironmentException TODO
      */
     public FileProblemProverBuilder(File file) throws EnvironmentException, IOException {
-
         this.file = file;
 
-        proofObligationManager = EnvironmentCreationService.createEnvironmentByExtension(file.toURI().toURL());
+        proofObligationManager =
+                EnvironmentCreationService.createEnvironmentByExtension(file.toURI().toURL());
     }
 
 
@@ -166,15 +162,22 @@ public class FileProblemProverBuilder {
         return result;
     }
 
-    public void setProofObligations(ProofObligationOption option,
-            String[] preSelectedProofObligations) throws EnvironmentException {
-        switch(option) {
-        case ALL:
+    public void setProofObligations(Object proofObligations) throws EnvironmentException {
+
+        if ("DEFAULT_IF_PRESENT".equals(proofObligations)) {
+            if(proofObligationManager.getEnvironment().hasProperty(
+                    ProofObligationManager.DEFAULT_PO_PROPERTY)) {
+                proofObligations = "DEFAULT";
+            } else {
+                proofObligations = "ALL";
+            }
+        }
+
+        if("ALL".equals(proofObligations)) {
             this.selectedProofObligations =
                 proofObligationManager.getRelevantProofObligationNames();
-            break;
 
-        case DEFAULT:
+        } else if("DEFAULT".equals(proofObligations)) {
             String defaultProperty =
                 proofObligationManager.getEnvironment().getProperty(
                     ProofObligationManager.DEFAULT_PO_PROPERTY);
@@ -185,8 +188,11 @@ public class FileProblemProverBuilder {
 
             this.selectedProofObligations = new String[] { defaultProperty };
 
-        case SELECTED:
-            this.selectedProofObligations = preSelectedProofObligations;
+        } else if(proofObligations instanceof String[]) {
+            this.selectedProofObligations = (String[]) proofObligations;
+
+        } else {
+            throw new IllegalArgumentException("(internal) unexpected arg: " + proofObligations);
         }
     }
 

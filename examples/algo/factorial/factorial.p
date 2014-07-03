@@ -5,6 +5,9 @@ include "$decproc.p"
 function
   int fac(int)
 
+axiom fac_def
+  (\forall n; fac(n) = cond(n > 0, fac(n-1)*n, 1))
+
 rule fac_0
   find fac(0)
   replace 1
@@ -46,5 +49,5 @@ program factorial source "factorial.algo"
   assume $not(( i > 0 ) )
 
 
-problem 
-n > 0  |- [[0;factorial]]((c = fac ( n ) ))
+lemma progspec 
+  n > 0  -> [[0;factorial]]((c = fac ( n ) ))

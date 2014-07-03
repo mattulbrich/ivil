@@ -2,16 +2,16 @@
 # Files that can be proved automatically using ivilc
 #
 
-examples/algo/factorial/factorial.p
-#examples/algo/arrayMin/arrayMin.p
+examples/algo/factorial/factorial.p *ALL
+#examples/algo/arrayMin/arrayMin.p *ALL
 
-examples/simple/largeLinear.p
-examples/simple/maps.p
+examples/simple/largeLinear.p *ALL
+examples/simple/maps.p *ALL
 
-examples/fol/equality1.p
-examples/fol/equality2.p
-examples/fol/posetUnique.p
-examples/fol/unqTest.p
-#examples/fol/weqQuantification.p
-examples/fol/injsurj.p
-examples/fol/exists1.p
+examples/fol/equality1.p *ALL
+examples/fol/equality2.p *ALL
+examples/fol/posetUnique.p *ALL
+examples/fol/unqTest.p *ALL
+#examples/fol/weqQuantification.p *ALL
+examples/fol/injsurj.p *ALL
+examples/fol/exists1.p *ALL

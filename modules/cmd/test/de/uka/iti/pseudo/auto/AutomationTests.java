@@ -14,7 +14,6 @@ import junit.framework.TestSuite;
 import de.uka.iti.pseudo.cmd.AutomaticProblemProver;
 import de.uka.iti.pseudo.cmd.FileProblemProverBuilder;
 import de.uka.iti.pseudo.cmd.Result;
-import de.uka.iti.pseudo.cmd.FileProblemProverBuilder.ProofObligationOption;
 
 public class AutomationTests extends TestCase {
 
@@ -22,10 +21,16 @@ public class AutomationTests extends TestCase {
 
     private static class AutoCase extends TestCase {
         private final String fileName;
+        private final Object cases;
 
-        AutoCase(String fileName) {
+        AutoCase(String fileName, String cases) {
             super("Test for " + fileName);
             this.fileName = fileName;
+            if(cases.startsWith("*")) {
+                this.cases = cases.substring(1);
+            } else {
+                this.cases = cases.split(",");
+            }
         }
 
         @Override
@@ -35,7 +40,7 @@ public class AutomationTests extends TestCase {
 
             fileBuilder.setTimeout(TIMEOUT);
             fileBuilder.setRelayToSource(true);
-            fileBuilder.setProofObligations(ProofObligationOption.ALL, new String[0]);
+            fileBuilder.setProofObligations(cases);
 
             for (AutomaticProblemProver app : fileBuilder.createProblemProvers()) {
                 Result result = app.call();
@@ -57,10 +62,11 @@ public class AutomationTests extends TestCase {
             throw new IOException("cannot read testcases.txt");
         }
 
-        List<String> cases = readLines(stream);
+        List<String> lines = readLines(stream);
 
-        for (String string : cases) {
-            suite.addTest(new AutoCase(string));
+        for (String line : lines) {
+            String[] parts = line.split(" +", 2);
+            suite.addTest(new AutoCase(parts[0], parts[1]));
         }
 
         return suite;

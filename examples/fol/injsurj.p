@@ -6,7 +6,7 @@ function
   S a(S)
   S b(S)
 
-problem
+lemma problem
 
 (* a surj *)
 (\forall s; (\exists t; a(t) = s))

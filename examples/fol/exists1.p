@@ -7,13 +7,13 @@ include "$fol.p"
 include "$int.p"
 include "$decproc.p"
 
-rule left_all_instantiate
+axiom rule left_all_instantiate
   find (\forall %x as %'x; %y as %'x ~~> %b) |-
   add $$subst(%x, %y, %b) |-
   tags
     rewrite "fol add"
 
-rule exists_right_instantiate
+axiom rule exists_right_instantiate
   find |- (\exists %x as %'x; %y as %'x ~~> %b)
   add |- $$subst(%x, %y, %b)
   tags
@@ -21,5 +21,5 @@ rule exists_right_instantiate
 
 function int array(int)
 
-problem
+lemma problem
   (\exists i; 0 ~~> 0<=i & i<1 & array(i) = array(0))

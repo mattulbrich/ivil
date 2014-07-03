@@ -11,7 +11,7 @@ function
   bool c
   bool d
 
-problem
+lemma problem
   a=b & b = f(a) -> a = f(f(f(a)))
 
   

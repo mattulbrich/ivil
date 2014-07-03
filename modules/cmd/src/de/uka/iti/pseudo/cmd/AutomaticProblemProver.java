@@ -13,12 +13,15 @@ package de.uka.iti.pseudo.cmd;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.auto.script.ProofScript;
+import de.uka.iti.pseudo.auto.script.ProofScriptCommand;
+import de.uka.iti.pseudo.auto.script.ProofScriptNode;
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.auto.strategy.StrategyManager;
@@ -26,6 +29,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.ProofObligation;
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
@@ -315,6 +319,12 @@ public class AutomaticProblemProver implements Callable<Result> {
 
         env = proof.getEnvironment();
         prettyPrint = new PrettyPrint(env);
+        ProofScript proofScript = proofObligation.getProofScript();
+
+        if(proofScript == null) {
+            proofScript = makeDefaultProofScript(name);
+        }
+
 
         StrategyManager strategyManager = new StrategyManager(proof, env);
         strategyManager.registerAllKnownStrategies();
@@ -384,6 +394,19 @@ public class AutomaticProblemProver implements Callable<Result> {
             Thread.interrupted();
         }
 
+    }
+
+    private ProofScript makeDefaultProofScript(String name) throws EnvironmentException {
+
+        ProofScriptNode psn = new ProofScriptNode(
+                ProofScriptCommand.AUTO_COMMAND,
+                Collections.<String, String>emptyMap(),
+                Collections.<ProofScriptNode>emptyList(),
+                new ASTLocatedElement.Fixed("Auto-proof for " + name));
+
+        ProofScript ps = new ProofScript(name, psn);
+
+        return ps;
     }
 
     /**

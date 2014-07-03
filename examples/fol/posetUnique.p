@@ -31,7 +31,7 @@ function
   S b
   S c
 
-problem
-   (\forall x; a <: x) ,
+lemma problem
+   (\forall x; a <: x) &
    (\forall x; b <: x) 
-|- a = b
+-> a = b

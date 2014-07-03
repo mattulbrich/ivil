@@ -335,7 +335,7 @@ public final class CommandLine {
             return Integer.decode(value);
         } catch (NumberFormatException e) {
             throw new CommandLineException(param + " expects an integer argument, but received: "
-                                            + option.value);
+                                            + option.value, e);
         }
     }
 
@@ -424,7 +424,7 @@ public final class CommandLine {
     /*
      * Used by the Help elements to print text, potentially broken.
      * The current lines is assumed to be indented to "indentionLevel".
-     * At most textWidth charcters of text are printed, the line broken,
+     * At most textWidth characters of text are printed, the line broken,
      * indented to indentationLevel, ...
      * Repeated till the text is completely rendered.
      * Output ends with a line break;

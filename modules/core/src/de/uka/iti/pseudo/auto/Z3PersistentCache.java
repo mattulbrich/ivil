@@ -139,19 +139,24 @@ public class Z3PersistentCache {
      */
     public static Z3PersistentCache getGlobalInstance() {
         if(!checkedForGlobalInstance) {
-            Settings settings = Settings.getInstance();
-            String cacheFileName = settings.getExpandedProperty(KEY_PERSISTENT_CACHE, null);
-            if(cacheFileName != null && cacheFileName.length() > 0) {
-                try {
-                    globalInstance = new Z3PersistentCache(cacheFileName);
-                    globalInstance.writebackAtExit();
-                } catch (Exception e) {
-                    Log.log(Log.ERROR, "Cannot load persistent z3 cache from " + cacheFileName);
-                    Log.stacktrace(Log.ERROR, e);
-                    globalInstance = null;
+            synchronized (Z3PersistentCache.class) {
+                Settings settings = Settings.getInstance();
+                String cacheFileName = settings.getExpandedProperty(KEY_PERSISTENT_CACHE, null);
+                // check again ... we are now synchronised
+                if(!checkedForGlobalInstance
+                        && cacheFileName != null && cacheFileName.length() > 0) {
+                    try {
+                        Log.log(Log.DEBUG, "Creating global z3 persistent cache instance");
+                        globalInstance = new Z3PersistentCache(cacheFileName);
+                        globalInstance.writebackAtExit();
+                    } catch (Exception e) {
+                        Log.log(Log.ERROR, "Cannot load persistent z3 cache from " + cacheFileName);
+                        Log.stacktrace(Log.ERROR, e);
+                        globalInstance = null;
+                    }
                 }
+                checkedForGlobalInstance = true;
             }
-            checkedForGlobalInstance = true;
         }
         return globalInstance;
     }

@@ -12,6 +12,7 @@ package de.uka.iti.pseudo.cmd;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -20,7 +21,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.cmd.FileProblemProverBuilder.ProofObligationOption;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
@@ -37,11 +37,16 @@ import de.uka.iti.pseudo.util.settings.Settings;
  */
 public class Main {
 
+    private static enum ProofObligationOption {
+        ALL, DEFAULT, SELECTED
+    }
+
+
     /*
      * The constants for the command line option processing
      */
     private static final String CMDLINE_HELP = "-help";
-    private static final String CMDLINE_CHECKPROOF = "-c";
+    private static final String CMDLINE_CHECKPROOFS = "-c";
     private static final String CMDLINE_PROOFOBLIGATIONS = "-p";
     private static final String CMDLINE_VERBOSE = "-v";
     private static final String CMDLINE_ALL_OBLIGATIONS = "-a";
@@ -68,13 +73,12 @@ public class Main {
     /*
      * Local fields that hold the values of the command line
      */
-    private static String proofFile;
-    private static ProofObligationOption proofObligationSet;
+    private static boolean checkProofs;
     private static boolean verbose;
     private static int timeout;
     private static int numberThreads;
     private static boolean relayToSource;
-    private static String[] selectedProofObligations;
+    private static Object selectedProofObligations;
 
     /**
      * The thread pool in which the tasks will be executed.
@@ -97,7 +101,7 @@ public class Main {
         CommandLine cl = new CommandLine();
         cl.addOption(CMDLINE_HELP, null, "Print usage");
         cl.addOption(CMDLINE_VERBOSE, null, "Be verbose in messages");
-        cl.addOption(CMDLINE_CHECKPROOF, "<file>", "Proof file to check (pxml)");
+        cl.addOption(CMDLINE_CHECKPROOFS, null, "Proof file to check (pxml)");
         cl.addOption(CMDLINE_PROOFOBLIGATIONS, "<obligs>", "Comma-separated list of proof obligation IDs.");
 //        cl.addOption(CMDLINE_RECURSIVE, null, "Apply recursively.");
         cl.addOption(CMDLINE_ALL_OBLIGATIONS, null, "Proof all obligations in files.");
@@ -144,34 +148,38 @@ public class Main {
             timeout = commandLine.getInteger(CMDLINE_TIMEOUT, DEFAULT_TIMEOUT);
             numberThreads = commandLine.getInteger(CMDLINE_THREADS, 4);
             relayToSource = commandLine.isSet(CMDLINE_SOURCE);
-            proofFile = commandLine.getString(CMDLINE_CHECKPROOF, null);
+            checkProofs = commandLine.isSet(CMDLINE_CHECKPROOFS);
             fileExtensions = Util.readOnlyArraySet(
                     commandLine.getString(CMDLINE_EXTENSIONS, ".p").split(","));
 
             if(commandLine.isSet(CMDLINE_ALL_OBLIGATIONS)) {
-                proofObligationSet = ProofObligationOption.ALL;
+                selectedProofObligations = "ALL";
             }
 
             if(commandLine.isSet(CMDLINE_DEF_OBLIGATION)) {
-                if (proofObligationSet != null) {
+                if (selectedProofObligations != null) {
                     throw new CommandLineException("Cannot specify more than one of " +
                             CMDLINE_ALL_OBLIGATIONS + ", " +
                             CMDLINE_PROOFOBLIGATIONS +
                             " and " + CMDLINE_DEF_OBLIGATION + ".");
                 }
-                proofObligationSet = ProofObligationOption.DEFAULT;
+                selectedProofObligations = "DEFAULT";
             }
 
             if(commandLine.isSet(CMDLINE_PROOFOBLIGATIONS)) {
-                if (proofObligationSet != null) {
+                if (selectedProofObligations != null) {
                     throw new CommandLineException("Cannot specify more than one of " +
                             CMDLINE_ALL_OBLIGATIONS + ", " +
                             CMDLINE_PROOFOBLIGATIONS +
                             " and " + CMDLINE_DEF_OBLIGATION + ".");
                 }
-                proofObligationSet = ProofObligationOption.SELECTED;
                 selectedProofObligations =
                         commandLine.getString(CMDLINE_PROOFOBLIGATIONS, "").split(",");
+            }
+
+            if(selectedProofObligations == null) {
+                // that is the current default behaviour
+                selectedProofObligations = "DEFAULT_IF_PRESENT";
             }
 
 
@@ -246,10 +254,10 @@ public class Main {
         if(file.isDirectory()) {
             handleRecursively(file);
         } else {
-            if(proofFile == null) {
-                handleSingleFile(file);
-            } else {
+            if(checkProofs) {
                 checkSingleFile(file);
+            } else {
+                handleSingleFile(file);
             }
         }
     }
@@ -267,10 +275,10 @@ public class Main {
                 // if it has an extension
                 String ext = name.substring(name.lastIndexOf('.'));
                 if(fileExtensions.contains(ext)) {
-                    if(proofFile == null) {
-                        handleSingleFile(child);
-                    } else {
+                    if(checkProofs) {
                         checkSingleFile(child);
+                    } else {
+                        handleSingleFile(child);
                     }
                 }
             }
@@ -310,7 +318,7 @@ public class Main {
         builder.setTimeout(timeout);
 //        builder.setRuleLimit(ruleLimit);
         builder.setRelayToSource(relayToSource);
-        builder.setProofObligations(proofObligationSet, selectedProofObligations);
+        builder.setProofObligations(selectedProofObligations);
 
         for (AutomaticProblemProver app : builder.createProblemProvers()) {
             Future<Result> future = executor.submit(app);
@@ -328,7 +336,7 @@ public class Main {
      *            the file containing the problem
      */
     private static void checkSingleFile(File file) {
-        AutomaticProblemChecker checker = new AutomaticProblemChecker(file, proofFile);
+        AutomaticProblemChecker checker = new AutomaticProblemChecker(file);
         Future<Result> future = executor.submit(checker);
         results.add(future);
     }

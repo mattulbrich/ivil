@@ -1,8 +1,10 @@
-package de.uka.iti.pseudo.auto.script;
+package de.uka.iti.pseudo.auto.script.command;
 
 import java.util.List;
 import java.util.Map;
 
+import de.uka.iti.pseudo.auto.script.ProofScriptCommand;
+import de.uka.iti.pseudo.auto.script.ProofScriptNode;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;

@@ -12,19 +12,17 @@ package de.uka.iti.pseudo.cmd;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 
-import de.uka.iti.pseudo.auto.script.ProofScript;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.ProofObligation;
+import de.uka.iti.pseudo.environment.ProofObligationManager;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
-import de.uka.iti.pseudo.term.Sequent;
 
 
 
@@ -38,13 +36,9 @@ public class AutomaticProblemChecker implements Callable<Result> {
     private final File file;
     private final String proofFileName;
 
-    public AutomaticProblemChecker(File file, String proofFileName) {
-        if(proofFileName == null) {
-            proofFileName = file.getAbsolutePath() + "xml";
-        }
-
+    public AutomaticProblemChecker(File file) {
         this.file = file;
-        this.proofFileName = proofFileName;
+        this.proofFileName = file.getAbsolutePath() + "xml";
     }
 
     @Override
@@ -54,14 +48,19 @@ public class AutomaticProblemChecker implements Callable<Result> {
         Environment env = em.getEnvironment();
         Map<String, ProofObligation> problems = em.getProofObligations();
 
-        if (problems.size() != 1) {
-            throw new ProofException("The proof checker needs an environment " +
-                    "with exactly one problem declaration: " + file);
+        String defaultPO = env.getProperty(ProofObligationManager.DEFAULT_PO_PROPERTY);
+        if (defaultPO == null) {
+            throw new ProofException("For automatic proof checking, the environment must define" +
+                    "a default proof obligation.");
         }
 
-        Entry<String, ProofObligation> entry = problems.entrySet().iterator().next();
-        String key = ProofObligation.LemmaPO.PREFIX + entry.getKey();
-        Proof proof = entry.getValue().initProof();
+        ProofObligation proofObl = problems.get(defaultPO);
+        if(proofObl == null) {
+            throw new ProofException("There is no proof obligation that goes by this name: " +
+                    defaultPO);
+        }
+
+        Proof proof = proofObl.initProof();
 
         FileInputStream fis = new FileInputStream(proofFileName);
 
@@ -69,11 +68,11 @@ public class AutomaticProblemChecker implements Callable<Result> {
         proofImp.importProof(fis, proof, env, null);
 
         if(proof.hasOpenGoals()) {
-            return new Result(false, file, entry.getKey(),
+            return new Result(false, file, defaultPO,
                 proof.getOpenGoals().size() + " goal(s) remain open (proof from " +
                     proofFileName + ")");
         } else {
-            return new Result(true, file, entry.getKey(),
+            return new Result(true, file, defaultPO,
                     "Proof loaded from " + proofFileName);
         }
     }
