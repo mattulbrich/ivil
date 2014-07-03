@@ -73,7 +73,7 @@ public class AutomaticProblemProver implements Callable<Result> {
     /**
      * The environment extracted from {@link #file}.
      */
-    private final Environment env;
+    private Environment env;
 
     /**
      * The sequent of the probleam under inspection
@@ -107,7 +107,7 @@ public class AutomaticProblemProver implements Callable<Result> {
     /**
      * Pretty printer for the environment.
      */
-    private final PrettyPrint prettyPrint;
+    private PrettyPrint prettyPrint;
 
     /**
      * Visitor to detect program terms anywhere in a term
@@ -288,14 +288,13 @@ public class AutomaticProblemProver implements Callable<Result> {
      *            the timeout in seconds
      * @param ruleApplicationLimit
      *            the rule application limit
+     * @throws EnvironmentException
      */
-    public AutomaticProblemProver(@NonNull File file, @NonNull Environment env,
-            @NonNull PrettyPrint prettyPrint, @NonNull ProofObligation proofObligation,
+    public AutomaticProblemProver(@NonNull File file,
+            @NonNull ProofObligation proofObligation,
             boolean relayToSource, int timeout, int ruleApplicationLimit) {
         super();
         this.file = file;
-        this.env = env;
-        this.prettyPrint = prettyPrint;
         this.proofObligation = proofObligation;
         this.relayToSource = relayToSource;
         this.timeout = timeout;
@@ -313,6 +312,9 @@ public class AutomaticProblemProver implements Callable<Result> {
 
         Proof proof = proofObligation.initProof();
         String name = proofObligation.getName();
+
+        env = proof.getEnvironment();
+        prettyPrint = new PrettyPrint(env);
 
         StrategyManager strategyManager = new StrategyManager(proof, env);
         strategyManager.registerAllKnownStrategies();

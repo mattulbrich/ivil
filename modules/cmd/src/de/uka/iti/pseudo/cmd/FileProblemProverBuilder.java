@@ -13,16 +13,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.ProofObligation;
-import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
-import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.ParseException;
-import de.uka.iti.pseudo.parser.Parser;
-import de.uka.iti.pseudo.prettyprint.PrettyPrint;
-import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.environment.ProofObligationManager;
+import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * This class is used as builder to create problem proof obligations from an
@@ -37,21 +33,20 @@ import de.uka.iti.pseudo.term.TermException;
  */
 public class FileProblemProverBuilder {
 
+    public static enum ProofObligationOption {
+        ALL, DEFAULT, SELECTED
+    }
+
     /**
      * The file under inspection
      */
     private final File file;
 
     /**
-     * The environment extracted from the file.
-     */
-    private final Environment env;
-
-    /**
      * The problem terms extracted from the file. Can be empty or created
      * automatically.
      */
-    private final Map<String, ProofObligation> problemSequents;
+    private final ProofObligationManager proofObligationManager;
 
     /**
      * The timeout after which the search will be given up.
@@ -72,7 +67,10 @@ public class FileProblemProverBuilder {
     /**
      * Pretty printer for the environment
      */
-    private final PrettyPrint prettyPrint;
+//    private final PrettyPrint prettyPrint;
+
+    private String[] selectedProofObligations;
+
 
     /**
      * Returns the timeout set for this prover. -1 means no timeout.
@@ -114,28 +112,15 @@ public class FileProblemProverBuilder {
      * @param file
      *            an ivil input file
      *
-     * @throws ParseException
-     *             if parsing fails
-     * @throws ASTVisitException
-     *             if the semantic analysis fails
      * @throws IOException
      *             Signals that an I/O exception has occurred.
-     * @throws TermException
-     *             if the creation of the problem term fails.
+     * @throws EnvironmentException TODO
      */
-    public FileProblemProverBuilder(File file) throws ParseException, ASTVisitException, IOException, TermException {
+    public FileProblemProverBuilder(File file) throws EnvironmentException, IOException {
 
         this.file = file;
 
-        Parser parser = new Parser();
-        EnvironmentMaker em = new EnvironmentMaker(parser, file);
-        env = em.getEnvironment();
-
-        // ensure that the environment is fixed
-        env.setFixed();
-
-        problemSequents = em.getProofObligations();
-        prettyPrint = new PrettyPrint(env);
+        proofObligationManager = EnvironmentCreationService.createEnvironmentByExtension(file.toURI().toURL());
     }
 
 
@@ -168,21 +153,41 @@ public class FileProblemProverBuilder {
      */
     public List<AutomaticProblemProver> createProblemProvers() {
         ArrayList<AutomaticProblemProver> result = new ArrayList<AutomaticProblemProver>();
-        for (ProofObligation proofObl : problemSequents.values()) {
-            result.add(new AutomaticProblemProver(file, env, prettyPrint,
-                    proofObl, relayToSource, timeout,
-                    ruleApplicationLimit));
+        for(String name : selectedProofObligations) {
+            ProofObligation po = proofObligationManager.getProofObligation(name);
+            if(po == null) {
+                Log.log(Log.WARNING, "TODO");
+            } else {
+                result.add(new AutomaticProblemProver(file,
+                        po, relayToSource, timeout,
+                        ruleApplicationLimit));
+            }
         }
         return result;
     }
 
-    /**
-     * Checks whether the file contains a problem description.
-     *
-     * @return true, if there is a problem defined in {@link #file}.
-     */
-    public boolean hasProblemDeclaration() {
-        return !problemSequents.isEmpty();
+    public void setProofObligations(ProofObligationOption option,
+            String[] preSelectedProofObligations) throws EnvironmentException {
+        switch(option) {
+        case ALL:
+            this.selectedProofObligations =
+                proofObligationManager.getRelevantProofObligationNames();
+            break;
+
+        case DEFAULT:
+            String defaultProperty =
+                proofObligationManager.getEnvironment().getProperty(
+                    ProofObligationManager.DEFAULT_PO_PROPERTY);
+
+            if(defaultProperty == null) {
+                throw new EnvironmentException("TODO");
+            }
+
+            this.selectedProofObligations = new String[] { defaultProperty };
+
+        case SELECTED:
+            this.selectedProofObligations = preSelectedProofObligations;
+        }
     }
 
 }

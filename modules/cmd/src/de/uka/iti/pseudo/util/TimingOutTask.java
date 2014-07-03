@@ -14,13 +14,6 @@ import java.util.TimerTask;
 
 import nonnull.NonNull;
 
-/**
- * @deprecated Apparently no longer used
- *
- * @author mattias
- *
- */
-@Deprecated
 public class TimingOutTask extends TimerTask {
 
     private static Timer timer = null;
@@ -33,18 +26,11 @@ public class TimingOutTask extends TimerTask {
         return timer;
     }
 
-    private Process process;
-    private Thread thread;
+    private final Thread thread;
 
     private final long timeout;
 
     private boolean hasFinished = false;
-
-    public TimingOutTask(long timeout, @NonNull Process process) {
-        assert timeout > 0;
-        this.timeout = timeout;
-        this.process = process;
-    }
 
     public TimingOutTask(long timeout, @NonNull Thread thread) {
         assert timeout > 0;
@@ -53,9 +39,7 @@ public class TimingOutTask extends TimerTask {
     }
 
     public TimingOutTask(int timeout) {
-        assert timeout > 0;
-        this.timeout = timeout;
-        this.thread = Thread.currentThread();
+        this(timeout, Thread.currentThread());
     }
 
     public void schedule() {
@@ -75,20 +59,8 @@ public class TimingOutTask extends TimerTask {
             return;
         }
 
-        if(process != null) {
-            try {
-                process.exitValue();
-            } catch (IllegalThreadStateException ex) {
-                // was still running.
-                process.destroy();
-            }
-            hasFinished = true;
-        } else if (thread != null) {
-            thread.interrupt();
-            hasFinished = true;
-        } else {
-            assert false : "Either a process or a thread must be given";
-        }
+        thread.interrupt();
+        hasFinished = true;
     }
 
 

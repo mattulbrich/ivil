@@ -1,22 +1,5 @@
 <ivildoc>
   <category name="Environment property">
-    <entry name="termination">
-      <![CDATA[
-
- If an environment does not contain a literal problem description, the
- programs implicitly induce problem descriptions of the form
- <tt>[0;P]</tt> for each program <tt>P</tt>.
- <p>
- The environment property <tt>ProofObligation.termination</tt> can be used
- to specify whether these problems should include a termination proof
- obligation (total correctness; using modality <tt>[[&middot;]]</tt>) or
- should not consider termination (partial correctness; using modality
- <tt>[&middot;]</tt>.
-
- <p>
- Set it to <code>"true"</code> for total correctness, <code>"false"</code>
- for partial correctness.]]>
-    </entry>
     <entry name="strategies">
       <![CDATA[
 
@@ -35,6 +18,18 @@
  properties
    CompoundStrategy.strategies
       "HintStrategy, SimplificationStrategy, BreakpointStrategy, SMTStrategy"]]>
+    </entry>
+    <entry name="ProofObligation.default">
+      <![CDATA[
+
+ If an environment has more than one proof obligation (several rules,
+ lemmas, programs), this property allows one to set the name of the proof
+ obligation to proof by default. In the GUI, this is the proof obligation
+ which is opened then automatically.
+
+ <p>
+ On the commandline, proving all proof obligations does <i>not</i> reduce
+ to proving the default proof obligation.]]>
     </entry>
     <entry name="rewrite">
       <![CDATA[
@@ -103,6 +98,33 @@
  from automatic application. Thus rules which are annotated as automatic
  rules can still be excluded from application. If more than one rule is to
  be named, separate the names by commas.]]>
+    </entry>
+    <entry name="ProofObligation.programs">
+      <![CDATA[
+
+ If an environment contains programs, these give rise to proof
+ obligations. By default, these need not be discharged necessarily; that
+ is, they are excluded from "proof all obligation" calls.
+
+ <p>
+ If you want to generate proof obligations for programs you can set
+ <tt>ProofObligation.programs</tt> to one of:
+ <ul>
+ <li><tt>partial</tt> for partial correctness or
+ <li><tt>total</tt> for total correctness.
+ </ul>
+
+ <p>
+ This setting applies to all programs within an environment. If you only
+ want to generate a proof obligation for one particular program <i>P</i>
+ is is better to add a lemma
+
+ <pre>
+ lemma P_partial
+ [0;P] true
+ </pre>
+
+ instead with the same effect.]]>
     </entry>
     <entry name="obeyProgramBreakpoints">
       <![CDATA[
@@ -851,21 +873,21 @@
     </entry>
     <entry name="axiom">
       <![CDATA[
- 
+
  <h2>Where condition <tt>axiom</tt></h2>
- 
+
  This condition can be used to ensure that a term has been defined as an
  axiom.
- 
+
  <p>
  In addition to giving the term of an axiom, the property "axiomName" must be
  set on the rule application
- 
+
  <h3>Syntax</h3> The where condition expects one parameter.
- 
+
  <h3>Example:</h3>
  The condition is used in the rule
- 
+
  <pre>
    rule `axiom`
    where `axiom` %b
@@ -873,13 +895,13 @@
    tags autoonly
         display "Insert axiom {property axiomName}"
  </pre>
- 
+
  (axiom needs to back-quoted since it is a keyword)
- 
+
  <h3>See also:</h3> <a href="ivil:/Rule property/asAxiom">asAxiom</a>
- 
+
  <h3>Result:</h3>
- 
+
  <code>true</code> if the argument has been declared as axiom under the
  specified name. Fails otherwise.]]>
     </entry>

@@ -14,6 +14,7 @@ import junit.framework.TestSuite;
 import de.uka.iti.pseudo.cmd.AutomaticProblemProver;
 import de.uka.iti.pseudo.cmd.FileProblemProverBuilder;
 import de.uka.iti.pseudo.cmd.Result;
+import de.uka.iti.pseudo.cmd.FileProblemProverBuilder.ProofObligationOption;
 
 public class AutomationTests extends TestCase {
 
@@ -32,12 +33,10 @@ public class AutomationTests extends TestCase {
             FileProblemProverBuilder fileBuilder =
                     new FileProblemProverBuilder(new File(fileName));
 
-            if (!fileBuilder.hasProblemDeclaration()) {
-                fail(fileName + " does not contain a problem declaration");
-            }
-
             fileBuilder.setTimeout(TIMEOUT);
             fileBuilder.setRelayToSource(true);
+            fileBuilder.setProofObligations(ProofObligationOption.ALL, new String[0]);
+
             for (AutomaticProblemProver app : fileBuilder.createProblemProvers()) {
                 Result result = app.call();
 

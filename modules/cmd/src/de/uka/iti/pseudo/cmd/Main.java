@@ -13,16 +13,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.cmd.FileProblemProverBuilder.ProofObligationOption;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
+import de.uka.iti.pseudo.util.CommandLineException;
 import de.uka.iti.pseudo.util.CompletedFuture;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
@@ -36,16 +40,16 @@ public class Main {
     /*
      * The constants for the command line option processing
      */
-    private static final String CMDLINE_RECURSIVE = "-r";
     private static final String CMDLINE_HELP = "-help";
-    private static final String CMDLINE_CHECKPROOFS = "-c";
-    private static final String CMDLINE_PROOFFILE = "-p";
+    private static final String CMDLINE_CHECKPROOF = "-c";
+    private static final String CMDLINE_PROOFOBLIGATIONS = "-p";
     private static final String CMDLINE_VERBOSE = "-v";
-    private static final String CMDLINE_ALLSUFFIX = "-all";
+    private static final String CMDLINE_ALL_OBLIGATIONS = "-a";
+    private static final String CMDLINE_DEF_OBLIGATION = "-d";
     private static final String CMDLINE_TIMEOUT = "-t";
-    private static final String CMDLINE_RULELIMIT = "-n";
     private static final String CMDLINE_THREADS = "-threads";
     private static final String CMDLINE_SOURCE = "-s";
+    private static final String CMDLINE_EXTENSIONS = "-x";
 //    private static final String CMDLINE_PIPE = "-pipe";
 
     /**
@@ -58,19 +62,19 @@ public class Main {
      */
     public static final String ASSERTION_PROPERTY = "pseudo.enableAssertions";
 
+    private static final int DEFAULT_TIMEOUT = 30;
+
+
     /*
      * Local fields that hold the values of the command line
      */
-//    private static boolean pipeMode;
-    private static boolean recursive;
-    private static boolean checkOnly;
-    private static boolean allSuffix;
+    private static String proofFile;
+    private static ProofObligationOption proofObligationSet;
     private static boolean verbose;
     private static int timeout;
-    private static int ruleLimit;
     private static int numberThreads;
     private static boolean relayToSource;
-    private static String proofFile;
+    private static String[] selectedProofObligations;
 
     /**
      * The thread pool in which the tasks will be executed.
@@ -81,6 +85,7 @@ public class Main {
      * The results of the execution are stored here.
      */
     private static List<Future<Result>> results = new ArrayList<Future<Result>>();
+    private static Set<String> fileExtensions;
 
     /**
      * Prepare the command line options object.
@@ -92,15 +97,17 @@ public class Main {
         CommandLine cl = new CommandLine();
         cl.addOption(CMDLINE_HELP, null, "Print usage");
         cl.addOption(CMDLINE_VERBOSE, null, "Be verbose in messages");
-        cl.addOption(CMDLINE_CHECKPROOFS, null, "Check proofs. Proof file names end in '.pxml'");
-        cl.addOption(CMDLINE_PROOFFILE, "<file>", "Proof file to load");
-        cl.addOption(CMDLINE_RECURSIVE, null, "Apply recursively.");
-        cl.addOption(CMDLINE_ALLSUFFIX, null, "Read all files (not only *.p)");
+        cl.addOption(CMDLINE_CHECKPROOF, "<file>", "Proof file to check (pxml)");
+        cl.addOption(CMDLINE_PROOFOBLIGATIONS, "<obligs>", "Comma-separated list of proof obligation IDs.");
+//        cl.addOption(CMDLINE_RECURSIVE, null, "Apply recursively.");
+        cl.addOption(CMDLINE_ALL_OBLIGATIONS, null, "Proof all obligations in files.");
+        cl.addOption(CMDLINE_DEF_OBLIGATION, null, "Show the default obligations in files.");
         cl.addOption(CMDLINE_TIMEOUT, "[secs]", "time to run before interrupting (-1 for no timeout)");
-        cl.addOption(CMDLINE_RULELIMIT, "[no]", "number of rule applications before interrupting (0 for no timeout)");
         cl.addOption(CMDLINE_THREADS, "[no]", "number of simultaneously running threads");
         cl.addOption(CMDLINE_SOURCE, null, "relay error messages to sources");
 //        cl.addOption(CMDLINE_PIPE, null, "only YES, NO or ERROR will be printed to stdout");
+        cl.addOption(CMDLINE_EXTENSIONS, "<exts>",
+                "comma separated list of scanned supported extensions (defaults to .p)");
         return cl;
     }
 
@@ -127,33 +134,58 @@ public class Main {
             commandLine.parse(args);
 
             if (args.length == 0 || commandLine.isSet(CMDLINE_HELP)) {
-                System.out.println("Usage: ivilc [options] [files|dirs]");
+                System.out.println("Usage: ivilc [options] [file(s)|dir(s)]");
                 System.out.println();
                 commandLine.printUsage(System.out);
                 System.exit(0);
             }
 
-            recursive = commandLine.isSet(CMDLINE_RECURSIVE);
-            checkOnly = commandLine.isSet(CMDLINE_CHECKPROOFS);
-            allSuffix = commandLine.isSet(CMDLINE_ALLSUFFIX);
             verbose = commandLine.isSet(CMDLINE_VERBOSE);
-            timeout = commandLine.getInteger(CMDLINE_TIMEOUT, 5);
-            ruleLimit = commandLine.getInteger(CMDLINE_RULELIMIT, 0);
+            timeout = commandLine.getInteger(CMDLINE_TIMEOUT, DEFAULT_TIMEOUT);
             numberThreads = commandLine.getInteger(CMDLINE_THREADS, 4);
             relayToSource = commandLine.isSet(CMDLINE_SOURCE);
-            proofFile = commandLine.getString(CMDLINE_PROOFFILE, null);
+            proofFile = commandLine.getString(CMDLINE_CHECKPROOF, null);
+            fileExtensions = Util.readOnlyArraySet(
+                    commandLine.getString(CMDLINE_EXTENSIONS, ".p").split(","));
+
+            if(commandLine.isSet(CMDLINE_ALL_OBLIGATIONS)) {
+                proofObligationSet = ProofObligationOption.ALL;
+            }
+
+            if(commandLine.isSet(CMDLINE_DEF_OBLIGATION)) {
+                if (proofObligationSet != null) {
+                    throw new CommandLineException("Cannot specify more than one of " +
+                            CMDLINE_ALL_OBLIGATIONS + ", " +
+                            CMDLINE_PROOFOBLIGATIONS +
+                            " and " + CMDLINE_DEF_OBLIGATION + ".");
+                }
+                proofObligationSet = ProofObligationOption.DEFAULT;
+            }
+
+            if(commandLine.isSet(CMDLINE_PROOFOBLIGATIONS)) {
+                if (proofObligationSet != null) {
+                    throw new CommandLineException("Cannot specify more than one of " +
+                            CMDLINE_ALL_OBLIGATIONS + ", " +
+                            CMDLINE_PROOFOBLIGATIONS +
+                            " and " + CMDLINE_DEF_OBLIGATION + ".");
+                }
+                proofObligationSet = ProofObligationOption.SELECTED;
+                selectedProofObligations =
+                        commandLine.getString(CMDLINE_PROOFOBLIGATIONS, "").split(",");
+            }
+
 
             printVersion();
 
-            // if(verbose) {
-            // Log.setMinLevel(Log.ALL);
-            // }
+//             if(verbose) {
+//                 Log.setMinLevel(Log.ALL);
+//             }
 
             executor = Executors.newFixedThreadPool(numberThreads);
 
             List<String> fileArguments = commandLine.getArguments();
             for (String file : fileArguments) {
-                handleFile(null, file);
+                handleArgument(file);
             }
 
             executor.shutdown();
@@ -203,26 +235,47 @@ public class Main {
      *            the directory under which the file lives
      * @param fileName
      *            the (local) name of the file
+     * @throws TermException
+     * @throws IOException
+     * @throws ASTVisitException
+     * @throws ParseException
+     * @throws EnvironmentException
      */
-    private static void handleFile(File directory, String fileName) throws ParseException, ASTVisitException,
-            IOException, TermException {
-        File file = new File(directory, fileName);
-        if (file.isDirectory()) {
-            if (recursive) {
-                String[] children = file.list();
-                for (String child : children) {
-                    handleFile(file, child);
-                }
-            }
+    private static void handleArgument(String argument) throws ParseException, ASTVisitException, IOException, TermException, EnvironmentException {
+        File file = new File(argument);
+        if(file.isDirectory()) {
+            handleRecursively(file);
         } else {
-            if (allSuffix || file.getName().endsWith(".p")) {
-                if(checkOnly) {
-                    checkSingleFile(file);
-                } else {
-                    handleSingleFile(file);
+            if(proofFile == null) {
+                handleSingleFile(file);
+            } else {
+                checkSingleFile(file);
+            }
+        }
+    }
+
+    private static void handleRecursively(File dir) throws ParseException, ASTVisitException, IOException, TermException, EnvironmentException {
+        assert dir.isDirectory();
+        File[] children = dir.listFiles();
+        for (File child : children) {
+            if(child.isDirectory()) {
+                handleRecursively(child);
+            }
+            String name = child.getName();
+            int index = name.lastIndexOf('.');
+            if(index > 0) {
+                // if it has an extension
+                String ext = name.substring(name.lastIndexOf('.'));
+                if(fileExtensions.contains(ext)) {
+                    if(proofFile == null) {
+                        handleSingleFile(child);
+                    } else {
+                        checkSingleFile(child);
+                    }
                 }
             }
         }
+
     }
 
     /**
@@ -235,9 +288,10 @@ public class Main {
      * The result (a {@link Future} value) is added to the results lists.
      *
      * Parameters are set on the prover object.
+     * @throws EnvironmentException
      */
     private static void handleSingleFile(File file) throws ParseException,
-                ASTVisitException, IOException, TermException {
+                ASTVisitException, IOException, TermException, EnvironmentException {
 
         FileProblemProverBuilder builder;
         try {
@@ -252,16 +306,11 @@ public class Main {
             return;
         }
 
-        if (!builder.hasProblemDeclaration()) {
-            if (verbose) {
-                System.err.println(file + " does not contain a problem ... ignored");
-            }
-            return;
-        }
 
         builder.setTimeout(timeout);
-        builder.setRuleLimit(ruleLimit);
+//        builder.setRuleLimit(ruleLimit);
         builder.setRelayToSource(relayToSource);
+        builder.setProofObligations(proofObligationSet, selectedProofObligations);
 
         for (AutomaticProblemProver app : builder.createProblemProvers()) {
             Future<Result> future = executor.submit(app);
