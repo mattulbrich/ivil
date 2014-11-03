@@ -80,7 +80,7 @@ public class AutomaticProblemProver implements Callable<Result> {
     private Environment env;
 
     /**
-     * The sequent of the probleam under inspection
+     * The sequent of the problem under inspection
      */
 
     /**

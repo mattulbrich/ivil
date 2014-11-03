@@ -126,7 +126,8 @@ public class Z3SMT implements DecisionProcedure {
             Runtime rt = Runtime.getRuntime();
 
             StringBuilder sb = new StringBuilder();
-            sb.append("z3 SOFT_TIMEOUT=").append(timeout).append(" ");
+            // sb.append("z3 SOFT_TIMEOUT=").
+            sb.append("z3 timeout=").append(timeout).append(" ");
             sb.append(additionalParams);
             sb.append(" -in -smt2");
             String command = sb.toString();
