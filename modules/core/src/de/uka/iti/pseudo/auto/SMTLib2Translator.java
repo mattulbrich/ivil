@@ -414,12 +414,12 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         StringBuilder sb = new StringBuilder();
         sb.append("(and true ");
         for (Term term : sequent.getAntecedent()) {
-            sb.append(translate(term, BOOL));
+            sb.append(translate(term, BOOL)).append(" ");
         }
         for (Term term : sequent.getSuccedent()) {
             sb.append("(not ");
             sb.append(translate(term, BOOL));
-            sb.append(")");
+            sb.append(") ");
         }
 
         sb.append(")");

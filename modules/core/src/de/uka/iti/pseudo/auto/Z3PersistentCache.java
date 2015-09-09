@@ -137,7 +137,7 @@ public class Z3PersistentCache {
      *
      * @return the global instance, or <code>null</code> if not available
      */
-    public static Z3PersistentCache getGlobalInstance() {
+    public static @Nullable Z3PersistentCache getGlobalInstance() {
         if(!checkedForGlobalInstance) {
             synchronized (Z3PersistentCache.class) {
                 Settings settings = Settings.getInstance();
