@@ -59,6 +59,11 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
 
     private static Settings SETTINGS = Settings.getInstance(); 
 
+    enum HighlightType {
+        /* to highlight traversed statements */TRACE,
+        /* to mark the current line of excecution */CURRENT_LINE,
+        /* to show the reason why the term under mouse exists*/ORIGIN };
+
     private static final Font FONT = 
             SETTINGS.getFont("pseudo.program.font", null);
 
@@ -66,6 +71,8 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
             SETTINGS.getColor("pseudo.program.highlightcolor", Color.GREEN);
     private static final Color TRACE_COLOR = 
             SETTINGS.getColor("pseudo.program.tracecolor", new Color(200, 230, 200));
+    private static final Color ORIGIN_COLOR =
+            SETTINGS.getColor("pseudo.program.origincolor", Color.ORANGE);
 
     private static final Icon BULLET_ICON = GUIUtil.makeIcon(
             BulletBorder.class.getResource("/de/uka/iti/pseudo/gui/img/bullet_blue.png"));
@@ -73,13 +80,15 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
             new BarHighlightPainter(HIGHLIGHT_COLOR);
     private static final HighlightPainter TRACE_PAINTER =
             new BarHighlightPainter(TRACE_COLOR);
+    private static final HighlightPainter ORIGIN_PAINTER =
+            new BarHighlightPainter(ORIGIN_COLOR);
 
     public static boolean showTrace = 
             SETTINGS.getBoolean("pseudo.program.showtrace", true);
 
-    private BreakpointManager breakpointManager;
+    private final BreakpointManager breakpointManager;
     private Object breakPointResource;
-    private List<Object> lineHighlights = new ArrayList<Object>();
+    private final List<Object> lineHighlights = new ArrayList<Object>();
     
     public BreakpointPane(BreakpointManager breakpointManager,
             boolean showLineNumbers) {
@@ -104,24 +113,28 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
             setBorder(new CompoundBorder(breakpointBorder, secondBorder));
         }
 
-        if(FONT != null)
+        if(FONT != null) {
             setFont(FONT);
+        }
         
         setEditable(false);
         
         addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.isPopupTrigger()) {
 					showPopup(e);
 				}
 			}
 
+			@Override
 			public void mouseReleased(MouseEvent e) {
 				if (e.isPopupTrigger()) {
 					showPopup(e);
 				}
 			}
 			
+			@Override
 			public void mousePressed(MouseEvent e) {
 				if (e.isPopupTrigger()) {
 					showPopup(e);
@@ -134,8 +147,9 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
     
     private void showPopup(MouseEvent e) {
         
-        if(breakPointResource == null)
+        if(breakPointResource == null) {
             return;
+        }
         
         int offset = viewToModel(e.getPoint());
         final int line;
@@ -151,6 +165,7 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         if (hasBreakPointHere) {
             item = new JMenuItem("Remove this breakpoint");
             item.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     breakpointManager.removeBreakpoint(breakPointResource, line);
                 }
@@ -158,6 +173,7 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         } else {
             item = new JMenuItem("Set breakpoint here");
             item.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     breakpointManager.addBreakpoint(breakPointResource, line);
                 }
@@ -187,20 +203,30 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
      *            <code>true</code> for a distant highlight, <code>false</code>
      *            for the direct line.
      */
-    public void addHighlight(int line, boolean isTrace) {
-        if (isTrace && !showTrace)
+    public void addHighlight(int line, HighlightType type) {
+        if (type == HighlightType.TRACE && !showTrace) {
             return;
+        }
 
         try {
             int begin = getLineStartOffset(line);
-            Object tag = getHighlighter().addHighlight(begin, begin,
-                    isTrace ? TRACE_PAINTER : BAR_PAINTER);
+
+            HighlightPainter painter;
+            switch(type) {
+            case ORIGIN: painter = ORIGIN_PAINTER; break;
+            case CURRENT_LINE: painter = BAR_PAINTER; break;
+            case TRACE: painter = TRACE_PAINTER; break;
+            default: throw new Error("unreachable code reached");
+            }
+
+            Object tag = getHighlighter().addHighlight(begin, begin, painter);
             lineHighlights.add(tag);
             
             // make this line visible
             Rectangle point = modelToView(begin);
-            if(point != null)
+            if(point != null && type == HighlightType.CURRENT_LINE) {
                 scrollRectToVisible(point);
+            }
             repaint();
         } catch (BadLocationException e) {
             // throw new Error(e);
@@ -214,11 +240,13 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         
         private static final long serialVersionUID = 487188734129249672L;
         
+        @Override
         public void paintBorder(Component c, Graphics g, int x, int y, int width,
                 int height) {
 
-            if(breakPointResource == null)
+            if(breakPointResource == null) {
                 return;
+            }
             
             FontMetrics fm = g.getFontMetrics();
             int step = fm.getHeight();

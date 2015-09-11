@@ -25,32 +25,52 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.sequent.TermComponent;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.term.CodeLocation;
+import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 
-public abstract class CodePanel extends JPanel implements PropertyChangeListener {
+public abstract class CodePanel extends JPanel implements PropertyChangeListener, NotificationListener {
 
     private static final long serialVersionUID = -1207856898178542463L;
 
     private BreakpointPane sourceComponent;
     private int numberOfKnownPrograms = 0;
-    private JComboBox selectionBox;
+    /*
+     * Object is used for this box (when refitting this generic) since the
+     * subclasses list different things in it.
+     */
+    private JComboBox<Object> selectionBox;
     protected final ProofCenter proofCenter;
+    /**
+     * This field holds the program term that has been identified
+     * resonsible for the currently active term.
+     * Line numbers can be extracted from that.
+     */
+    protected LiteralProgramTerm relevantProgramTerm;
     private final BreakpointManager breakpointManager;
     private Object displayedResource;
 
     private final Map<ProofNode, Collection<? extends CodeLocation<?>>> cache =
             new HashMap<ProofNode, Collection<? extends CodeLocation<?>>>();
 
+
     public CodePanel(ProofCenter proofCenter, boolean showLinenumbers,
             Color foregroundColor) throws IOException, StrategyException {
         this.proofCenter = proofCenter;
         this.breakpointManager = proofCenter.getBreakpointManager();
         proofCenter.addPropertyChangeListener(ProofCenter.CODE_PANE_SHOW_TRACE, this);
+        proofCenter.addNotificationListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
         init(showLinenumbers, foregroundColor);
     }
 
@@ -63,7 +83,7 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
             add(scroll, BorderLayout.CENTER);
         }
         {
-            selectionBox = new JComboBox();
+            selectionBox = new JComboBox<Object>();
             // this set the preferred size to something smaller than the maximum display
             // size ... the panel can be resized smaller than that width ... (was a feature req)
             selectionBox.setPrototypeDisplayValue("minimalWidthDisplay");
@@ -116,6 +136,38 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
 
     }
 
+    @Override
+    public void handleNotification(@NonNull NotificationEvent event) {
+        assert event.isSignal(TermComponent.TERM_COMPONENT_SELECTED_TAG);
+
+        try {
+            TermComponent component = (TermComponent) event.getParameter(0);
+            Annotation history = component.getHistory();
+            LiteralProgramTerm reason = null;
+            while(history != null && reason == null) {
+                ProofNode proofNode = history.getCreatingProofNode();
+                RuleApplication ruleApp = proofNode.getAppliedRuleApp();
+                String rewrite = ruleApp.getRule().getProperty("rewrite");
+                if(rewrite != null && rewrite.equals("symbex")) {
+                    Term term = ruleApp.getSchemaVariableMapping().get("%a");
+                    reason = (LiteralProgramTerm) term;
+                } else {
+                    history = history.getParentAnnotation();
+                }
+            }
+
+            this.relevantProgramTerm = reason;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        getSourceComponent().removeHighlights();
+        if (null == proofCenter.getCurrentProofNode()) {
+            return;
+        }
+        addHighlights();
+    }
+
     private void proofNodeSelected(ProofNode node) {
         int now = proofCenter.getEnvironment().getAllPrograms().size();
         if(now != numberOfKnownPrograms) {
@@ -158,7 +210,7 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
 
     abstract protected String makeContent(Object reference);
 
-    abstract protected ComboBoxModel getAllResources();
+    abstract protected ComboBoxModel<Object>getAllResources();
 
     abstract protected void addHighlights();
 

@@ -21,6 +21,7 @@ import javax.swing.DefaultComboBoxModel;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.source.BreakpointPane.HighlightType;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.term.CodeLocation;
@@ -81,7 +82,7 @@ public class ProgramPanel extends CodePanel {
             for (CodeLocation<?> loc : locs) {
                 if(loc.getProgram() == getDisplayedResource() &&
                         loc.getIndex() < ((Program) loc.getProgram()).countStatements()) {
-                    getSourceComponent().addHighlight(loc.getIndex(), true);
+                    getSourceComponent().addHighlight(loc.getIndex(), HighlightType.TRACE);
                 }
             }
 
@@ -94,9 +95,14 @@ public class ProgramPanel extends CodePanel {
             for (CodeLocation<?> loc : firstLocs) {
                 if(loc.getProgram() == getDisplayedResource() &&
                         loc.getIndex() < ((Program) loc.getProgram()).countStatements()) {
-                    getSourceComponent().addHighlight(loc.getIndex(), false);
+                    getSourceComponent().addHighlight(loc.getIndex(), HighlightType.CURRENT_LINE);
                 }
             }
+        }
+
+        if(relevantProgramTerm != null) {
+            int index = relevantProgramTerm.getProgramIndex();
+            getSourceComponent().addHighlight(index, HighlightType.ORIGIN);
         }
     }
 

@@ -754,4 +754,13 @@ public class TermComponent extends JTextPane {
         return maxChars;
     }
 
+    /**
+     * Gets the history for the displayed term.
+     *
+     * @return n non-<code>null</code> history object.
+     */
+    public @NonNull Annotation getHistory() {
+        return history;
+    }
+
 }

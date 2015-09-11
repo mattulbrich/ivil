@@ -23,8 +23,10 @@ import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.source.BreakpointPane.HighlightType;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.term.CodeLocation;
+import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -41,7 +43,7 @@ public class SourcePanel extends CodePanel {
     }
 
     @Override
-    protected ComboBoxModel getAllResources() {
+    protected ComboBoxModel<Object> getAllResources() {
         Environment env = getProofCenter().getEnvironment();
         Collection<Program> programs = env.getAllPrograms();
 
@@ -53,14 +55,15 @@ public class SourcePanel extends CodePanel {
             }
         }
 
-        return new DefaultComboBoxModel(sourceFilenames.toArray());
+        return new DefaultComboBoxModel<Object>(sourceFilenames.toArray());
     }
 
     @Override
     protected String makeContent(Object reference) {
 
-        if(!(reference instanceof URL) || reference == null)
+        if(!(reference instanceof URL) || reference == null) {
             return null;
+        }
 
         try {
             return Util.readURLAsString((URL)reference);
@@ -74,6 +77,7 @@ public class SourcePanel extends CodePanel {
 
     @Override 
     protected void addHighlights() {
+        //
         // print trace
         // remember the first parent that has a location
         Collection<? extends CodeLocation<?>> firstLocs = null;
@@ -86,7 +90,7 @@ public class SourcePanel extends CodePanel {
                 int sourceLine = loc.getIndex();
                 if (source == getDisplayedResource() && sourceLine > 0) {
                     // line numbers start at 1 in code and at 0 in component.
-                    getSourceComponent().addHighlight(sourceLine - 1, true);
+                    getSourceComponent().addHighlight(sourceLine - 1, HighlightType.TRACE);
                 }
             }
 
@@ -101,9 +105,19 @@ public class SourcePanel extends CodePanel {
                 int sourceLine = loc.getIndex();
                 if (source == getDisplayedResource() && sourceLine > 0) {
                     // line numbers start at 1 in code and at 0 in component.
-                    getSourceComponent().addHighlight(sourceLine - 1, false);
+                    getSourceComponent().addHighlight(sourceLine - 1, HighlightType.CURRENT_LINE);
+                }
                 }
             }
+
+        //
+        // show the reason line:
+        if(relevantProgramTerm != null) {
+            Program prog = relevantProgramTerm.getProgram();
+            Statement stm = prog.getStatement(relevantProgramTerm.getProgramIndex());
+            int line = stm.getSourceLineNumber();
+
+            getSourceComponent().addHighlight(line - 1, HighlightType.ORIGIN);
         }
     }
 
