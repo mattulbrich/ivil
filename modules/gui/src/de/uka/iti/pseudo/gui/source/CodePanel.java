@@ -19,8 +19,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -45,7 +46,7 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
     private static final long serialVersionUID = -1207856898178542463L;
 
     private BreakpointPane sourceComponent;
-    private int numberOfKnownPrograms = 0;
+    private Set<Object> knownResources;
     /*
      * Object is used for this box (when refitting this generic) since the
      * subclasses list different things in it.
@@ -94,9 +95,9 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
                 }
             });
             add(selectionBox, BorderLayout.NORTH);
-            selectionBox.setModel(getAllResources());
+            knownResources = getAllResources(null);
+            selectionBox.setModel(new DefaultComboBoxModel<Object>(knownResources.toArray()));
             selectSource();
-            numberOfKnownPrograms = proofCenter.getEnvironment().getAllPrograms().size();
         }
     }
 
@@ -146,6 +147,9 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
             LiteralProgramTerm reason = null;
             while(history != null && reason == null) {
                 ProofNode proofNode = history.getCreatingProofNode();
+                if(proofNode == null) {
+                    break;
+                }
                 RuleApplication ruleApp = proofNode.getAppliedRuleApp();
                 String rewrite = ruleApp.getRule().getProperty("rewrite");
                 if(rewrite != null && rewrite.equals("symbex")) {
@@ -169,10 +173,11 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
     }
 
     private void proofNodeSelected(ProofNode node) {
-        int now = proofCenter.getEnvironment().getAllPrograms().size();
-        if(now != numberOfKnownPrograms) {
-            selectionBox.setModel(getAllResources());
-            numberOfKnownPrograms = proofCenter.getEnvironment().getAllPrograms().size();
+
+        Set<Object> newResources = getAllResources(node);
+        if(!newResources.equals(knownResources)) {
+            selectionBox.setModel(new DefaultComboBoxModel<Object>(newResources.toArray()));
+            knownResources = newResources;
         }
 
         Object resource = chooseResource();
@@ -210,7 +215,7 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
 
     abstract protected String makeContent(Object reference);
 
-    abstract protected ComboBoxModel<Object>getAllResources();
+    abstract protected Set<Object> getAllResources(ProofNode node);
 
     abstract protected void addHighlights();
 

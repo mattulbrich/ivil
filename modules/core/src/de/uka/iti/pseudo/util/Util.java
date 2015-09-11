@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.AbstractCollection;
 import java.util.AbstractList;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -27,7 +28,6 @@ import java.util.Set;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
-import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.Term;
 
 /**
@@ -698,6 +698,32 @@ public final class Util {
             throw new NumberFormatException("Unsigned integer expected: " + string);
         }
         return result;
+    }
+
+    // TODO DOC
+    public static <E> Collection<E> iterableToCollection(final Iterable<E> it) {
+        return new AbstractCollection<E>() {
+
+            int size = -1;
+
+            @Override
+            public Iterator<E> iterator() {
+                return it.iterator();
+            }
+
+            @Override
+            public int size() {
+                if(size == -1) {
+                    int s = 0;
+                    for (E t : it) {
+                        s++;
+                    }
+                    this.size = s;
+                }
+                return size;
+            }
+
+        };
     }
 
 }

@@ -13,9 +13,10 @@ import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
@@ -26,6 +27,7 @@ import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.term.CodeLocation;
 import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 public class ProgramPanel extends CodePanel {
@@ -111,11 +113,13 @@ public class ProgramPanel extends CodePanel {
         return CodeLocation.findCodeLocations(node.getSequent());
     }
 
-    @Override protected ComboBoxModel getAllResources() {
-        Collection<Program> programs = getProofCenter().getEnvironment()
-                .getAllPrograms();
-
-        return new DefaultComboBoxModel(programs.toArray());
+    @Override protected Set<Object> getAllResources(ProofNode node) {
+        Set<Object> result = new HashSet<Object>();
+        result.addAll(getProofCenter().getEnvironment().getAllPrograms());
+        if(node != null) {
+            result.addAll(Util.iterableToCollection(node.getLocalSymbolTable().getPrograms()));
+        }
+        return result;
     }
 
     @Override

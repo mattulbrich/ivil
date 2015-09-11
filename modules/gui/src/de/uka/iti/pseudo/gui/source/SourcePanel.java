@@ -16,9 +16,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
-
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Program;
@@ -43,7 +40,7 @@ public class SourcePanel extends CodePanel {
     }
 
     @Override
-    protected ComboBoxModel<Object> getAllResources() {
+    protected Set<Object> getAllResources(ProofNode node) {
         Environment env = getProofCenter().getEnvironment();
         Collection<Program> programs = env.getAllPrograms();
 
@@ -55,7 +52,17 @@ public class SourcePanel extends CodePanel {
             }
         }
 
-        return new DefaultComboBoxModel<Object>(sourceFilenames.toArray());
+        if(node != null) {
+            Iterable<Program> localPrograms = node.getLocalSymbolTable().getPrograms();
+            for (Program program : localPrograms) {
+                URL sourceFile = program.getSourceFile();
+                if (sourceFile != null) {
+                    sourceFilenames.add(sourceFile);
+                }
+            }
+        }
+
+        return sourceFilenames;
     }
 
     @Override
