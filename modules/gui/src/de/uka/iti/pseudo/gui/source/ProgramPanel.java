@@ -17,8 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.DefaultComboBoxModel;
-
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -73,7 +71,7 @@ public class ProgramPanel extends CodePanel {
     }
 
     @Override
-    protected void addHighlights() {
+    protected void addHighlights(boolean scrollToCurrent) {
         // print trace
         // remember the first parent that has a location
         Collection<? extends CodeLocation<?>> firstLocs = null;
@@ -98,14 +96,20 @@ public class ProgramPanel extends CodePanel {
                 if(loc.getProgram() == getDisplayedResource() &&
                         loc.getIndex() < ((Program) loc.getProgram()).countStatements()) {
                     getSourceComponent().addHighlight(loc.getIndex(), HighlightType.CURRENT_LINE);
+                    if(scrollToCurrent) {
+                        getSourceComponent().scrollToLine(loc.getIndex());
+                    }
                 }
             }
         }
 
         if(relevantProgramTerm != null) {
+            Program program = relevantProgramTerm.getProgram();
+            if(program == getDisplayedResource()) {
             int index = relevantProgramTerm.getProgramIndex();
             getSourceComponent().addHighlight(index, HighlightType.ORIGIN);
         }
+    }
     }
 
     @Override

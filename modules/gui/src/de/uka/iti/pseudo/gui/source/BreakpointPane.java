@@ -222,12 +222,22 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
             Object tag = getHighlighter().addHighlight(begin, begin, painter);
             lineHighlights.add(tag);
             
-            // make this line visible
+            repaint();
+        } catch (BadLocationException e) {
+            // throw new Error(e);
+            Log.log(Log.WARNING, "Illegal line number " + line
+                    + " referenced for " + getBreakPointResource());
+            Log.stacktrace(e);
+        }
+    }
+
+    public void scrollToLine(int line) {
+        try {
+            int begin = getLineStartOffset(line);
             Rectangle point = modelToView(begin);
-            if(point != null && type == HighlightType.CURRENT_LINE) {
+            if(point != null) {
                 scrollRectToVisible(point);
             }
-            repaint();
         } catch (BadLocationException e) {
             // throw new Error(e);
             Log.log(Log.WARNING, "Illegal line number " + line

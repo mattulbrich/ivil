@@ -83,7 +83,7 @@ public class SourcePanel extends CodePanel {
     }
 
     @Override 
-    protected void addHighlights() {
+    protected void addHighlights(boolean scrollToCurrent) {
         //
         // print trace
         // remember the first parent that has a location
@@ -113,6 +113,9 @@ public class SourcePanel extends CodePanel {
                 if (source == getDisplayedResource() && sourceLine > 0) {
                     // line numbers start at 1 in code and at 0 in component.
                     getSourceComponent().addHighlight(sourceLine - 1, HighlightType.CURRENT_LINE);
+                    if(scrollToCurrent) {
+                        getSourceComponent().scrollToLine(sourceLine - 1);
+                    }
                 }
                 }
             }
@@ -121,11 +124,12 @@ public class SourcePanel extends CodePanel {
         // show the reason line:
         if(relevantProgramTerm != null) {
             Program prog = relevantProgramTerm.getProgram();
+            if(prog.getSourceFile() == getDisplayedResource()) {
             Statement stm = prog.getStatement(relevantProgramTerm.getProgramIndex());
             int line = stm.getSourceLineNumber();
-
             getSourceComponent().addHighlight(line - 1, HighlightType.ORIGIN);
         }
+    }
     }
 
     @Override

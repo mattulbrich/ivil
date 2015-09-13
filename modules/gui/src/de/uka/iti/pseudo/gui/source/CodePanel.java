@@ -113,7 +113,7 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
         if (null == proofCenter.getCurrentProofNode()) {
             return;
         }
-        addHighlights();
+        addHighlights(true);
     }
 
     @Override
@@ -132,7 +132,7 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
             if (null == proofCenter.getCurrentProofNode()) {
                 return;
             }
-            addHighlights();
+            addHighlights(true);
         }
 
     }
@@ -169,7 +169,7 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
         if (null == proofCenter.getCurrentProofNode()) {
             return;
         }
-        addHighlights();
+        addHighlights(false);
     }
 
     private void proofNodeSelected(ProofNode node) {
@@ -189,7 +189,7 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
         }
 
         getSourceComponent().removeHighlights();
-        addHighlights();
+        addHighlights(true);
     }
 
     protected Collection<? extends CodeLocation<?>> getCodeLocations(ProofNode node) {
@@ -217,7 +217,7 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
 
     abstract protected Set<Object> getAllResources(ProofNode node);
 
-    abstract protected void addHighlights();
+    abstract protected void addHighlights(boolean scrollToCurrent);
 
     abstract protected Collection<? extends CodeLocation<?>> calculateCodeLocationsOfNode(ProofNode node);
 

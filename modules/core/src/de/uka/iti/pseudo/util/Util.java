@@ -700,8 +700,18 @@ public final class Util {
         return result;
     }
 
-    // TODO DOC
-    public static <E> Collection<E> iterableToCollection(final Iterable<E> it) {
+
+    /**
+     * Creates a {@link Collection} object from an {@link Iterable} object.
+     *
+     * @param <E>
+     *            the element type
+     * @param it
+     *            the iterator to go over
+     * @return an unmodifiable collection reflecting the contents of the
+     *         argument
+     */
+    public static @NonNull <E> Collection<E> iterableToCollection(final @NonNull Iterable<E> it) {
         return new AbstractCollection<E>() {
 
             int size = -1;
