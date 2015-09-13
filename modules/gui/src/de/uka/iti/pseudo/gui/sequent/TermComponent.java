@@ -76,7 +76,7 @@ public class TermComponent extends JTextPane {
     private static final long serialVersionUID = -4415736579829917335L;
 
     /**
-     * The key (to the ProofCenter notification mechanism) to indicate that
+     * The key (to the ProofCenter property mechanism) to indicate that
      * a term has been selected.
      */
     public static final String TERM_COMPONENT_SELECTED_TAG =
@@ -421,6 +421,7 @@ public class TermComponent extends JTextPane {
      * Mouse moved: move the highlighting
      */
     protected void mouseMoved(Point p) {
+        Log.enter(p);
         int index = viewToModel(p);
         try {
             if (index >= 0 && index < annotatedString.length()) {
@@ -432,8 +433,7 @@ public class TermComponent extends JTextPane {
                 mouseSelection = annotatedString.getTermElementAt(index).getSubtermSelector();
                 setToolTipText(makeTermToolTip(mouseSelection));
 
-                Log.enter(p);
-                proofCenter.fireNotification(TERM_COMPONENT_SELECTED_TAG, TermComponent.this);
+                proofCenter.firePropertyChange(TERM_COMPONENT_SELECTED_TAG, TermComponent.this);
 
                 if (null != mouseSelection) {
                     Log.log(Log.VERBOSE, mouseSelection);

@@ -22,8 +22,7 @@ import de.uka.iti.pseudo.gui.sequent.TermComponent;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.NotificationEvent;
-import de.uka.iti.pseudo.util.NotificationListener;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * GUI Action that copies the selected term to the clipboard without
@@ -38,9 +37,7 @@ import de.uka.iti.pseudo.util.NotificationListener;
 @SuppressWarnings("serial")
 public class CopyPrettyTerm
     extends BarAction
- implements InitialisingAction, NotificationListener, ClipboardOwner {
-
-    private Term target = null;
+ implements InitialisingAction, ClipboardOwner {
 
     public CopyPrettyTerm() {
         putValue(NAME, "Copy pretty printed");
@@ -49,35 +46,37 @@ public class CopyPrettyTerm
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (null != target) {
-            StringSelection stringSelection = new StringSelection(getProofCenter().getPrettyPrinter().print(target)
-                    .toString());
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            clipboard.setContents(stringSelection, this);
+
+        TermComponent termComp =
+                (TermComponent) getProofCenter().
+                   getProperty(TermComponent.TERM_COMPONENT_SELECTED_TAG);
+        SubtermSelector selectedTermTag = termComp.getMouseSelection();
+
+        if (null == selectedTermTag) {
+            return;
         }
+
+        Term target;
+        try {
+            target = selectedTermTag.selectSubterm(termComp.getTerm());
+        } catch (ProofException e1) {
+            Log.stacktrace(e1);
+            return;
+        }
+
+        if (null == target) {
+            return;
+        }
+
+        StringSelection stringSelection = new StringSelection(getProofCenter().getPrettyPrinter().print(target)
+                .toString());
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, this);
     }
 
     // initialise myself as listener to the proof center
     @Override
     public void initialised() {
-        getProofCenter().addNotificationListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
-    }
-
-    @Override
-    public void handleNotification(NotificationEvent evt) {
-        assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getSignal());
-
-        TermComponent termComp = (TermComponent) evt.getParameter(0);
-        SubtermSelector selectedTermTag = termComp.getMouseSelection();
-        if (null == selectedTermTag) {
-            return;
-        }
-
-        try {
-            target = selectedTermTag.selectSubterm(termComp.getTerm());
-        } catch (ProofException e) {
-            target = null;
-        }
     }
 
     @Override

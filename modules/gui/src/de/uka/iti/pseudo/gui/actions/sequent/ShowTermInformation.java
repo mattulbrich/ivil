@@ -43,8 +43,7 @@ import de.uka.iti.pseudo.util.settings.Settings;
 @SuppressWarnings("serial")
 public class ShowTermInformation
     extends BarAction
- implements InitialisingAction, NotificationListener,
-        PropertyChangeListener {
+ implements InitialisingAction, PropertyChangeListener {
 
     private String text = "";
     private final JDialog window;
@@ -90,31 +89,8 @@ public class ShowTermInformation
     // initialise myself as listener to the proof center
     @Override
     public void initialised() {
-        getProofCenter().addNotificationListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
+        getProofCenter().addPropertyChangeListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
-    }
-
-    @Override
-    public void handleNotification(NotificationEvent evt) {
-        assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getSignal());
-
-        text = "";
-
-        TermComponent component = (TermComponent) evt.getParameter(0);
-        SubtermSelector selectedTermTag = component.getMouseSelection();
-        if (null == selectedTermTag) {
-            return;
-        }
-
-        if (Boolean.TRUE.equals(getProofCenter().getProperty(ProofCenter.ONGOING_PROOF))) {
-            return;
-        }
-
-        text = component.makeFormatedTermHistory(selectedTermTag);
-        editorPane.setText(text);
-        editorPane.updateUI();
-        editorPane.setBackground(BACKGROUND);
-        editorPane.scrollRectToVisible(new Rectangle(0, 0, 1, 1));
     }
 
     @Override
@@ -126,6 +102,25 @@ public class ShowTermInformation
             if (!isEnabled()) {
                 window.setVisible(false);
             }
+
+        } else if(TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getPropertyName())) {
+            text = "";
+
+            TermComponent component = (TermComponent) evt.getNewValue();
+            SubtermSelector selectedTermTag = component.getMouseSelection();
+            if (null == selectedTermTag) {
+                return;
+            }
+
+            if (Boolean.TRUE.equals(getProofCenter().getProperty(ProofCenter.ONGOING_PROOF))) {
+                return;
+            }
+
+            text = component.makeFormatedTermHistory(selectedTermTag);
+            editorPane.setText(text);
+            editorPane.updateUI();
+            editorPane.setBackground(BACKGROUND);
+            editorPane.scrollRectToVisible(new Rectangle(0, 0, 1, 1));
         }
     }
 }

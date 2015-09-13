@@ -10,6 +10,8 @@
 package de.uka.iti.pseudo.gui.actions.sequent;
 
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Function;
@@ -46,7 +48,7 @@ import de.uka.iti.pseudo.util.NotificationListener;
 @SuppressWarnings("serial")
 public class JumpToIntroductionAction
     extends BarAction
-    implements InitialisingAction, NotificationListener {
+    implements InitialisingAction, PropertyChangeListener {
 
     private ProofNode targetProofNode;
 
@@ -67,17 +69,17 @@ public class JumpToIntroductionAction
     // initialise myself as listener to the proof center
     @Override
     public void initialised() {
-        getProofCenter().addNotificationListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
+        getProofCenter().addPropertyChangeListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
     }
 
     @Override
-    public void handleNotification(NotificationEvent evt) {
-        assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getSignal());
+    public void propertyChange(PropertyChangeEvent evt) {
+        assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getPropertyName());
 
         targetProofNode = null;
         setEnabled(false);
 
-        TermComponent termComp = (TermComponent) evt.getParameter(0);
+        TermComponent termComp = (TermComponent) evt.getNewValue();
         Term term = termComp.getTerm();
         SubtermSelector selector = termComp.getMouseSelection();
         if (selector == null) {
@@ -155,4 +157,5 @@ public class JumpToIntroductionAction
         }
         return null;
     }
+
 }

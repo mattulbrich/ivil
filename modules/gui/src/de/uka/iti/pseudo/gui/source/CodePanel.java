@@ -26,7 +26,6 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
@@ -38,10 +37,8 @@ import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.term.CodeLocation;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.NotificationEvent;
-import de.uka.iti.pseudo.util.NotificationListener;
 
-public abstract class CodePanel extends JPanel implements PropertyChangeListener, NotificationListener {
+public abstract class CodePanel extends JPanel implements PropertyChangeListener {
 
     private static final long serialVersionUID = -1207856898178542463L;
 
@@ -71,7 +68,7 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
         this.proofCenter = proofCenter;
         this.breakpointManager = proofCenter.getBreakpointManager();
         proofCenter.addPropertyChangeListener(ProofCenter.CODE_PANE_SHOW_TRACE, this);
-        proofCenter.addNotificationListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
+        proofCenter.addPropertyChangeListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
         init(showLinenumbers, foregroundColor);
     }
 
@@ -133,43 +130,39 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
                 return;
             }
             addHighlights(true);
-        }
-
-    }
-
-    @Override
-    public void handleNotification(@NonNull NotificationEvent event) {
-        assert event.isSignal(TermComponent.TERM_COMPONENT_SELECTED_TAG);
-
-        try {
-            TermComponent component = (TermComponent) event.getParameter(0);
-            Annotation history = component.getHistory();
-            LiteralProgramTerm reason = null;
-            while(history != null && reason == null) {
-                ProofNode proofNode = history.getCreatingProofNode();
-                if(proofNode == null) {
-                    break;
+        } else if (TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getPropertyName())) {
+            this.relevantProgramTerm = null;
+            try {
+                TermComponent component = (TermComponent) evt.getNewValue();
+                Annotation history = component.getHistory();
+                LiteralProgramTerm reason = null;
+                while(history != null && reason == null) {
+                    ProofNode proofNode = history.getCreatingProofNode();
+                    if(proofNode == null) {
+                        break;
+                    }
+                    RuleApplication ruleApp = proofNode.getAppliedRuleApp();
+                    String rewrite = ruleApp.getRule().getProperty("rewrite");
+                    if(rewrite != null && rewrite.equals("symbex")) {
+                        Term term = ruleApp.getSchemaVariableMapping().get("%a");
+                        reason = (LiteralProgramTerm) term;
+                    } else {
+                        history = history.getParentAnnotation();
+                    }
                 }
-                RuleApplication ruleApp = proofNode.getAppliedRuleApp();
-                String rewrite = ruleApp.getRule().getProperty("rewrite");
-                if(rewrite != null && rewrite.equals("symbex")) {
-                    Term term = ruleApp.getSchemaVariableMapping().get("%a");
-                    reason = (LiteralProgramTerm) term;
-                } else {
-                    history = history.getParentAnnotation();
-                }
+
+                this.relevantProgramTerm = reason;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-            this.relevantProgramTerm = reason;
-        } catch (Exception e) {
-            e.printStackTrace();
+            getSourceComponent().removeHighlights();
+            if (null == proofCenter.getCurrentProofNode()) {
+                return;
+            }
+            addHighlights(false);
         }
 
-        getSourceComponent().removeHighlights();
-        if (null == proofCenter.getCurrentProofNode()) {
-            return;
-        }
-        addHighlights(false);
     }
 
     private void proofNodeSelected(ProofNode node) {
